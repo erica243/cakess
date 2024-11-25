@@ -114,7 +114,7 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
     <div class="text-center mt-4">
       <!--  <button class="btn btn-primary" id="confirm" type="button" onclick="confirm_order()" <?php echo $orderStatus == 1 ? 'disabled' : '' ?>>Confirm</button>-->
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-       <!-- <button class="btn btn-success" type="button" onclick="print_receipt()">Print Receipt</button>-->
+        <button class="btn btn-success" type="button" onclick="print_receipt()">Print Receipt</button>
         <button class="btn btn-danger" type="button" id="delete_order" onclick="delete_order()">Delete Order</button>
 
          <!-- Delivery Status Dropdown -->
