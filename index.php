@@ -245,7 +245,7 @@ foreach ($query as $key => $value) {
 
   <footer class="bg-light py-5">
     <div class="container">
-      <div class="small text-center text-muted">Copyright © 2024 - M&M Cake Ordering Syste | </div>
+      <div class="small text-center text-muted">Copyright © 2024 - M&M Cake Ordering System | </div>
     </div>
   </footer>
 
