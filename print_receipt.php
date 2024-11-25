@@ -2,6 +2,11 @@
 session_start();
 include('admin/db_connect.php');
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Check if user is logged in
 if (!isset($_SESSION['login_user_id'])) {
     die("User not logged in.");
@@ -23,6 +28,11 @@ $query = "SELECT o.order_number, o.order_date, o.delivery_method, o.payment_meth
           LEFT JOIN shipping_info s ON o.id = s.id
           WHERE o.id = ?";
 $stmt = $conn->prepare($query);
+
+if (!$stmt) {
+    die("Prepare failed: " . $conn->error);
+}
+
 $stmt->bind_param("i", $order_id);
 $stmt->execute();
 $order_result = $stmt->get_result();
@@ -32,12 +42,23 @@ if ($order_result->num_rows === 0) {
 }
 $order_details = $order_result->fetch_assoc();
 
+// Debugging: Verify if shipping_amount is retrieved
+// Uncomment the line below to debug
+// var_dump($order_details);
+
+$shipping_amount = $order_details['shipping_amount']; // Ensure this is correctly assigned
+
 // Fetch products for the order
 $product_query = "SELECT p.name AS product_name, ol.qty AS quantity, p.price 
                   FROM order_list ol
                   JOIN product_list p ON ol.product_id = p.id
                   WHERE ol.order_id = ?";
 $product_stmt = $conn->prepare($product_query);
+
+if (!$product_stmt) {
+    die("Prepare failed: " . $conn->error);
+}
+
 $product_stmt->bind_param("i", $order_id);
 $product_stmt->execute();
 $product_result = $product_stmt->get_result();
@@ -52,7 +73,6 @@ while ($row = $product_result->fetch_assoc()) {
     $total_price += $row['quantity'] * $row['price'];
 }
 
-$shipping_amount = $order_details['shipping_amount'];  // Shipping amount fetched from the query
 $grand_total = $total_price + $shipping_amount; // Adding shipping amount to grand total
 
 $stmt->close();
@@ -172,11 +192,11 @@ $conn->close();
     </table>
 
     <div class="signature">
-    <div>
-        <strong>Authorized Signature</strong>
-        <br>
-        <img src="3.png" alt="Authorized Signature" style="max-width: 150px; height: auto;">
-    </div>
+        <div>
+            <strong>Authorized Signature</strong>
+            <br>
+            <img src="3.png" alt="Authorized Signature" style="max-width: 150px; height: auto;">
+        </div>
         <div>
             <strong>Date:</strong> <?php echo date('F j, Y'); ?>
         </div>

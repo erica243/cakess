@@ -1,27 +1,32 @@
 <?php
+// mark_all_read.php
 session_start();
-include 'admin/db_connect.php';
+require_once 'admin/db_connect.php';
+require_once 'notifications.php';
 
-if (!isset($_SESSION['login_user_id']) || !isset($_GET['id'])) {
-    header('Location: login.php');
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['login_user_id'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit();
 }
 
-$notificationId = $_GET['id'];
-$userId = $_SESSION['login_user_id'];
-
-// Update the notification to mark it as read
-$query = "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("ii", $notificationId, $userId);
-
-if ($stmt->execute()) {
-    // Redirect back to the notifications page after marking as read
-    header('Location: notifications.php');
-} else {
-    echo "Error marking notification as read.";
+if (!isset($_POST['notification_id'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Notification ID required']);
+    exit();
 }
 
-$stmt->close();
+$notificationSystem = new NotificationSystem($conn);
+$result = $notificationSystem->markAsRead(
+    $_POST['notification_id'],
+    $_SESSION['login_user_id']
+);
+
+if (!$result['success']) {
+    http_response_code(500);
+}
+
+echo json_encode($result);
 $conn->close();
-?>

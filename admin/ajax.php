@@ -3,8 +3,11 @@
 ob_start();
 include 'db_connect.php'; // This should define $conn for database operations
 include 'admin_class.php';
-// Include Composer's autoload
 require '../vendor/autoload.php';
+
+// Use PHPMailer namespace
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 $crud = new Action();
 
 // Check if 'action' exists in either GET or POST
@@ -190,12 +193,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['action'] == 'update_delivery
 
     // Execute the statement
     if ($stmt->execute()) {
-        // Log successful update
         error_log("Delivery status updated for order ID $orderId to '$status'.");
 
-        // Send email if status is 'confirmed'
         if ($status === 'confirmed') {
-            // Fetch the customer email and details
+            // Fetch customer details and send email
             $stmt = $conn->prepare("SELECT name, email, order_number FROM orders WHERE id = ?");
             $stmt->bind_param("i", $orderId);
             $stmt->execute();
@@ -205,26 +206,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['action'] == 'update_delivery
             $email = $order['email'];
             $orderNumber = $order['order_number'];
 
-
-
-$mail = new PHPMailer(true);
-
+            $mail = new PHPMailer(true);
 
             try {
-                // Server settings
                 $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com'; // SMTP server for Gmail
+                $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'mandmcakeorderingsystem@gmail.com'; // Your Gmail address
-                $mail->Password = 'dgld kvqo yecu wdka'; // Your App Password for Gmail
+                $mail->Username = 'mandmcakeorderingsystem@gmail.com';
+                $mail->Password = 'dgld kvqo yecu wdka';
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
-                // Sender and recipient details
                 $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
-                $mail->addAddress($email, $name); // Customer's email address
+                $mail->addAddress($email, $name);
 
-                // Email content
                 $mail->isHTML(true);
                 $mail->Subject = 'Order Confirmation';
                 $mail->Body = "
@@ -232,27 +227,22 @@ $mail = new PHPMailer(true);
                     <p>Your order (Order Number: $orderNumber) has been <strong>confirmed</strong>.</p>
                     <p>Thank you for shopping with us!</p>
                     <br>
-                    <p>Best Regards,<br>M&M Cake Ordering System</p>";
+                    <p>Best Regards,<br>Your Store Name</p>";
 
-                // Send the email
                 $mail->send();
                 error_log("Confirmation email sent to $email for order ID $orderId.");
             } catch (Exception $e) {
-                // Log failure if email couldn't be sent
                 error_log("Failed to send email: " . $mail->ErrorInfo);
                 echo json_encode(['success' => false, 'message' => "Delivery status updated, but email could not be sent. Error: {$mail->ErrorInfo}"]);
                 exit;
             }
         }
 
-        // Return success response
         echo json_encode(['success' => true, 'message' => 'Delivery status updated successfully.']);
     } else {
-        // Return error if the query fails
         echo json_encode(['success' => false, 'message' => 'Error updating delivery status: ' . $stmt->error]);
     }
 
-    // Close the statement
     $stmt->close();
 }
 if ($action == 'send_otp') {

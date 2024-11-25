@@ -156,14 +156,14 @@ $progress_percentage = ($current_index / $total_stages) * 100;
                     <div class="tracking-line-progress" style="width: <?php echo $progress_percentage . '%'; ?>"></div>
                 </div>
 
-                <div class="flex justify-between sm:justify-around relative space-x-2 sm:space-x-0 overflow-x-auto">
+                <div class="flex justify-between sm:justify-around relative space-x-2 sm:space-x-0 space-y-4 sm:space-y-0  sm:flex-row flex-col">
                     <?php 
                     foreach ($stages as $stage_key => $stage): 
                         $stage_index = array_search($stage_key, $stages_array);
                         $is_completed = $stage_index <= $current_index;
                         $is_current = $stage_key === $current_stage;
                     ?>
-                    <div class="flex flex-col items-center min-w-[80px] w-full sm:w-32">
+                    <div class="flex flex-col items-center w-full sm:w-32">
                         <div class="stage-icon rounded-full p-2 <?php echo $is_completed ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-400'; ?> <?php echo $is_current ? 'ring-4 ring-blue-200' : ''; ?>">
                             <i data-feather="<?php echo $stage['icon']; ?>" class="w-6 h-6 <?php echo $is_completed ? 'text-white' : 'text-gray-500'; ?>"></i>
                         </div>

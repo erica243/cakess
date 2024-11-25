@@ -8,13 +8,25 @@ if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {
     die("Order ID is required to leave a comment.");
 }
 
-// Fetch the `order_id` from the URL
+// Fetch the `order_id` from the URL and sanitize
 $order_id = intval($_GET['order_id']);
+
+// Check database connection
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
 
 // Query to fetch the email and order_number for the given order_id
 $stmt = $conn->prepare("SELECT order_number, email FROM orders WHERE id = ?");
+if (!$stmt) {
+    die("Failed to prepare query: " . $conn->error);
+}
+
 $stmt->bind_param("i", $order_id);
-$stmt->execute();
+if (!$stmt->execute()) {
+    die("Failed to execute query: " . $stmt->error);
+}
+
 $result = $stmt->get_result();
 $order = $result->fetch_assoc();
 
@@ -28,9 +40,11 @@ $order_number = htmlspecialchars($order['order_number']);
 $email = htmlspecialchars($order['email']);
 
 // Handle the form submission
+$message = ""; // To store success messages
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comment = htmlspecialchars($_POST['comment']);
     $uploaded_file = $_FILES['photo'] ?? null;
+    $photo_path = null;
 
     // Handle optional photo upload
     if ($uploaded_file && $uploaded_file['error'] === UPLOAD_ERR_OK) {
@@ -47,25 +61,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (move_uploaded_file($uploaded_file['tmp_name'], $target_path)) {
             $photo_path = $target_path;
         } else {
-            $photo_path = null; // Set to null if upload fails
+            $message = "Failed to upload the photo.";
         }
-    } else {
-        $photo_path = null; // No file uploaded
     }
 
     // Insert comment into the database
-    $stmt = $conn->prepare("INSERT INTO messages (order_number, email, message, photo_path) VALUES (?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO messages (order_number, email, message, image_path) VALUES (?, ?, ?, ?)");
+    if (!$stmt) {
+        die("Failed to prepare insert query: " . $conn->error);
+    }
     $stmt->bind_param("ssss", $order_number, $email, $comment, $photo_path);
-    $stmt->execute();
-
-    // Display success message
-    $message = "Comment successfully submitted!";
+    if ($stmt->execute()) {
+        $message = "Comment successfully submitted!";
+    } else {
+        $message = "Failed to submit comment: " . $stmt->error;
+    }
 }
 
 // Fetch the comments and admin replies
-$stmt = $conn->prepare("SELECT message, photo_path, admin_reply FROM messages WHERE order_number = ? ORDER BY created_at DESC");
+$stmt = $conn->prepare("SELECT message, image_path, admin_reply FROM messages WHERE order_number = ? ORDER BY created_at DESC");
+if (!$stmt) {
+    die("Failed to prepare comments query: " . $conn->error);
+}
 $stmt->bind_param("s", $order_number);
-$stmt->execute();
+if (!$stmt->execute()) {
+    die("Failed to fetch comments: " . $stmt->error);
+}
 $comments = $stmt->get_result();
 ?>
 
@@ -78,8 +99,10 @@ $comments = $stmt->get_result();
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
+    
     <div class="container mt-5">
-        <h2>Leave a Comment for Order #<?php echo $order_number; ?></h2>
+    <button onclick="history.back()" class="btn btn-secondary">Back</button>
+        <h2>Leave a Message for Order #<?php echo $order_number; ?></h2>
         <p>Email: <?php echo $email; ?></p>
         
         <?php if (!empty($message)): ?>
@@ -95,19 +118,19 @@ $comments = $stmt->get_result();
                 <label for="photo">Upload a Photo (optional):</label>
                 <input type="file" id="photo" name="photo" class="form-control-file" accept="image/*">
             </div>
-            <button type="submit" class="btn btn-success">Submit Comment</button>
+            <button type="submit" class="btn btn-success">Submit Message</button>
             <a href="index.php" class="btn btn-secondary">Cancel</a>
         </form>
 
         <!-- Display previous comments and admin replies -->
         <hr>
-        <h3>Previous Comments:</h3>
+        <h3>Previous Messages:</h3>
         <?php while ($row = $comments->fetch_assoc()): ?>
             <div class="comment-box">
                 <p><strong>You:</strong> <?php echo htmlspecialchars($row['message']); ?></p>
                 
                 <?php if (!empty($row['photo_path'])): ?>
-                    <p><strong>Photo:</strong> <img src="<?php echo htmlspecialchars($row['photo_path']); ?>" alt="Uploaded Image" style="max-width: 100px;"></p>
+                    <p><strong>Photo:</strong> <img src="<?php echo htmlspecialchars($row['image_path']); ?>" alt="Uploaded Image" style="max-width: 100px;"></p>
                 <?php endif; ?>
                 
                 <?php if (!empty($row['admin_reply'])): ?>
