@@ -40,6 +40,33 @@
     }
 </style>
 <script>
+    $('#new_account').click(function () {
+		uni_modal("Create an Account", 'signup.php?redirect=index.php?page=home')
+	})
+	$('#login-frm').submit(function (e) {
+		e.preventDefault();
+		$('#login-frm button[type="submit"]').attr('disabled', true).html('Logging in...');
+		if ($(this).find('.alert-danger').length > 0)
+			$(this).find('.alert-danger').remove();
+		$.ajax({
+			url: 'admin/ajax.php?action=login2',
+			method: 'POST',
+			data: $(this).serialize(),
+			dataType: 'json',
+			error: err => {
+				console.log(err);
+				$('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
+			},
+			success: function (resp) {
+				if (resp.status === 'success') {
+					location.href = '<?php echo isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php?page=home' ?>';
+				} else {
+					$('#login-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
+					$('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
+				}
+			}
+		});
+	});
     // Handle navigation between login and forgot password sections
     $('#forgot_password').click(function () {
         $('#login-section').hide(); // Hide login form

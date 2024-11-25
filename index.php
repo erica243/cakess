@@ -153,8 +153,8 @@ foreach ($query as $key => $value) {
             <span><span class="badge badge-danger item_count">0</span> <i class="fa fa-shopping-cart"></i> </span>Cart</a></li>
           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=about" style="font-size: 18px;">About</a></li>
           
-          <?php if(isset($_SESSION['login_user_id'])): ?>
-            <!-- Find the navigation ul in index.php and add this notification link -->
+          <?php if (isset($_SESSION['login_user_id'])): ?>
+    <li class="nav-item"><a class="nav-link" href="customer_portal.php "style="font-size: 18px;">Customer Portal</a></li>
 
     <li class="nav-item">
         <a class="nav-link js-scroll-trigger" href="notification.php" style="font-size: 18px;">
@@ -171,8 +171,8 @@ foreach ($query as $key => $value) {
 
             <li class="nav-item"><a class="nav-link js-scroll-trigger" href="my_orders.php" style="font-size: 18px;">Your Orders</a></li>
            
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="message.php" style="font-size: 18px;">Messages</a></li>
-
+          <!---  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="message.php" style="font-size: 18px;">Messages</a></li>
+--->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle js-scroll-trigger" href="#" id="navbarDropdown" style="font-size: 18px;"
                 role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -187,8 +187,8 @@ foreach ($query as $key => $value) {
             </li>
           <?php else: ?>
             <li class="nav-item"><a class="nav-link js-scroll-trigger" href="javascript:void(0)" id="login_now" style="font-size: 18px;">Login</a></li>
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="./admin" style="font-size: 18px;">Admin Login</a></li>
-          <?php endif; ?>
+          <!---  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="./admin" style="font-size: 18px;">Admin Login</a></li>
+          --> <?php endif; ?>
         </ul>
       </div>
     </div>

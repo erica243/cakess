@@ -39,7 +39,12 @@ $conn->close();
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
+    
 <div class="container mt-5">
+<div class="mt-4">
+        <button onclick="history.back()" class="btn btn-secondary">Back</button>
+    </div>
+
     <h3>Notifications</h3>
     <ul class="list-group">
         <?php if (count($notifications) > 0): ?>

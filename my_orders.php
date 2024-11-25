@@ -260,93 +260,110 @@ $result = $stmt->get_result();
         }
 
         /* Mobile Responsive Design */
-        @media (max-width: 768px) {
-            main {
-                padding: 1rem;
-                margin: 1rem;
-            }
+@media (max-width: 768px) {
+    main {
+        padding: 1rem;
+        margin: 1rem;
+    }
 
-            /* Convert table to cards */
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
+   /* Table Styles */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+}
 
-            thead tr {
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
-            }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
 
-            tr {
-                margin-bottom: 1rem;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                box-shadow: var(--card-shadow);
-                background: white;
-            }
+table th,
+table td {
+    padding: 1rem;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
 
-            td {
-                position: relative;
-                padding: 1rem 1rem 1rem 50%;
-                border: none;
-                border-bottom: 1px solid var(--border-color);
-                min-height: 2.5rem;
-            }
+/* Sticky header */
+table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensures header stays on top of the table body */
+}
 
-            td:last-child {
-                border-bottom: none;
-            }
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
 
-            td:before {
-                position: absolute;
-                left: 1rem;
-                width: 45%;
-                padding-right: 0.5rem;
-                white-space: nowrap;
-                font-weight: 600;
-                content: attr(data-label);
-            }
+    thead {
+        display: none; /* Hide table headers for mobile */
+    }
 
-            /* Form elements in mobile view */
-            form {
-                padding: 0.5rem;
-            }
+    tr {
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        background: white;
+        padding: 1rem;
+    }
 
-            textarea {
-                margin: 0.5rem 0;
-            }
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+    }
 
-            button {
-                width: 100%;
-                margin: 0.25rem 0;
-            }
+    td:last-child {
+        border-bottom: none;
+    }
 
-            .star-rating {
-                justify-content: center;
-            }
-        }
+    td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        flex: 1;
+        color: var(--primary-color);
+    }
 
-        /* Small mobile devices */
-        @media (max-width: 480px) {
-            main {
-                padding: 0.5rem;
-                margin: 0.5rem;
-            }
+    td span {
+        flex: 2;
+        text-align: right;
+    }
+}
 
-            td {
-                font-size: 0.9rem;
-                padding: 0.75rem 0.75rem 0.75rem 45%;
-            }
 
-            td:before {
-                font-size: 0.9rem;
-            }
+/* Small mobile devices */
+@media (max-width: 480px) {
+    main {
+        padding: 0.5rem;
+        margin: 0.5rem;
+    }
 
-            .star-rating label {
-                font-size: 1.25rem;
-            }
-            
-        }
+    td {
+        font-size: 0.9rem;
+        padding: 0.75rem 0.75rem 0.75rem 45%;
+    }
+
+    td:before {
+        font-size: 0.9rem;
+    }
+
+    .star-rating label {
+        font-size: 1.25rem;
+    }
+}
+}
     </style>
 </head>
 <body>
@@ -356,67 +373,83 @@ $result = $stmt->get_result();
     <main>
         <a href="index.php" class="back-button">Back to Home</a>
 
+        <div class="table-container">
         <table>
-            <thead>
-                <tr>
-                    <th>Order Number</th>
-                    <th>Order Date</th>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Delivery Method</th>
-                    <th>Payment Method</th>
-                    <th>Delivery Status</th>
-                    
-                    <th>Actions</th>
-                    <th>Rate this Product</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['order_number']); ?></td>
-                    <td><?php echo htmlspecialchars($row['order_date']); ?></td>
-                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['quantity']); ?></td>
-                    <td><?php echo htmlspecialchars($row['price']); ?></td>
-                    <td><?php echo htmlspecialchars($row['delivery_method']); ?></td>
-                    <td><?php echo htmlspecialchars($row['payment_method']); ?></td>
-                    <td><?php echo htmlspecialchars($row['delivery_status']); ?></td>
-                    <td>
-    <a href="track_order.php?order_id=<?php echo $row['id']; ?>" class="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-center">
-        Track Order
-    </a>
-</td>
-
-                    <td>
-                        <?php if (strcasecmp($row['delivery_status'], 'delivered') == 0): ?>
-                           
-                            <?php if ($row['rating'] > 0): ?>
-                                <div class="rated-message">You have already rated this product.</div>
-                            <?php else: ?>
-                                <form method="POST" action="">
-                                    <input type="hidden" name="product_id" value="<?php echo $row['product_id']; ?>">
-                                    <input type="hidden" name="order_id" value="<?php echo $row['id']; ?>">
-                                    <label for="rating">Rate:</label>
-                                    <div class="star-rating">
-                                        <input type="radio" id="star5_<?php echo $row['id']; ?>" name="rating" value="5" <?php if ($row['rating'] == 5) echo 'checked'; ?> >
-                                        <label for="star5_<?php echo $row['id']; ?>">★</label>
-                                        <input type="radio" id="star4_<?php echo $row['id']; ?>" name="rating" value="4" <?php if ($row['rating'] == 4) echo 'checked'; ?>>
-                                        <label for="star4_<?php echo $row['id']; ?>">★</label>
-                                        <input type="radio" id="star3_<?php echo $row['id']; ?>" name="rating" value="3" <?php if ($row['rating'] == 3) echo 'checked'; ?>>
-                                        <label for="star3_<?php echo $row['id']; ?>">★</label>
-                                        <input type="radio" id="star2_<?php echo $row['id']; ?>" name="rating" value="2" <?php if ($row['rating'] == 2) echo 'checked'; ?>>
-                                        <label for="star2_<?php echo $row['id']; ?>">★</label>
-                                        <input type="radio" id="star1_<?php echo $row['id']; ?>" name="rating" value="1" <?php if ($row['rating'] == 1) echo 'checked'; ?>>
-                                        <label for="star1_<?php echo $row['id']; ?>">★</label>
-                                    </div>
-                                    <textarea name="feedback" placeholder="Leave your feedback here..."></textarea><br>
-                                    <button type="submit" name="rate_product">Submit Rating</button>
-                                </form>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    </td>
+        <thead>
+            <tr>
+                <th>Order Number</th>
+                <th>Order Date</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Delivery Method</th>
+                <th>Payment Method</th>
+                <th>Delivery Status</th>
+                <th>Actions</th>
+                <th>Rate this Product</th>
+            </tr>
+        </thead>
+        <tbody>
+    <?php while ($row = $result->fetch_assoc()): ?>
+    <tr>
+        <td data-label="Order Number">
+            <span><?php echo htmlspecialchars($row['order_number']); ?></span>
+        </td>
+        <td data-label="Order Date">
+            <span><?php echo htmlspecialchars($row['order_date']); ?></span>
+        </td>
+        <td data-label="Product Name">
+            <span><?php echo htmlspecialchars($row['product_name']); ?></span>
+        </td>
+        <td data-label="Quantity">
+            <span><?php echo htmlspecialchars($row['quantity']); ?></span>
+        </td>
+        <td data-label="Price">
+            <span><?php echo htmlspecialchars($row['price']); ?></span>
+        </td>
+        <td data-label="Delivery Method">
+            <span><?php echo htmlspecialchars($row['delivery_method']); ?></span>
+        </td>
+        <td data-label="Payment Method">
+            <span><?php echo htmlspecialchars($row['payment_method']); ?></span>
+        </td>
+        <td data-label="Delivery Status">
+            <span><?php echo htmlspecialchars($row['delivery_status']); ?></span>
+        </td>
+        <td data-label="Actions">
+            <span><a href="track_order.php?order_id=<?php echo $row['id']; ?>" class="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-center">Track Order</a></span>
+        </td>
+        <td data-label="Rate this Product">
+            <span>
+                <?php if (strcasecmp($row['delivery_status'], 'delivered') == 0): ?>
+                    <?php if ($row['rating'] > 0): ?>
+                        <div class="rated-message">You have already rated this product.</div>
+                    <?php else: ?>
+                        <form method="POST" action="">
+                            <input type="hidden" name="product_id" value="<?php echo $row['product_id']; ?>">
+                            <input type="hidden" name="order_id" value="<?php echo $row['id']; ?>">
+                            <label for="rating">Rate:</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5_<?php echo $row['id']; ?>" name="rating" value="5" <?php if ($row['rating'] == 5) echo 'checked'; ?>>
+                                <label for="star5_<?php echo $row['id']; ?>">★</label>
+                                <input type="radio" id="star4_<?php echo $row['id']; ?>" name="rating" value="4" <?php if ($row['rating'] == 4) echo 'checked'; ?>>
+                                <label for="star4_<?php echo $row['id']; ?>">★</label>
+                                <input type="radio" id="star3_<?php echo $row['id']; ?>" name="rating" value="3" <?php if ($row['rating'] == 3) echo 'checked'; ?>>
+                                <label for="star3_<?php echo $row['id']; ?>">★</label>
+                                <input type="radio" id="star2_<?php echo $row['id']; ?>" name="rating" value="2" <?php if ($row['rating'] == 2) echo 'checked'; ?>>
+                                <label for="star2_<?php echo $row['id']; ?>">★</label>
+                                <input type="radio" id="star1_<?php echo $row['id']; ?>" name="rating" value="1" <?php if ($row['rating'] == 1) echo 'checked'; ?>>
+                                <label for="star1_<?php echo $row['id']; ?>">★</label>
+                            </div>
+                            <textarea name="feedback" placeholder="Leave your feedback here..."></textarea><br>
+                            <button type="submit" name="rate_product">Submit Rating</button>
+                        </form>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </span>
+        </td>
+        
+        </td>
                     <td>
     <?php if (strcasecmp($row['delivery_status'], 'delivered') == 0): ?>
         <button class="print-button" onclick="printReceipt(<?php echo $row['id']; ?>)">Print Receipt</button>
@@ -447,38 +480,13 @@ $result = $stmt->get_result();
     </main>
 
     <script>
-    function printReceipt(orderNumber) {
-        const receiptContent = `
-            <div style="text-align: center; font-family: Arial, sans-serif; line-height: 1.5;">
-                <h1 style="margin-bottom: 20px;">M&M Cake Ordering</h1>
-                <h3 style="margin-bottom: 20px;">Official Receipt</h3>
-                <p><strong>Order Number:</strong> ${orderNumber}</p>
-                <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-                <hr style="margin: 20px 0;">
-                <p>Thank you for shopping with us!</p>
-                <p>If you have any questions, feel free to contact us.</p>
-                <hr style="margin: 20px 0;">
-                <p style="font-size: 14px;">This receipt is auto-generated and valid for reference.</p>
-            </div>
-        `;
 
-        const printWindow = window.open('', '_blank', 'width=800,height=600');
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Receipt</title>
-            </head>
-            <body onload="window.print();" style="padding: 20px;">
-                ${receiptContent}
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-    }
-</script>
+function printReceipt(orderId) {
+    // Open a new window and redirect to print_receipt.php with the orderId
+    window.open('print_receipt.php?order_id=' + orderId, '_blank', 'width=800,height=600');
+}
+
+    </script>
 
     <footer>
         <p>&copy; 2024 Cake Ordering System</p>
