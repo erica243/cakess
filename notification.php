@@ -6,7 +6,7 @@ include 'admin/db_connect.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Check if user is logged in
+// Validate session
 if (!isset($_SESSION['login_user_id'])) {
     header('Location: login.php');
     exit();
@@ -14,75 +14,69 @@ if (!isset($_SESSION['login_user_id'])) {
 
 $userId = $_SESSION['login_user_id'];
 
-// Function to get user notifications
-function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
-    $query = "
-        SELECT 
-            n.id,
-            n.message,
-            n.created_at,
-            n.type,
-            n.is_read,
-            o.delivery_status,
-            o.order_number,
-            CASE 
-                WHEN n.type = 'admin_reply' THEN m.admin_reply
-                ELSE NULL 
-            END as reply_content
-        FROM notifications n
-        LEFT JOIN orders o ON n.order_id = o.id
-        LEFT JOIN messages m ON o.order_number = m.order_number 
-            AND m.user_id = n.user_id
-        WHERE n.user_id = ?
-        ORDER BY n.created_at DESC
-        LIMIT ? OFFSET ?
-    ";
-    
+// Pagination parameters
+$limit = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Helper function for SQL queries
+function fetchQuery($conn, $query, $types, ...$params) {
     $stmt = $conn->prepare($query);
     if (!$stmt) {
-        die("Query preparation failed: " . $conn->error);
+        error_log("Query preparation failed: " . $conn->error);
+        return false;
     }
-    
-    $stmt->bind_param("iii", $userId, $limit, $offset);
+    $stmt->bind_param($types, ...$params);
     if (!$stmt->execute()) {
-        die("Query execution failed: " . $stmt->error);
+        error_log("Query execution failed: " . $stmt->error);
+        return false;
     }
-    
     $result = $stmt->get_result();
-    $notifications = [];
-    while ($row = $result->fetch_assoc()) {
-        $notifications[] = $row;
-    }
-    
+    $data = $result->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
-    return $notifications;
+    return $data;
 }
-// Get total notification count
+
+// Fetch notifications
+$notificationsQuery = "
+    SELECT 
+        n.id, n.message, n.created_at, n.type, n.is_read,
+        o.delivery_status, o.order_number,
+        CASE 
+            WHEN n.type = 'admin_reply' THEN m.admin_reply
+            ELSE NULL 
+        END as reply_content
+    FROM notifications n
+    LEFT JOIN orders o ON n.order_id = o.id
+    LEFT JOIN messages m ON o.order_number = m.order_number AND m.user_id = n.user_id
+    WHERE n.user_id = ?
+    ORDER BY n.created_at DESC
+    LIMIT ? OFFSET ?
+";
+$notifications = fetchQuery($conn, $notificationsQuery, "iii", $userId, $limit, $offset);
+
+// Get total count for pagination
 $countQuery = "SELECT COUNT(*) as total FROM notifications WHERE user_id = ?";
-$stmt = $conn->prepare($countQuery);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$totalCount = $stmt->get_result()->fetch_assoc()['total'];
-
-// Pagination
-$limit = 10;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$offset = ($page - 1) * $limit;
+$totalCountResult = fetchQuery($conn, $countQuery, "i", $userId);
+$totalCount = $totalCountResult[0]['total'] ?? 0;
 $totalPages = ceil($totalCount / $limit);
-
-// Get notifications for current page
-$notifications = getUserNotifications($conn, $userId, $limit, $offset);
 
 // Get unread count
 $unreadQuery = "SELECT COUNT(*) as unread FROM notifications WHERE user_id = ? AND is_read = 0";
-$stmt = $conn->prepare($unreadQuery);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$unreadCount = $stmt->get_result()->fetch_assoc()['unread'];
+$unreadCountResult = fetchQuery($conn, $unreadQuery, "i", $userId);
+$unreadCount = $unreadCountResult[0]['unread'] ?? 0;
 
-$stmt->close();
+// Close connection
 $conn->close();
+
+$request = $_SERVER['REQUEST_URI'];
+if (substr($request, -4) == '.php'){
+    $new_url = substr($request, 0, -4);
+    header("Location: $new_url", true, 301);
+    exit();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
