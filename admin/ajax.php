@@ -347,4 +347,38 @@ if($action == "update_order_status") {
     if($update)
         echo 1;
 }
+
+if ($_POST['action'] === 'login2') {
+    // Get the reCAPTCHA response
+    $recaptchaResponse = $_POST['recaptcha_response'];
+    $secretKey = '6LdR3YsqAAAAAISrvgCFgyy3k9M1xxtksGxite-a';
+
+    // Verify reCAPTCHA with Google API
+    $verifyResponse = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse);
+    $responseData = json_decode($verifyResponse);
+
+    if (!$responseData->success) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid reCAPTCHA. Please try again.']);
+        exit;
+    }
+
+    // Proceed with the login logic if reCAPTCHA is valid
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // Your existing login validation logic
+    // Example:
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND password = ?");
+    $stmt->bind_param("ss", $email, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $_SESSION['login'] = true;
+        echo json_encode(['status' => 'success']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid email or password.']);
+    }
+    exit;
+}
 ?>
