@@ -170,7 +170,6 @@ $conn->close();
     <p class="mb-1 text-muted">
         <small><em>"<?php echo htmlspecialchars($notification['reply_content']); ?>"</em></small>
     </p>
-<?php endif; ?>
 
                                 <?php elseif ($notification['type'] == 'delivery_status'): ?>
                                     <i class="fas fa-truck text-success"></i>
