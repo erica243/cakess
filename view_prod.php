@@ -103,7 +103,7 @@ function display_star_rating($rating) {
                 <div class="input-group col-md-7">
                     <div class="input-group-prepend">
                         <button class="btn btn-outline-secondary" type="button" id="qty-minus"><span class="fa fa-minus"></span></button>
-                    </div>
+                    </div>Z
                     <input type="number" readonly value="1" min="1" class="form-control text-center" name="qty">
                     <div class="input-group-append">
                         <button class="btn btn-outline-dark" type="button" id="qty-plus"><span class="fa fa-plus"></span></button>
