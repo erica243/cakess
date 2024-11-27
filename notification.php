@@ -25,14 +25,10 @@ function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
             n.is_read,
             o.delivery_status,
             o.order_number,
-            CASE 
-                WHEN n.type = 'admin_reply' THEN m.admin_reply
-                ELSE NULL 
-            END as reply_content
+            m.admin_reply AS reply_content
         FROM notifications n
         LEFT JOIN orders o ON n.order_id = o.id
         LEFT JOIN messages m ON o.order_number = m.order_number 
-            AND m.user_id = n.user_id
         WHERE n.user_id = ?
         ORDER BY n.created_at DESC
         LIMIT ? OFFSET ?
@@ -57,6 +53,7 @@ function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
     $stmt->close();
     return $notifications;
 }
+
 // Get total notification count
 $countQuery = "SELECT COUNT(*) as total FROM notifications WHERE user_id = ?";
 $stmt = $conn->prepare($countQuery);
@@ -168,8 +165,14 @@ $conn->close();
                          data-type="<?php echo htmlspecialchars($notification['type']); ?>">
                         <div class="d-flex w-100 justify-content-between">
                             <h6 class="mb-1">
-                                <?php if ($notification['type'] == 'admin_reply'): ?>
-                                    <i class="fas fa-reply text-info"></i>
+                                <!---<?php if ($notification['type'] == 'admin_reply'): ?>
+                                    <i class="fas fa-reply text-info"></i>-->
+                                    <?php if ($notification['type'] == 'admin_reply' && !empty($notification['reply_content'])): ?>
+    <p class="mb-1 text-muted">
+        <small><em>"<?php echo htmlspecialchars($notification['reply_content']); ?>"</em></small>
+    </p>
+<?php endif; ?>
+
                                 <?php elseif ($notification['type'] == 'delivery_status'): ?>
                                     <i class="fas fa-truck text-success"></i>
                                 <?php endif; ?>
