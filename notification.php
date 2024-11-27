@@ -69,7 +69,7 @@ $unreadCount = $unreadCountResult[0]['unread'] ?? 0;
 // Close connection
 $conn->close();
 
-$request = $_SERVER['REQUEST_URI'];
+$request = $_SERVER['REQUEST_URl'];
 if (substr($request, -4) == '.php'){
     $new_url = substr($request, 0, -4);
     header("Location: $new_url", true, 301);
