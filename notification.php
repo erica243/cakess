@@ -6,7 +6,7 @@ include 'admin/db_connect.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Validate session
+// Check if user is logged in
 if (!isset($_SESSION['login_user_id'])) {
     header('Location: login.php');
     exit();
@@ -14,67 +14,73 @@ if (!isset($_SESSION['login_user_id'])) {
 
 $userId = $_SESSION['login_user_id'];
 
-// Pagination parameters
-$limit = 10;
-$page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
-$offset = ($page - 1) * $limit;
-
-// Helper function for SQL queries
-function fetchQuery($conn, $query, $types, ...$params) {
+// Function to get user notifications
+function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
+    $query = "
+        SELECT 
+            n.id,
+            n.message,
+            n.created_at,
+            n.type,
+            n.is_read,
+            o.delivery_status,
+            o.order_number,
+            CASE 
+                WHEN n.type = 'admin_reply' THEN m.admin_reply
+                ELSE NULL 
+            END as reply_content
+        FROM notifications n
+        LEFT JOIN orders o ON n.order_id = o.id
+        LEFT JOIN messages m ON o.order_number = m.order_number 
+            AND m.user_id = n.user_id
+        WHERE n.user_id = ?
+        ORDER BY n.created_at DESC
+        LIMIT ? OFFSET ?
+    ";
+    
     $stmt = $conn->prepare($query);
     if (!$stmt) {
-        error_log("Query preparation failed: " . $conn->error);
-        return false;
+        die("Query preparation failed: " . $conn->error);
     }
-    $stmt->bind_param($types, ...$params);
+    
+    $stmt->bind_param("iii", $userId, $limit, $offset);
     if (!$stmt->execute()) {
-        error_log("Query execution failed: " . $stmt->error);
-        return false;
+        die("Query execution failed: " . $stmt->error);
     }
+    
     $result = $stmt->get_result();
-    $data = $result->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-    return $data;
-}
-
-// Fetch notifications with replies
-$notificationsQuery = "
-    SELECT 
-        n.id, n.message, n.created_at, n.type, n.is_read,
-        o.delivery_status, o.order_number
-    FROM notifications n
-    LEFT JOIN orders o ON n.order_id = o.id
-    WHERE n.user_id = ?
-    ORDER BY n.created_at DESC
-    LIMIT ? OFFSET ?
-";
-$notifications = fetchQuery($conn, $notificationsQuery, "iii", $userId, $limit, $offset);
-
-// Fetch replies for each notification
-foreach ($notifications as &$notification) {
-    if ($notification['type'] == 'admin_reply') {
-        $repliesQuery = "
-            SELECT admin_reply, created_at
-            FROM messages
-            WHERE order_number = ? AND user_id = ?
-        ";
-        $replies = fetchQuery($conn, $repliesQuery, "ii", $notification['order_number'], $userId);
-        $notification['replies'] = $replies;
+    $notifications = [];
+    while ($row = $result->fetch_assoc()) {
+        $notifications[] = $row;
     }
+    
+    $stmt->close();
+    return $notifications;
 }
-
-// Get total count for pagination
+// Get total notification count
 $countQuery = "SELECT COUNT(*) as total FROM notifications WHERE user_id = ?";
-$totalCountResult = fetchQuery($conn, $countQuery, "i", $userId);
-$totalCount = $totalCountResult[0]['total'] ?? 0;
+$stmt = $conn->prepare($countQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$totalCount = $stmt->get_result()->fetch_assoc()['total'];
+
+// Pagination
+$limit = 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
 $totalPages = ceil($totalCount / $limit);
+
+// Get notifications for current page
+$notifications = getUserNotifications($conn, $userId, $limit, $offset);
 
 // Get unread count
 $unreadQuery = "SELECT COUNT(*) as unread FROM notifications WHERE user_id = ? AND is_read = 0";
-$unreadCountResult = fetchQuery($conn, $unreadQuery, "i", $userId);
-$unreadCount = $unreadCountResult[0]['unread'] ?? 0;
+$stmt = $conn->prepare($unreadQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$unreadCount = $stmt->get_result()->fetch_assoc()['unread'];
 
-// Close connection
+$stmt->close();
 $conn->close();
 ?>
 
@@ -111,6 +117,13 @@ $conn->close();
         }
         .pagination {
             margin-bottom: 2rem;
+        }
+        #loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
@@ -167,13 +180,10 @@ $conn->close();
                             <?php endif; ?>
                         </div>
 
-                        <?php if ($notification['type'] == 'admin_reply' && !empty($notification['replies'])): ?>
-                            <?php foreach ($notification['replies'] as $reply): ?>
-                                <p class="mb-1 text-muted">
-                                    <small><em>"<?php echo htmlspecialchars($reply['admin_reply']); ?>"</em></small><br>
-                                    <small class="text-muted"><?php echo date('M j, Y g:i A', strtotime($reply['created_at'])); ?></small>
-                                </p>
-                            <?php endforeach; ?>
+                        <?php if ($notification['type'] == 'admin_reply' && !empty($notification['reply_content'])): ?>
+                            <p class="mb-1 text-muted">
+                                <small><em>"<?php echo htmlspecialchars($notification['reply_content']); ?>"</em></small>
+                            </p>
                         <?php endif; ?>
 
                         <div class="notification-actions mt-2">
@@ -181,7 +191,8 @@ $conn->close();
                                 <i class="far fa-clock"></i>
                                 <?php echo date('M j, Y g:i A', strtotime($notification['created_at'])); ?>
                             </small>
-                             <?php if (!$notification['is_read']): ?>
+                            
+                            <?php if (!$notification['is_read']): ?>
                                 <button class="btn btn-sm btn-outline-primary mark-read" 
                                         data-id="<?php echo $notification['id']; ?>">
                                     <i class="fas fa-check"></i> Mark as Read
@@ -205,7 +216,7 @@ $conn->close();
                         <a class="page-link" href="?page=<?php echo $page-1; ?>">Previous</a>
                     </li>
                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
+                        <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
                             <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                         </li>
                     <?php endfor; ?>
@@ -215,9 +226,7 @@ $conn->close();
                 </ul>
             </nav>
         <?php endif; ?>
-
     </div>
-
 
     <!-- Loading Spinner -->
     <div id="loading-spinner" class="text-center">
@@ -233,43 +242,39 @@ $conn->close();
     
     <script>
         $(document).ready(function() {
-            // Mark notification as read
-        document.querySelectorAll('.mark-read').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const notificationId = this.getAttribute('data-id');
-                // AJAX to mark as read
-                fetch('mark_notification_as_read.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id: notificationId })
+            // Mark single notification as read
+            $('.mark-read').click(function() {
+                const btn = $(this);
+                const notificationId = btn.data('id');
+                
+                $.post('mark_as_read.php', {
+                    notification_id: notificationId
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        this.closest('.notification-item').classList.remove('unread');
-                        this.closest('.notification-item').querySelector('.badge-notification').remove();
-                    }
+                .done(function(response) {
+                    btn.closest('.notification-item').removeClass('unread');
+                    btn.closest('.notification-actions').find('.mark-read').remove();
+                    updateUnreadCount();
+                })
+                .fail(function(xhr, status, error) {
+                    alert('Error marking notification as read');
                 });
             });
-        });
-        
-        // Mark all as read
-        document.getElementById('markAllRead')?.addEventListener('click', function() {
-            fetch('mark_all_notifications_as_read.php', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelectorAll('.notification-item.unread').forEach(function(item) {
-                        item.classList.remove('unread');
-                        item.querySelector('.badge-notification').remove();
-                    });
-                }
+
+            // Mark all as read
+            $('#markAllRead').click(function() {
+                $.post('mark_all_read.php', {
+                    user_id: <?php echo $userId; ?>
+                })
+                .done(function(response) {
+                    $('.notification-item').removeClass('unread');
+                    $('.mark-read').remove();
+                    updateUnreadCount();
+                    $('#markAllRead').hide();
+                })
+                .fail(function(xhr, status, error) {
+                    alert('Error marking all notifications as read');
+                });
             });
-        });
 
             // Filter notifications
             $('[data-filter]').click(function() {
