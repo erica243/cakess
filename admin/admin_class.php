@@ -44,7 +44,7 @@ Class Action {
     
         // Set max attempts and lockout time (in seconds)
         $max_attempts = 5;
-        $lockout_time = 1; // 15 minutes
+        $lockout_time = 180; // 15 minutes
     
         // If the max attempts are reached, check if lockout time has passed
         if ($_SESSION['failed_attempts'] >= $max_attempts) {
