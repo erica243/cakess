@@ -16,3 +16,7 @@ RewriteRule ^ - [F,L]
   Satisfy all
 </Files>
  
+ RewriteEngine On RewriteCond % 
+ {REQUEST_FILENAME} !-d
+ RewriteCond % {REQUEST_FILENAME} !-F
+ RewriteRule ^(.*)$ $1.php [L]
