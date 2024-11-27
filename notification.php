@@ -15,46 +15,7 @@ if (!isset($_SESSION['login_user_id'])) {
 $userId = $_SESSION['login_user_id'];
 
 // Function to get user notifications
-function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
-    $query = "
-        SELECT 
-            n.id,
-            n.message,
-            n.created_at,
-            n.type,
-            n.is_read,
-            o.delivery_status,
-            o.order_number,
-            m.admin_reply AS reply_content
-        FROM notifications n
-        LEFT JOIN orders o ON n.order_id = o.id
-        LEFT JOIN messages m ON o.order_number = m.order_number 
-            AND m.user_id = n.user_id
-        WHERE n.user_id = ?
-        ORDER BY n.created_at DESC
-        LIMIT ? OFFSET ?
-    ";
-    
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        die("Query preparation failed: " . $conn->error);
-    }
-    
-    $stmt->bind_param("iii", $userId, $limit, $offset);
-    if (!$stmt->execute()) {
-        die("Query execution failed: " . $stmt->error);
-    }
-    
-    $result = $stmt->get_result();
-    $notifications = [];
-    while ($row = $result->fetch_assoc()) {
-        $notifications[] = $row;
-    }
-    
-    $stmt->close();
-    return $notifications;
-}
-
+zz
 // Get total notification count
 $countQuery = "SELECT COUNT(*) as total FROM notifications WHERE user_id = ?";
 $stmt = $conn->prepare($countQuery);
@@ -166,11 +127,8 @@ $conn->close();
                          data-type="<?php echo htmlspecialchars($notification['type']); ?>">
                         <div class="d-flex w-100 justify-content-between">
                             <h6 class="mb-1">
-                                <?php if ($notification['type'] == 'admin_reply' && !empty($notification['reply_content'])): ?>
-    <p class="mb-1 text-muted">
-        <small><em>"<?php echo htmlspecialchars($notification['reply_content']); ?>"</em></small>
-    </p>
-
+                                <?php if ($notification['type'] == 'admin_reply'): ?>
+                                    <i class="fas fa-reply text-info"></i>
                                 <?php elseif ($notification['type'] == 'delivery_status'): ?>
                                     <i class="fas fa-truck text-success"></i>
                                 <?php endif; ?>
