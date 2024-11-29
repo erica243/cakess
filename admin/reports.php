@@ -5,9 +5,10 @@ include 'db_connect.php'; // Include your database connection
 $from_date = isset($_POST['from_date']) ? $_POST['from_date'] : '';
 $to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
 
-// Adjusted query to only include confirmed orders (status = 1 and delivery_status = 'Confirmed') and date range if provided
+// Adjusted query to include shipping_amount and calculate total
 $query = "
-    SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, o.order_number, o.payment_method, p.price
+    SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, 
+           o.order_number, o.payment_method, p.price, s.shipping_amount
     FROM orders o
     JOIN order_list ol ON o.id = ol.order_id
     JOIN product_list p ON ol.product_id = p.id
@@ -68,7 +69,12 @@ $result = $stmt->get_result();
                         <td><?php echo htmlspecialchars($row['order_number']); ?></td>
                         <td><?php echo htmlspecialchars($row['payment_method']); ?></td>
                         <td><?php echo htmlspecialchars($row['qty']); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($row['qty'] * $row['price'], 2)); ?></td>
+                        <td>
+                            <?php 
+                                $total = ($row['qty'] * $row['price']) + $row['shipping_amount'];
+                                echo htmlspecialchars(number_format($total, 2)); 
+                            ?>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -85,7 +91,6 @@ $conn->close();
 </div>
 
 <script>
-    
 function printReport() {
     var printContents = document.getElementById('order-report-table').outerHTML;
     var originalContents = document.body.innerHTML;
