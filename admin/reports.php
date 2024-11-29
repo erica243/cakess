@@ -6,7 +6,7 @@ $from_date = isset($_POST['from_date']) ? $_POST['from_date'] : '';
 $to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
 
 // Adjusted query to only include confirmed orders (status = 1 and delivery_status = 'Confirmed') and date range if provided
-$$query = "
+$query = "
 SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, o.order_number, o.payment_method, p.price
 FROM orders o
 JOIN order_list ol ON o.id = ol.order_id
