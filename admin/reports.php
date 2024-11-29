@@ -6,17 +6,29 @@ $from_date = isset($_POST['from_date']) ? $_POST['from_date'] : '';
 $to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
 
 // Adjusted query to only include confirmed orders (status = 1 and delivery_status = 'Confirmed') and date range if provided
-$query = "
-    SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, o.order_number, o.payment_method, p.price
-    FROM orders o
-    JOIN order_list ol ON o.id = ol.order_id
-    JOIN product_list p ON ol.product_id = p.id
-    WHERE o.delivery_status = 'Confirmed , prepring , ready , in_transit, delivered'
+$$query = "
+SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, o.order_number, o.payment_method, p.price
+FROM orders o
+JOIN order_list ol ON o.id = ol.order_id
+JOIN product_list p ON ol.product_id = p.id
+WHERE o.delivery_status IN ('Confirmed', 'preparing', 'ready', 'in_transit', 'delivered')
 ";
 
+$params = [];
 if ($from_date && $to_date) {
-    $query .= " AND o.order_date BETWEEN '$from_date' AND '$to_date'";
+$query .= " AND o.order_date BETWEEN ? AND ?";
+$params[] = $from_date;
+$params[] = $to_date;
 }
+
+$query .= " ORDER BY o.order_date DESC";
+
+$stmt = $conn->prepare($query);
+if (!empty($params)) {
+$stmt->bind_param(str_repeat('s', count($params)), ...$params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
 
 $query .= " ORDER BY o.order_date DESC";
 
