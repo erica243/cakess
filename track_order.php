@@ -99,6 +99,9 @@ $progress_percentage = ($current_index / $total_stages) * 100;
     <link href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
         .tracking-line {
             position: absolute;
             top: 24px;
@@ -119,9 +122,93 @@ $progress_percentage = ($current_index / $total_stages) * 100;
             z-index: 1;
             background-color: white;
         }
+
+        .stage-icon:hover {
+            background-color: #3B82F6;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tracking-line-progress {
+            animation: progressBar 1s ease-out forwards;
+        }
+
+        @keyframes progressBar {
+            from {
+                width: 0;
+            }
+            to {
+                width: <?php echo $progress_percentage . '%'; ?>;
+            }
+        }
+
+        .order-info p,
+        .tracking-notes p {
+            line-height: 1.5;
+        }
+
+        .stage-title {
+            font-size: 1rem;
+            color: #2d3748;
+        }
+
+        .stage-description {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .stage-icon i {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .stage-icon.completed i {
+            color: white;
+        }
+        
+        .tracking-line-progress {
+            transition: width 0.5s ease-in-out;
+        }
+
+        .tracking-line-progress[data-progress="100%"] {
+            background-color: #34D399; /* Delivered - green */
+        }
+
+        .text-white {
+            --tw-text-opacity: 1;
+            color: #444a57;
+        }
+
+        @media (max-width: 640px) {
+            .tracking-line {
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .tracking-line-progress {
+                height: 4px;
+            }
+
+            .tracking-line-progress[data-progress="100%"] {
+                background-color: #34D399; /* Delivered - green */
+            }
+
+            .flex-col {
+                flex-direction: column;
+            }
+
+            .stage-icon {
+                margin-bottom: 1rem;
+            }
+
+            .order-info,
+            .delivery-info {
+                margin-bottom: 1.5rem;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <div class="mb-6">
             <a href="my_orders.php" class="text-blue-600 hover:text-blue-800 flex items-center">
@@ -130,44 +217,43 @@ $progress_percentage = ($current_index / $total_stages) * 100;
             </a>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6">
-            <h1 class="text-xl sm:text-2xl font-bold mb-4">Order #<?php echo htmlspecialchars($order['order_number']); ?></h1>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
-                <div>
-                    <h2 class="text-gray-600 font-semibold mb-2">Order Information</h2>
-                    <p><span class="font-semibold">Ordered:</span> <?php echo htmlspecialchars($order['formatted_order_date']); ?></p>
-                    <p><span class="font-semibold">Last Updated:</span> <?php echo htmlspecialchars($order['last_update']); ?></p>
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold text-center text-gray-900 mb-4">Track Order #<?php echo htmlspecialchars($order['order_number']); ?></h1>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div class="order-info">
+                    <h2 class="text-gray-600 font-semibold mb-4">Order Information</h2>
+                    <p><strong>Ordered:</strong> <?php echo htmlspecialchars($order['formatted_order_date']); ?></p>
+                    <p><strong>Last Updated:</strong> <?php echo htmlspecialchars($order['last_update']); ?></p>
                     <?php if ($order['estimated_delivery']): ?>
-                        <p><span class="font-semibold">Estimated Delivery:</span> <?php echo htmlspecialchars($order['delivery_date']); ?></p>
+                        <p><strong>Estimated Delivery:</strong> <?php echo htmlspecialchars($order['delivery_date']); ?></p>
                     <?php endif; ?>
                 </div>
                 
-                <div>
-                    <h2 class="text-gray-600 font-semibold mb-2">Delivery Details</h2>
-                    <p><span class="font-semibold">Delivery Method:</span> <?php echo htmlspecialchars($order['delivery_method']); ?></p>
-                    <p><span class="font-semibold">Address:</span> <?php echo htmlspecialchars($order['address']); ?></p>
-                    <p><span class="font-semibold">Contact:</span> <?php echo htmlspecialchars($order['mobile']); ?></p>
+                <div class="delivery-info">
+                    <h2 class="text-gray-600 font-semibold mb-4">Delivery Details</h2>
+                    <p><strong>Delivery Method:</strong> <?php echo htmlspecialchars($order['delivery_method']); ?></p>
+                    <p><strong>Address:</strong> <?php echo htmlspecialchars($order['address']); ?></p>
+                    <p><strong>Contact:</strong> <?php echo htmlspecialchars($order['mobile']); ?></p>
                 </div>
             </div>
 
-            <div class="relative mb-6">
+            <div class="relative mb-8">
                 <div class="tracking-line">
-                    <div class="tracking-line-progress" style="width: <?php echo $progress_percentage . '%'; ?>"></div>
+                    <div class="tracking-line-progress" data-progress="<?php echo $progress_percentage; ?>" style="width: <?php echo $progress_percentage . '%'; ?>"></div>
                 </div>
 
-                <div class="flex justify-between sm:justify-around relative space-x-2 sm:space-x-0 space-y-4 sm:space-y-0  sm:flex-row flex-col">
-                    <?php 
-                    foreach ($stages as $stage_key => $stage): 
+                <div class="flex flex-wrap justify-between relative space-y-6 sm:space-y-0 sm:flex-row sm:space-x-4">
+                    <?php foreach ($stages as $stage_key => $stage): 
                         $stage_index = array_search($stage_key, $stages_array);
                         $is_completed = $stage_index <= $current_index;
                         $is_current = $stage_key === $current_stage;
                     ?>
                     <div class="flex flex-col items-center w-full sm:w-32">
-                        <div class="stage-icon rounded-full p-2 <?php echo $is_completed ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-400'; ?> <?php echo $is_current ? 'ring-4 ring-blue-200' : ''; ?>">
-                            <i data-feather="<?php echo $stage['icon']; ?>" class="w-6 h-6 <?php echo $is_completed ? 'text-white' : 'text-gray-500'; ?>"></i>
+                        <div class="stage-icon rounded-full p-3 <?php echo $is_completed ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'; ?> <?php echo $is_current ? 'ring-4 ring-blue-300' : ''; ?>">
+                            <i data-feather="<?php echo $stage['icon']; ?>" class="w-8 h-8"></i>
                         </div>
-                        <div class="text-center mt-2">
+                        <div class="text-center mt-4">
                             <p class="font-semibold text-sm <?php echo $is_completed ? 'text-blue-600' : 'text-gray-400'; ?>"><?php echo htmlspecialchars($stage['title']); ?></p>
                             <p class="text-xs text-gray-500 mt-1"><?php echo htmlspecialchars($stage['description']); ?></p>
                         </div>
@@ -177,8 +263,8 @@ $progress_percentage = ($current_index / $total_stages) * 100;
             </div>
 
             <?php if ($order['tracking_notes']): ?>
-            <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
-                <h2 class="text-gray-600 font-semibold mb-2">Tracking Notes</h2>
+            <div class="tracking-notes bg-gray-50 rounded-lg p-6">
+                <h2 class="text-gray-600 font-semibold mb-4">Tracking Notes</h2>
                 <p class="text-gray-700"><?php echo nl2br(htmlspecialchars($order['tracking_notes'])); ?></p>
             </div>
             <?php endif; ?>
