@@ -8,10 +8,11 @@ $to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
 // Adjusted query to include shipping_amount and calculate total
 $query = "
     SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, 
-           o.order_number, o.payment_method, p.price, s.shipping_amount
+           o.order_number, o.payment_method, p.price, si.shipping_amount
     FROM orders o
     JOIN order_list ol ON o.id = ol.order_id
     JOIN product_list p ON ol.product_id = p.id
+    JOIN shipping_info si ON o.id = si.order_id
     WHERE o.delivery_status IN ('Confirmed', 'prepring', 'ready', 'in_transit', 'delivered')
 ";
 
