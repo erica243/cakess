@@ -25,7 +25,6 @@ if ($from_date && $to_date) {
 
 $query .= " ORDER BY o.order_date DESC";
 
-
 $stmt = $conn->prepare($query);
 if (!empty($params)) {
     $stmt->bind_param(str_repeat('s', count($params)), ...$params);
