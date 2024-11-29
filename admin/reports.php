@@ -11,7 +11,7 @@ $query = "
     FROM orders o
     JOIN order_list ol ON o.id = ol.order_id
     JOIN product_list p ON ol.product_id = p.id
-    WHERE o.delivery_status = 'Confirmed'
+    WHERE o.delivery_status = 'Confirmed , prepring , ready , in_transit, delivered'
 ";
 
 if ($from_date && $to_date) {
