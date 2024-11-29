@@ -5,32 +5,23 @@ include 'db_connect.php'; // Include your database connection
 $from_date = isset($_POST['from_date']) ? $_POST['from_date'] : '';
 $to_date = isset($_POST['to_date']) ? $_POST['to_date'] : '';
 
-// Adjusted query to include shipping_amount and calculate total
+// Adjusted query to include confirmed orders (status = 1 and delivery_status = 'Confirmed') and date range if provided
 $query = "
-    SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, 
-           o.order_number, o.payment_method, p.price, si.shipping_amount
+    SELECT o.order_date, ol.qty, ol.order_id, p.name AS product_name, o.order_number, o.payment_method, p.price, s.shipping_amount
     FROM orders o
     JOIN order_list ol ON o.id = ol.order_id
     JOIN product_list p ON ol.product_id = p.id
-    JOIN shipping_info si ON o.id = si.order_id
-    WHERE o.delivery_status IN ('Confirmed', 'prepring', 'ready', 'in_transit', 'delivered')
+    LEFT JOIN shipping_info s ON o.address = s.address  -- Join based on shipping address
+    WHERE o.delivery_status IN ('Confirmed', 'preparing', 'ready', 'in_transit', 'delivered')
 ";
 
-$params = [];
 if ($from_date && $to_date) {
-    $query .= " AND o.order_date BETWEEN ? AND ?";
-    $params[] = $from_date;
-    $params[] = $to_date;
+    $query .= " AND o.order_date BETWEEN '$from_date' AND '$to_date'";
 }
 
 $query .= " ORDER BY o.order_date DESC";
 
-$stmt = $conn->prepare($query);
-if (!empty($params)) {
-    $stmt->bind_param(str_repeat('s', count($params)), ...$params);
-}
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query($query);
 ?>
 
 <div class="container-fluid">
@@ -58,23 +49,27 @@ $result = $stmt->get_result();
                     <th>Transaction ID</th>
                     <th>Mode of Payment</th>
                     <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Shipping Amount</th>
                     <th>Total Amount</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = $result->fetch_assoc()): ?>
+                    <?php
+                    // Calculate total amount (price * quantity + shipping amount)
+                    $shipping_amount = $row['shipping_amount'] ?? 0; // Handle null shipping amount
+                    $total_amount = ($row['qty'] * $row['price']) + $shipping_amount;
+                    ?>
                     <tr>
                         <td><?php echo date('m-d-Y', strtotime($row['order_date'])); ?></td>
                         <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                         <td><?php echo htmlspecialchars($row['order_number']); ?></td>
                         <td><?php echo htmlspecialchars($row['payment_method']); ?></td>
                         <td><?php echo htmlspecialchars($row['qty']); ?></td>
-                        <td>
-                            <?php 
-                                $total = ($row['qty'] * $row['price']) + $row['shipping_amount'];
-                                echo htmlspecialchars(number_format($total, 2)); 
-                            ?>
-                        </td>
+                        <td><?php echo htmlspecialchars(number_format($row['price'], 2)); ?></td>
+                        <td><?php echo htmlspecialchars(number_format($shipping_amount, 2)); ?></td>
+                        <td><?php echo htmlspecialchars(number_format($total_amount, 2)); ?></td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -87,9 +82,6 @@ $result = $stmt->get_result();
 <?php
 $conn->close();
 ?>
-</div>
-</div>
-
 <script>
 function printReport() {
     var printContents = document.getElementById('order-report-table').outerHTML;
