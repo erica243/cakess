@@ -241,7 +241,7 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
     var receiptWindow = window.open('', '', 'height=800,width=600,location=no');
 
     // Logo and signature image URLs
-    var logoUrl = '1.jpg'; // Replace with the actual logo URL
+    var logoUrl = 'assets/img/logo.jpg'; // Replace with the actual logo URL
     var signatureUrl = '3.png'; // Corrected signature URL
 
     var orderNumber = '<?php echo $order["order_number"]; ?>';
