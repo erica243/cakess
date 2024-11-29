@@ -108,7 +108,7 @@ if ($result->num_rows > 0) {
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel = "icon" href="assets/img/1.jpg"  type = ".///image/x-icon">
+    <link rel = "icon" href="assets/img/3.png"  type = ".///image/x-icon">
     <style>
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {
