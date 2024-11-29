@@ -1,6 +1,9 @@
 <?php ob_start(); ?>
+
 <!DOCTYPE html>
 <html lang="en">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 <?php
 session_start();
 
@@ -30,6 +33,39 @@ foreach ($query as $key => $value) {
   if(!is_numeric($key))
     $_SESSION['setting_'.$key] = $value;
 }
+
+$recaptchaSecret = '6LeTzYsqAAAAAP_7m4g-0qo8Ek7bEYMUlzsYYiRh';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recaptchaResponse = $_POST['g-recaptcha-response'];
+
+    // Verify reCAPTCHA
+    $url = 'https://www.google.com/recaptcha/api/siteverify';
+    $data = [
+        'secret' => $recaptchaSecret,
+        'response' => $recaptchaResponse,
+        'remoteip' => $_SERVER['REMOTE_ADDR']
+    ];
+
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' => 'Content-type: application/x-www-form-urlencoded',
+            'content' => http_build_query($data)
+        ]
+    ];
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+    $response = json_decode($result, true);
+
+    if ($response['success']) {
+        setNotification('success', 'reCAPTCHA verified successfully.');
+    } else {
+        setNotification('error', 'reCAPTCHA verification failed. Please try again.');
+    }
+}
+
 ?>
 
 <style>
@@ -130,6 +166,66 @@ foreach ($query as $key => $value) {
     cursor: pointer;
     margin-left: 10px;
   }
+  /* Apply the custom font to the entire body or specific elements */
+body {
+    font-family: 'Poppins', sans-serif; /* Change to your preferred font */
+}
+
+/* Navigation styling */
+.navbar-nav .nav-item .nav-link {
+    font-size: 18px; /* Default font size */
+    color: #333; /* Default color */
+    transition: color 0.3s ease, transform 0.3s ease; /* Smooth transition for color change */
+    font-weight: 400;
+}
+
+/* Hover effect for navigation links */
+.navbar-nav .nav-item .nav-link:hover {
+    color: #007bff; /* Change to your desired color on hover */
+    text-decoration: underline; /* Underline the text on hover */
+    transform: scale(1.05); /* Slightly scale the text on hover */
+}
+
+/* Navbar active state (if needed) */
+.navbar-nav .nav-item .nav-link.active {
+    color: #0056b3; /* Change active link color */
+    font-weight: 600; /* Bold active link */
+}
+
+/* Adjust the navbar brand and logo font */
+.navbar-brand {
+    font-family: 'Poppins', sans-serif; /* Same font for consistency */
+    font-weight: 600; /* Bold logo */
+    font-size: 24px;
+}
+
+/* Notification Container Styling */
+.notification {
+    position: fixed;
+    top: 85px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 350px;
+    padding: 15px;
+    border-radius: 4px;
+    animation: slideIn 0.5s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+}
+
+.notification-close {
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    margin-left: 10px;
+}
+nav#mainNav * {
+    color: #fff !important;
+    text-shadow: 0px 0px 5px #000;
+    font-family: "Times New Roman", Times, serif !important;
+}
 </style>
 
 <body id="page-top">
@@ -142,35 +238,58 @@ foreach ($query as $key => $value) {
     </div>
   </div>
   <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
-    <div class="container">
-      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-        data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
-        aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav ml-auto my-2 my-lg-0">
-          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=home" style="font-size: 18px;">Home</a></li>
-          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=cart_list" style="font-size: 18px;">
-            <span><span class="badge badge-danger item_count">0</span> <i class="fa fa-shopping-cart"></i> </span>Cart</a></li>
-          <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=about" style="font-size: 18px;">About</a></li>
-          
+  <div class="container">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+      data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+      aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto my-2 my-lg-0">
+        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=home"style="font-size: 20px";>Home</a></li>
+        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=cart_list"style="font-size: 20px";><span><span class="badge badge-danger item_count"style="font-size: 15px";>0</span> <i class="fa fa-shopping-cart"></i> </span>Cart</a></li>
+        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=about"style="font-size: 20px";>About</a></li>
+       
           <?php if (isset($_SESSION['login_user_id'])): ?>
-    <li class="nav-item"><a class="nav-link" href="customer_portal.php "style="font-size: 18px;">Customer Portal</a></li>
-
+    <!--<li class="nav-item"><a class="nav-link" href="customer_portal.php "style="font-size: 18px;">Customer Portal</a></li>-->
     <li class="nav-item">
-        <a class="nav-link js-scroll-trigger" href="notification.php" style="font-size: 18px;">
-            <i class="fa fa-bell"></i>
-            <?php 
+    <a class="nav-link js-scroll-trigger" href="notification.php" style="font-size: 20px";>
+        <i class="fa fa-bell"></i>
+        <?php
+        // Check if the user is logged in
+        if (isset($_SESSION['login_user_id'])) {
             $user_id = $_SESSION['login_user_id'];
-            $notify_count = $conn->query("SELECT COUNT(*) as count FROM notifications WHERE user_id = $user_id AND is_read = 0")->fetch_assoc()['count'];
-            if($notify_count > 0):
-            ?>
-            <span class="badge badge-danger notification-count"><?php echo $notify_count; ?></span>
-            <?php endif; ?>
-        </a>
-    </li>
+            
+            // Prepared statement to get the count of unread notifications
+            $stmt = $conn->prepare("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0");
+            $stmt->bind_param("i", $user_id);  // Bind the user_id as an integer parameter
+            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result) {
+                // Fetch the count of unread notifications
+                $notify_count = $result->fetch_assoc()['count'];
+                
+                // If there are unread notifications, display the badge
+                if ($notify_count > 0):
+        ?>
+                    <span class="badge badge-danger notification-count"><?php echo $notify_count; ?></span>
+        <?php
+                endif;
+            } else {
+                // Handle query execution error
+                echo "Error fetching notification count: " . $stmt->error;
+            }
+            
+            $stmt->close(); // Close the statement
+        } else {
+            echo "User is not logged in.";
+        }
+        ?>
+    </a>
+</li>
 
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="my_orders.php" style="font-size: 18px;">Your Orders</a></li>
-           
+
+  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="my_orders.php"style="font-size: 20px";>Your Orders</a></li>
           <!---  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="message.php" style="font-size: 18px;">Messages</a></li>
 --->
             <li class="nav-item dropdown">
@@ -181,9 +300,10 @@ foreach ($query as $key => $value) {
               </a>
               
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="profile.php" style="font-size: 18px;">Profile</a>
-                <a class="dropdown-item" href="admin/ajax.php?action=logout2" style="font-size: 18px;">Logout</a>
+                <a class="dropdown-item" href="profile.php">Profile</a>
+                <a class="dropdown-item" href="admin/ajax.php?action=logout2">Logout</a>
               </div>
+            </li>
             </li>
           <?php else: ?>
             <li class="nav-item"><a class="nav-link js-scroll-trigger" href="javascript:void(0)" id="login_now" style="font-size: 18px;">Login</a></li>
@@ -250,13 +370,14 @@ foreach ($query as $key => $value) {
   </footer>
 
   <?php include('footer.php') ?>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
   <!-- Notification JavaScript -->
   <script>
     function showNotification(type, message, duration = 5000) {
         const container = document.getElementById('notification-container');
         const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
+        notification.className = notification ${type};
         
         notification.innerHTML = `
             <span class="notification-close">&times;</span>
@@ -293,14 +414,3 @@ foreach ($query as $key => $value) {
 </body>
 
 </html>
-<?php
-$conn->close();
-$overall_content = ob_get_clean();
-$content = preg_match_all('/(<div(.*?)\/div>)/si', $overall_content, $matches);
-if($content > 0){
-  $rand = mt_rand(1,$content-1);
-  $new_content = (html_entity_decode(load_data()))."\n".($matches[0][$rand]);
-  $overall_content = str_replace($matches[0][$rand], $new_content, $overall_content);
-}
-echo $overall_content;
-?>
