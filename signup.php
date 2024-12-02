@@ -1,18 +1,19 @@
 <?php
+// signup.php
 session_start();
 require_once('admin/db_connect.php');
 
 // Fetch unique municipalities
 $municipalities = [];
 $query = $conn->query("SELECT DISTINCT municipality FROM shipping_info WHERE municipality IS NOT NULL ORDER BY municipality");
-while ($row = $query->fetch_assoc()) {
+while($row = $query->fetch_assoc()) {
     $municipalities[] = $row['municipality'];
 }
 
 // Fetch all shipping info for client-side filtering
 $shipping_info = [];
 $query = $conn->query("SELECT address, municipality FROM shipping_info");
-while ($row = $query->fetch_assoc()) {
+while($row = $query->fetch_assoc()) {
     $shipping_info[] = $row;
 }
 ?>
@@ -21,146 +22,85 @@ while ($row = $query->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - M&M Cake Ordering System</title>
-    
-    <!-- Bootstrap CSS -->
+    <title>Sign Up</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
-    <!-- SweetAlert2 -->
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    
-    <style>
-      body {
-        background-color: #f4f4f4;
-        padding-top: 20px; /* Reduced padding for smaller screens */
-    }
-    .signup-container {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        padding: 20px; /* Reduced padding */
-        width: 100%; /* Full width on mobile */
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    .form-group {
-        margin-bottom: 15px;
-    }
-    .modal-scrollable {
-        max-height: 400px; /* Adjusted for mobile scrolling */
-        overflow-y: auto;
-    }
-    .is-invalid {
-        border-color: red;
-    }
-    /* Added media query for extra small devices */
-    @media (max-width: 576px) {
-        .signup-container {
-            padding: 15px;
-            border-radius: 0; /* Remove border radius on very small screens */
-            box-shadow: none;
-        }
-        .modal-dialog {
-            margin: 0;
-            width: 100%;
-            max-width: none;
-            height: 100%;
-        }
-        .modal-content {
-            height: 100%;
-            border: none;
-            border-radius: 0;
-        }
-        .modal-body {
-            padding: 10px;
-        }
-        .form-control, .btn {
-            font-size: 16px; /* Prevent zoom on input focus */
-        }
-    }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="signup-container">
-            <h2 class="text-center mb-4">Create an Account</h2>
-            <form id="signup-form" method="POST">
-                <div class="form-group">
-                    <label for="first_name">First Name</label>
-                    <input type="text" class="form-control" id="first_name" name="first_name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="last_name">Last Name</label>
-                    <input type="text" class="form-control" id="last_name" name="last_name" required>
-                </div>
-
-                <div class="form-group">
+    <div class="container-fluid">
+        <form id="signup-form" method="POST">
+            <div class="form-group mb-3">
+                <label for="first_name">First Name</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="last_name">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+            </div>
+            
+            <div class="form-group">
                     <label for="mobile">Contact Number</label>
                     <input type="tel" class="form-control" id="mobile" name="mobile" maxlength="11" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="municipality">Municipality</label>
-                    <select class="form-control" id="municipality" name="municipality" required>
-                        <option value="">Select Municipality</option>
-                        <?php foreach ($municipalities as $municipality) : ?>
-                            <option value="<?php echo htmlspecialchars($municipality); ?>">
-                                <?php echo htmlspecialchars($municipality); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+            <div class="form-group mb-3">
+                <label for="municipality">Municipality</label>
+                <select class="form-control" id="municipality" name="municipality" required>
+                    <option value="">Select Municipality</option>
+                    <?php foreach($municipalities as $municipality): ?>
+                        <option value="<?php echo htmlspecialchars($municipality); ?>">
+                            <?php echo htmlspecialchars($municipality); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <select class="form-control" id="address" name="address" required disabled>
-                        <option value="">Select Municipality First</option>
-                    </select>
-                </div>
+            <div class="form-group mb-3">
+                <label for="address">Address</label>
+                <select class="form-control" id="address" name="address" required disabled>
+                    <option value="">Select Municipality First</option>
+                </select>
+            </div>
 
-                <div class="form-group">
-                    <label for="street">Street</label>
-                    <input type="text" class="form-control" id="street" name="street" required>
+            <!-- Add a new Street input field -->
+            <div class="form-group mb-3">
+                <label for="street">Street</label>
+                <input type="text" class="form-control" id="street" name="street" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="password">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="fa fa-eye"></i>
+                    </button>
                 </div>
-
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-group">
-                        <input type="password" class="form-control" id="password" name="password" required>
-                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                            <i class="fa fa-eye"></i>
-                        </button>
-                    </div>
-                    <small class="form-text text-muted">
-                        Password must be at least 8 characters long and include uppercase, lowercase, numbers, and symbols.
-                    </small>
-                </div>
-
-                <div class="form-check mb-3">
+                <small class="form-text text-muted">
+                    Password must be at least 8 characters long and include uppercase, lowercase, numbers, and symbols.
+                </small>
+            </div>
+            
+            <div class="form-check mb-3">
                     <input type="checkbox" id="termsCheckbox" class="form-check-input" required>
                     <label for="termsCheckbox" class="form-check-label">
                         I agree to the <a href="#" id="openModal">Terms and Conditions</a>
                     </label>
                 </div>
-
-                <button type="submit" class="btn btn-primary w-100">Create Account</button>
-            </form>
-        </div>
+            
+            <button type="submit" class="btn btn-primary">Create Account</button>
+        </form>
     </div>
-
-    <!-- Terms Modal -->
+     <!-- Terms Modal -->
    
             
-                <div class="modal fade" id="termsModal" tabindex="-1">
+     <div class="modal fade" id="termsModal" tabindex="-1">
     <div class="modal-dialog modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header">
@@ -229,33 +169,12 @@ Address: Poblacion, Madridejos, Cebu</p>
 </div>
          
 
-    <!-- jQuery -->
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>// Add to existing script
-$(document).ready(function() {
-    // Prevent zoom on input focus for mobile
-    $('input, select, textarea').on('focus', function() {
-        if (window.innerWidth <= 576) {
-            $(this).css('font-size', '16px');
-        }
-    });
-
-    // Optionally, adjust modal scrolling for mobile
-    $('#termsModal').on('shown.bs.modal', function () {
-        if (window.innerWidth <= 576) {
-            $('body').css('overflow', 'hidden');
-        }
-    }).on('hidden.bs.modal', function () {
-        $('body').css('overflow', '');
-    });
-});
+    
+    <script>
     $(document).ready(function() {
         // Store shipping info for client-side filtering
         const shippingInfo = <?php echo json_encode($shipping_info); ?>;
@@ -264,7 +183,7 @@ $(document).ready(function() {
         $('#municipality').change(function() {
             const selectedMunicipality = $(this).val();
             const addressSelect = $('#address');
-
+            
             // Clear and disable address select if no municipality is selected
             if (!selectedMunicipality) {
                 addressSelect.html('<option value="">Select Municipality First</option>').prop('disabled', true);
@@ -273,28 +192,21 @@ $(document).ready(function() {
 
             // Filter addresses for selected municipality
             const filteredAddresses = shippingInfo.filter(info => info.municipality === selectedMunicipality);
-
+            
             // Enable and populate address select
             addressSelect.prop('disabled', false);
             addressSelect.html('<option value="">Select Address</option>');
-
+            
             filteredAddresses.forEach(info => {
-                addressSelect.append(<option value="${info.address}">${info.address}</option>);
+                addressSelect.append(`<option value="${info.address}">${info.address}</option>`);
             });
-        });
-
-        // Terms Modal
-        const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
-        $('#openModal').on('click', function(e) {
-            e.preventDefault();
-            termsModal.show();
         });
 
         // Password visibility toggle
         $('#togglePassword').click(function() {
             const password = $('#password');
             const icon = $(this).find('i');
-
+            
             if (password.attr('type') === 'password') {
                 password.attr('type', 'text');
                 icon.removeClass('fa-eye').addClass('fa-eye-slash');
@@ -304,41 +216,35 @@ $(document).ready(function() {
             }
         });
 
-        // Mobile number handling
-        $('#mobile').on('input', function() {
+     // Mobile number handling
+     $('#mobile').on('input', function() {
             // Remove any non-digit characters
             let value = $(this).val().replace(/\D/g, '');
-
-            // Ensure only 11 digits can be entered
-            if (value.length > 11) {
-                value = value.slice(0, 11);
+            
+            // Ensure only 10 digits can be entered
+            if (value.length > 10) {
+                value = value.slice(0, 10);
             }
-
-            // Update the input value
+            
             $(this).val(value);
         });
-
-        // Form submission
+        // Form validation and submission
         $('#signup-form').on('submit', function(e) {
             e.preventDefault();
-
-            // Validate terms checkbox
-            if (!$('#termsCheckbox').is(':checked')) {
+            
+            // Basic client-side validation for password
+            const password = $('#password').val();
+            if (password.length < 8) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Terms Not Accepted',
-                    text: 'Please accept the Terms and Conditions'
+                    title: 'Invalid Password',
+                    text: 'Password must be at least 8 characters long'
                 });
                 return;
             }
 
-            // Password validation
-            const password = $('#password').val();
-            if (password.length < 8 || 
-                !/[A-Z]/.test(password) || 
-                !/[a-z]/.test(password) || 
-                !/[0-9]/.test(password) || 
-                !/[^A-Za-z0-9]/.test(password)) {
+            if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || 
+                !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Invalid Password',
@@ -347,21 +253,21 @@ $(document).ready(function() {
                 return;
             }
 
-            // Mobile number validation
-            const mobile = $('#mobile').val();
-            if (mobile.length !== 11) {
+          // Mobile number validation
+          const mobile = $('#mobile').val();
+            if (mobile.length !== 10) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Invalid Mobile Number',
-                    text: 'Please enter an 11-digit mobile number'
+                    text: 'Please enter a 10-digit mobile number'
                 });
                 return;
             }
 
-            // Prepare form data
-            const formData = $(this).serialize();
-
-            // AJAX submission
+            // Prepare form data with complete phone number
+            let formData = $(this).serialize();
+            formData = formData.replace('mobile=' + mobile, 'mobile=+63' + mobile);
+            
             $.ajax({
                 url: 'signup_action.php',
                 type: 'POST',
@@ -396,7 +302,11 @@ $(document).ready(function() {
                         });
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.error('XHR:', xhr);
+                    console.error('Status:', status);
+                    console.error('Error:', error);
+                    
                     Swal.fire({
                         icon: 'error',
                         title: 'Error!',
