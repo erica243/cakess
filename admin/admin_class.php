@@ -18,7 +18,7 @@ Class Action {
 
     function login() {
         extract($_POST);
-        $qry = $this->db->query("SELECT * FROM `users` WHERE username = '".$username."'");
+        $qry = $this->db->query("SELECT * FROM users WHERE username = '".$username."'");
         if($qry->num_rows > 0) {
             $result = $qry->fetch_array();
             $is_verified = password_verify($password, $result['password']);
@@ -43,8 +43,8 @@ Class Action {
         }
     
         // Set max attempts and lockout time (in seconds)
-        $max_attempts = 5;
-        $lockout_time = 180; // 15 minutes
+        $max_attempts = 3;
+        $lockout_time = 10; // 15 minutes
     
         // If the max attempts are reached, check if lockout time has passed
         if ($_SESSION['failed_attempts'] >= $max_attempts) {
@@ -116,10 +116,10 @@ Class Action {
     function save_user() {
         extract($_POST);
         $password = password_hash($password, PASSWORD_DEFAULT);
-        $data = " `name` = '$name' ";
-        $data .= ", `username` = '$username' ";
-        $data .= ", `password` = '$password' ";
-        $data .= ", `type` = '$type' ";
+        $data = " name = '$name' ";
+        $data .= ", username = '$username' ";
+        $data .= ", password = '$password' ";
+        $data .= ", type = '$type' ";
         if(empty($id)) {
             $save = $this->db->query("INSERT INTO users SET ".$data);
         } else {
@@ -130,26 +130,31 @@ Class Action {
         }
     }
 
-    function signup() {
-        extract($_POST);
-        $password = password_hash($password, PASSWORD_DEFAULT);
-        $data = " first_name = '$first_name' ";
-        $data .= ", last_name = '$last_name' ";
-        $data .= ", mobile = '$mobile' ";
-        $data .= ", address = '$address' ";
-        $data .= ", email = '$email' ";
-        $data .= ", password = '$password' ";
-        $chk = $this->db->query("SELECT * FROM user_info WHERE email = '$email'")->num_rows;
-        if($chk > 0) {
-            return 2;
-            exit;
-        }
-        $save = $this->db->query("INSERT INTO user_info SET ".$data);
-        if($save) {
-            $login = $this->login2();
-            return 1;
-        }
+   function signup() {
+    extract($_POST); // Extract POST variables, including 'street'
+    $password = password_hash($password, PASSWORD_DEFAULT); // Hash the password
+    $data = " first_name = '$first_name' ";
+    $data .= ", last_name = '$last_name' ";
+    $data .= ", mobile = '$mobile' ";
+    $data .= ", address = '$address' ";
+    $data .= ", street = '$street' "; // Add the street to the query
+    $data .= ", email = '$email' ";
+    $data .= ", password = '$password' ";
+
+    // Check if the email is already in use
+    $chk = $this->db->query("SELECT * FROM user_info WHERE email = '$email'")->num_rows;
+    if($chk > 0) {
+        return 2; // Email already exists
+        exit;
     }
+
+    // Insert the new user record
+    $save = $this->db->query("INSERT INTO user_info SET ".$data);
+    if($save) {
+        $login = $this->login2(); // Optional: Automatically log in the user after signup
+        return 1; // Signup successful
+    }
+}
 
     function save_settings() {
         extract($_POST);
@@ -297,6 +302,7 @@ Class Action {
             echo "Error: Cart item not found.";
         }
     }
+    
 
     function add_to_cart() {
         extract($_POST);
@@ -379,6 +385,7 @@ Class Action {
     }
     
 
+   
     function update_cart_qty() {
         extract($_POST);
         
@@ -446,6 +453,7 @@ Class Action {
         }
     
         // Use mysqli_real_escape_string to escape all inputs
+        $user_id = $_SESSION['login_user_id']; // Fetch logged-in user's ID
         $order_number = rand(1000, 9999); // Example random order number
         $order_date = date('Y-m-d H:i:s'); // Current date and time
         $delivery_method = isset($_POST['order_type']) ? $this->db->real_escape_string($_POST['order_type']) : 'Delivery'; // Default to delivery
@@ -480,9 +488,9 @@ Class Action {
             }
         }
     
-        // Include ref_no in the SQL insert statement
-        $sql = "INSERT INTO orders (order_number, order_date, delivery_method, name, address, mobile, email, payment_method, transaction_id, ref_no, pickup_date, pickup_time, payment_proof) VALUES ('$order_number', '$order_date', '$delivery_method', '$first_name $last_name', '$address', '$mobile', '$email', '$payment_method', '$transaction_id', '$ref_no', '$pickup_date', '$pickup_time', '$payment_proof_path')";
-    
+        $sql = "INSERT INTO orders (user_id, order_number, order_date, delivery_method, name, address, mobile, email, payment_method, transaction_id, ref_no, pickup_date, pickup_time, payment_proof) 
+            VALUES ('$user_id', '$order_number', '$order_date', '$delivery_method', '$first_name $last_name', '$address', '$mobile', '$email', '$payment_method', '$transaction_id', '$ref_no', '$pickup_date', '$pickup_time', '$payment_proof_path')";
+
         // Execute query
         $save = $this->db->query($sql);
         if (!$save) {
@@ -511,7 +519,6 @@ Class Action {
         }
         return 1; // Indicate success
     }
-    
     function confirm_order() {
         extract($_POST);
         $date = date("m-d-Y H:i:s");
@@ -659,7 +666,7 @@ function reset_password() {
     $password = $_POST['password'];
 
     // Validate password (e.g., minimum length)
-    if (strlen($password) < 8) {
+    if (strlen($password) < 😎 {
         return json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters long']);
     }
 

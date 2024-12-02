@@ -347,5 +347,4 @@ if($action == "update_order_status") {
     if($update)
         echo 1;
 }
-
 ?>
