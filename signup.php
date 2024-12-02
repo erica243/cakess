@@ -39,14 +39,10 @@ while($row = $query->fetch_assoc()) {
                 <input type="text" class="form-control" id="last_name" name="last_name" required>
             </div>
             
-            <div class="form-group mb-3">
-                <label for="mobile">Contact</label>
-                <div class="input-group">
-                    <span class="input-group-text">+63</span>
-                    <input type="tel" class="form-control" id="mobile" name="mobile" maxlength="10" required>
+            <div class="form-group">
+                    <label for="mobile">Contact Number</label>
+                    <input type="tel" class="form-control" id="mobile" name="mobile" maxlength="11" required>
                 </div>
-                <small class="form-text text-muted">Enter 10-digit mobile number</small>
-            </div>
 
             <div class="form-group mb-3">
                 <label for="municipality">Municipality</label>
@@ -91,16 +87,83 @@ while($row = $query->fetch_assoc()) {
                 </small>
             </div>
             
-            <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="terms" required>
-                <label class="form-check-label" for="terms">
-                    I agree to the Terms and Conditions
-                </label>
-            </div>
+           
             
             <button type="submit" class="btn btn-primary">Create Account</button>
         </form>
     </div>
+     <!-- Terms Modal -->
+   
+            
+     <div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <p>Welcome to the M&M Cake Ordering System! By using our website and services, you agree to the following terms and conditions. Please read them carefully.</p>
+
+<h5>1. Acceptance of Terms</h5>
+<p>By placing an order through our M&M Cake Ordering System, you agree to be bound by these terms and conditions. Please read them carefully before proceeding with your order.</p>
+
+<h5>2. Ordering Process</h5>
+<p>Customers are responsible for providing accurate and complete information, including contact details, delivery address, and cake specifications.</p>
+<p>  Orders will be confirmed via email after payment is received (if payment method is G- Cash).</p>
+
+<h5>3. User Accounts</h5>
+<p>To place an order, you may need to create an account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. Please notify us immediately of any unauthorized use of your account.</p>
+
+<h5>4. Payment Terms</h5>
+<p>All orders must be paid in full at the time of placing the order unless otherwise agreed.</p>
+<p>Accepted payment methods include [Cash , Gcash].</p>
+<p>Prices are subject to change without notice but will not affect orders already confirmed.</p>
+<p>Payment must be made at the time of order placement. We accept various payment methods, including credit/debit cards and other specified options.</p>
+
+<h5>5. Delivery and Pickup</h5>
+<p>Delivery options and fees will be provided during the checkout process. We will make every effort to deliver your order on time; however, we are not responsible for delays caused by circumstances beyond our control.</p>
+               <p> Customers opting for pickup must arrive at the scheduled time to avoid delays.</p>
+<p>Delivery is available within Local areas for an additional fee depending on the distance of area.</p>
+<p>We are not responsible for damages to cakes once they have been picked up or delivered successfully.</p>
+<h5>6. No Cancellations</h5>
+<p>Orders can only be canceled if the delivery status has not been confirmed. Once the delivery status is confirmed, cancellations and refunds will no longer be accepted.</p>
+
+<h5>7. Refunds</h5>
+<p>Refunds will be issued at our discretion and only in cases where an error has occurred on our part. Please contact us for further assistance if you believe you are eligible for a refund.</p>
+
+<h5>8.Customization</h5>
+<p>Customization requests (e.g., specific designs, colors, or additional toppings) must be submitted at the time of ordering.
+While we will make every effort to match designs and colors, slight variations may occur due to the handmade nature of our cakes.</p>
+
+
+<h5>9.Allergies and Dietary Restrictions</h5>
+<p>Our cakes may contain or come into contact with allergens such as nuts, dairy, eggs, gluten, and soy.</p>
+<p>It is the customer’s responsibility to inform us of any allergies or dietary restrictions at the time of ordering.</p>
+<p>While we take precautions to minimize cross-contamination, we cannot guarantee a completely allergen-free product.</p>
+<h5>10. Liability</h5>
+<p>We are not liable for delays caused by circumstances beyond our control (e.g., adverse weather, transportation issues).</p>
+<p> In the rare event of an issue with your order, please contact us within  1-2 hours before of pickup/delivery for resolution.</p>
+<h5>11. Changes to Terms</h5>
+<p>We reserve the right to update or modify these terms and conditions at any time. Any changes will be communicated via our website or directly to customers with active orders.
+</p>
+
+<h5>12. Contact Us</h5>
+<p>If you have any questions about these Terms and Conditions, please contact us at:</p>
+<p><strong>M&M Cake Ordering System</strong><br>
+Phone: 09158259643<br>
+Email: mandmcakeorderingsystem@gmail.com<br>
+Address: Poblacion, Madridejos, Cebu</p>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+         
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
