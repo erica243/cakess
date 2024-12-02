@@ -335,13 +335,13 @@ if($action == "update_order_status") {
     
     // Create notification based on status
     if($status == 1) {
-        createNotification($user_id, $order_id, "Your order #" . $order['ref_no'] . " has been confirmed!");
+        createNotification($user_id, $order_id, "Your order #" . $order['order_number'] . " has been confirmed!");
     } elseif($status == 2) {
-        createNotification($user_id, $order_id, "Your order #" . $order['ref_no'] . " is being prepared!");
+        createNotification($user_id, $order_id, "Your order #" . $order['order_number'] . " is being prepared!");
     } elseif($status == 3) {
-        createNotification($user_id, $order_id, "Your order #" . $order['ref_no'] . " is ready for pickup/delivery!");
+        createNotification($user_id, $order_id, "Your order #" . $order['order_number'] . " is ready for pickup/delivery!");
     } elseif($status == 4) {
-        createNotification($user_id, $order_id, "Your order #" . $order['ref_no'] . " has been delivered!");
+        createNotification($user_id, $order_id, "Your order #" . $order['order_number'] . " has been delivered!");
     }
     
     if($update)
