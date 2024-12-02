@@ -117,7 +117,7 @@ while ($row = $query->fetch_assoc()) {
 
                 <div class="form-group">
                     <label for="address">Address</label>
-                    <select class="form-control" id="address" name="address" required disabled>
+                    <select class="form-control" id="address" name="address" >
                         <option value="">Select Municipality First</option>
                     </select>
                 </div>
