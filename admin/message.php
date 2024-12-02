@@ -121,7 +121,7 @@ $messages = $stmt->get_result();
                             }
 
                             // Now construct the full image path correctly
-                            $full_image_path = "../uploads/" . $photo _path;
+                            $full_image_path = "../uploads/" . $photo_path;
                             
                             // Check if file exists and is readable
                             if (file_exists($full_image_path)) {
