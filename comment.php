@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insert comment into the database
-    $stmt = $conn->prepare("INSERT INTO messages (order_number, email, message, image_path) VALUES (?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO messages (order_number, email, message, photo_path) VALUES (?, ?, ?, ?)");
     if (!$stmt) {
         die("Failed to prepare insert query: " . $conn->error);
     }
