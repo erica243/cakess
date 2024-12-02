@@ -275,7 +275,7 @@ $(document).ready(function() {
             const filteredAddresses = shippingInfo.filter(info => info.municipality === selectedMunicipality);
 
             // Enable and populate address select
-            addressSelect.prop('disabled', false);
+          
             addressSelect.html('<option value="">Select Address</option>');
 
             filteredAddresses.forEach(info => {
