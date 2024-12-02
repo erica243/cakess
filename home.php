@@ -59,13 +59,13 @@ $page_btn_count = ceil($all_menu / $limit);
             margin-top: 20px;
         }
         .step-item {
-            text-align: center;
             color: white;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideIn 0.5s forwards;
-            margin: 0 15px;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    text-align: center;
+}
         .step-item h4 {
             font-size: 2rem;
             margin-top: 10px;

@@ -18,26 +18,25 @@ $userId = $_SESSION['login_user_id'];
 function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
     $query = "
         SELECT 
-            n.id,
+            n.user_id,
             n.message,
             n.created_at,
             n.type,
             n.is_read,
-            o.delivery_status,
-            o.order_number,
+            n.order_number,
+    
             CASE 
                 WHEN n.type = 'admin_reply' THEN m.admin_reply
                 ELSE NULL 
             END as reply_content
         FROM notifications n
-        LEFT JOIN orders o ON n.order_id = o.id
-        LEFT JOIN messages m ON o.order_number = m.order_number 
+        LEFT JOIN messages m ON n.order_number = m.order_number
             AND m.user_id = n.user_id
-        WHERE n.user_id = ?
+        WHERE n.user_id = ? 
         ORDER BY n.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT ? OFFSET ? 
     ";
-    
+
     $stmt = $conn->prepare($query);
     if (!$stmt) {
         die("Query preparation failed: " . $conn->error);
@@ -57,6 +56,7 @@ function getUserNotifications($conn, $userId, $limit = 10, $offset = 0) {
     $stmt->close();
     return $notifications;
 }
+
 // Get total notification count
 $countQuery = "SELECT COUNT(*) as total FROM notifications WHERE user_id = ?";
 $stmt = $conn->prepare($countQuery);
@@ -152,53 +152,51 @@ $conn->close();
         </div>
 
         <!-- Filters -->
-        <div class="mb-3">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-secondary active" data-filter="all">All</button>
-                <button type="button" class="btn btn-outline-secondary" data-filter="admin_reply">Admin Replies</button>
-                <button type="button" class="btn btn-outline-secondary" data-filter="delivery_status">Delivery Updates</button>
-            </div>
-        </div>
+      <!-- Filters -->
+<div class="mb-3">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary active" data-filter="all">All</button>
+        <button type="button" class="btn btn-outline-secondary" data-filter="admin_reply">Admin Replies</button>
+        <button type="button" class="btn btn-outline-secondary" data-filter="delivery_status">Delivery Updates</button> <!-- New Button -->
+    </div>
+</div>
 
-        <!-- Notifications List -->
+        
         <div class="list-group" id="notificationsList">
             <?php if (count($notifications) > 0): ?>
                 <?php foreach ($notifications as $notification): ?>
                     <div class="list-group-item notification-item <?php echo !$notification['is_read'] ? 'unread' : ''; ?>" 
-                         data-type="<?php echo htmlspecialchars($notification['type']); ?>">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">
-                                <?php if ($notification['type'] == 'admin_reply'): ?>
-                                    <i class="fas fa-reply text-info"></i>
-                                <?php elseif ($notification['type'] == 'delivery_status'): ?>
-                                    <i class="fas fa-truck text-success"></i>
-                                <?php endif; ?>
-                                <?php echo htmlspecialchars($notification['message']); ?>
-                            </h6>
-                            <?php if (!$notification['is_read']): ?>
-                                <span class="badge badge-primary badge-notification">New</span>
-                            <?php endif; ?>
-                        </div>
+    data-type="<?php echo htmlspecialchars($notification['type']); ?>">
 
-                        <?php if ($notification['type'] == 'admin_reply' && !empty($notification['reply_content'])): ?>
-                            <p class="mb-1 text-muted">
-                                <small><em>"<?php echo htmlspecialchars($notification['reply_content']); ?>"</em></small>
-                            </p>
-                        <?php endif; ?>
+    <div class="d-flex w-100 justify-content-between">
+        <h6 class="mb-1">
+            <?php if ($notification['type'] === 'admin_reply'): ?>
+                <i class="fas fa-reply text-info"></i>
+            <?php endif; ?>
+            <?php echo htmlspecialchars($notification['message']); ?>
+        </h6>
+        <?php if (!$notification['is_read']): ?>
+            <span class="badge badge-primary badge-notification">New</span>
+        <?php endif; ?>
+    </div>
 
-                        <div class="notification-actions mt-2">
-                            <small class="notification-time">
-                                <i class="far fa-clock"></i>
-                                <?php echo date('M j, Y g:i A', strtotime($notification['created_at'])); ?>
-                            </small>
-                            
-                            <?php if (!$notification['is_read']): ?>
-                                <button class="btn btn-sm btn-outline-primary mark-read" 
-                                        data-id="<?php echo $notification['id']; ?>">
-                                    <i class="fas fa-check"></i> Mark as Read
-                                </button>
-                            <?php endif; ?>
-                        </div>
+    <div class="notification-actions mt-2">
+        <small class="notification-time">
+            <i class="far fa-clock"></i>
+            <?php echo date('M j, Y g:i A', strtotime($notification['created_at'])); ?>
+        </small>
+        
+        <?php if (!$notification['is_read']): ?>
+            <button class="btn btn-sm btn-outline-primary mark-read" 
+                    data-id="<?php echo $notification['order_number']; ?>">
+                <i class="fas fa-check"></i> Mark as Read
+            </button>
+        <?php endif; ?>
+    </div>
+
+   
+    
+
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -241,81 +239,64 @@ $conn->close();
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
     <script>
-        $(document).ready(function() {
-            // Mark single notification as read
-            $('.mark-read').click(function() {
-                const btn = $(this);
-                const notificationId = btn.data('id');
-                
-                $.post('mark_as_read.php', {
-                    notification_id: notificationId
-                })
-                .done(function(response) {
-                    btn.closest('.notification-item').removeClass('unread');
-                    btn.closest('.notification-actions').find('.mark-read').remove();
-                    updateUnreadCount();
-                })
-                .fail(function(xhr, status, error) {
-                    alert('Error marking notification as read');
-                });
-            });
+       $(document).ready(function() {
+    // Mark single notification as read
+    $('.mark-read').click(function() {
+        const btn = $(this);
+        const notificationId = btn.data('id');
+        
+        $.post('mark_as_read.php', {
+            notification_id: notificationId
+        })
+        .done(function(response) {
+            const result = JSON.parse(response);
+            if (result.success) {
+                btn.closest('.notification-item').removeClass('unread');
+            }
+        });
+    });
 
-            // Mark all as read
-            $('#markAllRead').click(function() {
-                $.post('mark_all_read.php', {
-                    user_id: <?php echo $userId; ?>
-                })
-                .done(function(response) {
-                    $('.notification-item').removeClass('unread');
-                    $('.mark-read').remove();
-                    updateUnreadCount();
-                    $('#markAllRead').hide();
-                })
-                .fail(function(xhr, status, error) {
-                    alert('Error marking all notifications as read');
-                });
-            });
+    // Mark all notifications as read
+    $('#markAllRead').click(function() {
+        $.post('mark_all_read.php', function(response) {
+            if (response.success) {
+                $('.notification-item').removeClass('unread');
+            }
+        });
+    });
 
-            // Filter notifications
-            $('[data-filter]').click(function() {
-                const filter = $(this).data('filter');
-                
-                // Update active button
-                $('[data-filter]').removeClass('active');
-                $(this).addClass('active');
-                
-                // Show/hide notifications based on filter
-                if (filter === 'all') {
-                    $('.notification-item').show();
-                } else {
-                    $('.notification-item').hide();
-                    $('.notification-item[data-type="' + filter + '"]').show();
+    // Filter notifications
+    $('[data-filter]').click(function() {
+        var filter = $(this).data('filter');
+        $('.notification-item').hide();  // Hide all notifications initially
+        
+        // Show based on the selected filter
+        if (filter === 'all') {
+            $('.notification-item').show();  // Show all notifications
+        } else if (filter === 'admin_reply') {
+            $('.notification-item').each(function() {
+                if ($(this).data('type') === 'admin_reply') {
+                    $(this).show();  // Show only admin replies
                 }
             });
+        } else if (filter === 'delivery_status') {
+            $('.notification-item').each(function() {
+                if ($(this).data('type') === 'delivery_status') {
+                    $(this).show();  // Show only delivery updates
+                }
+            });
+        }
 
-            // Function to update unread count
-            function updateUnreadCount() {
-                $.get('get_unread_count.php')
-                .done(function(response) {
-                    const unreadCount = parseInt(response);
-                    if (unreadCount > 0) {
-                        $('.badge-primary').text(unreadCount + ' new').show();
-                    } else {
-                        $('.badge-primary').hide();
-                    }
-                });
-            }
+        // Update active button
+        $('.btn-outline-secondary').removeClass('active');
+        $(this).addClass('active');
+    });
 
-            // Check for new notifications every 30 seconds
-            setInterval(function() {
-                $.get('check_new_notifications.php')
-                .done(function(response) {
-                    if (response.hasNew) {
-                        location.reload();
-                    }
-                });
-            }, 30000);
-        });
+    // Initial filter to show all notifications
+    $('[data-filter="all"]').click();
+});
+
+
     </script>
 </body>
 </html>

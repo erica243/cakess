@@ -569,13 +569,13 @@ button:disabled {
         <?php endif; ?>
     </span>
 </td>
-        <td data-label="Cancel Order">
+<td data-label="Cancel Order">
     <?php 
     // Check if the order is already cancelled
     $isCancelled = (strcasecmp($row['delivery_status'], 'cancelled') == 0);
     
-    // Only show Cancel Order button if status is not confirmed, in progress, or delivered
-    $cancelAllowed = !in_array(strtolower($row['delivery_status']), ['confirmed', 'in progress', 'delivered']);
+    // Only show Cancel Order button if status is not confirmed, preparing, ready, delivered, or in transit
+    $cancelAllowed = !in_array(strtolower($row['delivery_status']), ['confirmed', 'preparing', 'ready', 'delivered', 'in_transit']);
     ?>
     <?php if ($cancelAllowed): ?>
         <form method="POST">
