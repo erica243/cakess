@@ -36,34 +36,39 @@ foreach ($query as $key => $value) {
 
 $recaptchaSecret = '6LeTzYsqAAAAAP_7m4g-0qo8Ek7bEYMUlzsYYiRh';
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $recaptchaResponse = $_POST['g-recaptcha-response'];
+/if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Check if reCAPTCHA response exists before processing
+  if (isset($_POST['g-recaptcha-response'])) {
+      $recaptchaResponse = $_POST['g-recaptcha-response'];
 
-    // Verify reCAPTCHA
-    $url = 'https://www.google.com/recaptcha/api/siteverify';
-    $data = [
-        'secret' => $recaptchaSecret,
-        'response' => $recaptchaResponse,
-        'remoteip' => $_SERVER['REMOTE_ADDR']
-    ];
+      // Verify reCAPTCHA
+      $url = 'https://www.google.com/recaptcha/api/siteverify';
+      $data = [
+          'secret' => $recaptchaSecret,
+          'response' => $recaptchaResponse,
+          'remoteip' => $_SERVER['REMOTE_ADDR']
+      ];
 
-    $options = [
-        'http' => [
-            'method' => 'POST',
-            'header' => 'Content-type: application/x-www-form-urlencoded',
-            'content' => http_build_query($data)
-        ]
-    ];
-    $context = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
-    $response = json_decode($result, true);
+      $options = [
+          'http' => [
+              'method' => 'POST',
+              'header' => 'Content-type: application/x-www-form-urlencoded',
+              'content' => http_build_query($data)
+          ]
+      ];
+      $context = stream_context_create($options);
+      $result = file_get_contents($url, false, $context);
+      $response = json_decode($result, true);
 
-    if ($response['success']) {
-        setNotification('success', 'reCAPTCHA verified successfully.');
-    } else {
-        setNotification('error', 'reCAPTCHA verification failed. Please try again.');
-    }
+      if ($response['success']) {
+          setNotification('success', 'reCAPTCHA verified successfully.');
+      } else {
+          setNotification('error', 'reCAPTCHA verification failed. Please try again.');
+      }
+  } else {
+      // Handle case where reCAPTCHA response is missing
+      setNotification('error', 'reCAPTCHA verification failed. Please complete the captcha.');
+  }
 }
 
 ?>
