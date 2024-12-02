@@ -130,7 +130,7 @@ $comments = $stmt->get_result();
                 <p><strong>You:</strong> <?php echo htmlspecialchars($row['message']); ?></p>
                 
                 <?php if (!empty($row['photo_path'])): ?>
-                    <p><strong>Photo:</strong> <img src="<?php echo htmlspecialchars($row['image_path']); ?>" alt="Uploaded Image" style="max-width: 100px;"></p>
+                    <p><strong>Photo:</strong> <img src="<?php echo htmlspecialchars($row['photo_path']); ?>" alt="Uploaded Image" style="max-width: 100px;"></p>
                 <?php endif; ?>
                 
                 <?php if (!empty($row['admin_reply'])): ?>
