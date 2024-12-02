@@ -42,10 +42,10 @@ while($row = $query->fetch_assoc()) {
             <div class="form-group mb-3">
                 <label for="mobile">Contact</label>
                 <div class="input-group">
-                    <span class="input-group-text">+63</span>
-                    <input type="tel" class="form-control" id="mobile" name="mobile" maxlength="10" required>
+              
+                    <input type="tel" class="form-control" id="mobile" name="mobile" maxlength="11" required>
                 </div>
-                <small class="form-text text-muted">Enter 10-digit mobile number</small>
+                <small class="form-text text-muted">Enter 11-digit mobile number</small>
             </div>
 
             <div class="form-group mb-3">
@@ -191,14 +191,14 @@ while($row = $query->fetch_assoc()) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Invalid Mobile Number',
-                    text: 'Please enter a 10-digit mobile number'
+                    text: 'Please enter a 11-digit mobile number'
                 });
                 return;
             }
 
             // Prepare form data with complete phone number
             let formData = $(this).serialize();
-            formData = formData.replace('mobile=' + mobile, 'mobile=+63' + mobile);
+            formData = formData.replace('mobile=' + mobile, 'mobile=' + mobile);
             
             $.ajax({
                 url: 'signup_action.php',
