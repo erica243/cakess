@@ -1,5 +1,4 @@
-Erica
-Erica Chavez
+
 <?php ob_start(); ?>
 
 <!DOCTYPE html>
