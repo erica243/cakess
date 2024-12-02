@@ -67,11 +67,7 @@ while($row = $query->fetch_assoc()) {
                 </select>
             </div>
 
-            <!-- Add a new Street input field -->
-            <div class="form-group mb-3">
-                <label for="street">Street</label>
-                <input type="text" class="form-control" id="street" name="street" required>
-            </div>
+           
             
             <div class="form-group mb-3">
                 <label for="email">Email</label>
