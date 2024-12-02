@@ -12,12 +12,7 @@
                 <input type="password" name="password" required class="form-control">
                 <small><a href="javascript:void(0)" class="text-dark" id="new_account">Create New Account</a></small>
             </div>
-            <div class="form-group">
-                <label for="terms_and_conditions" class="control-label">
-                    <input type="checkbox" name="terms_and_conditions" id="terms_and_conditions" required>
-                    I agree to the <a href="terms_and_conditions.php" target="_blank">Terms and Conditions</a>.
-                </label>
-            </div>
+           
             <div class="g-recaptcha" data-sitekey="6LdR3YsqAAAAAH0rpWu_53RTuTeRsaqdhEI6-_yo"></div>
             <button class="button btn btn-dark btn-sm">Login</button>
             <div>
