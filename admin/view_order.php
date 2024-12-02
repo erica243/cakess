@@ -23,7 +23,9 @@
 </head>
 <body>
 <?php
+
 include 'db_connect.php';
+
 $orderId = $_GET['id'];
 
 // Use prepared statements for security
@@ -109,12 +111,20 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
                 <th><?php echo number_format($total + $shippingAmount, 2); ?></th>
             </tr>
         </tfoot>
+        <?php if ($deliveryStatus === 'delivered'): ?>
+    <button class="btn btn-success" onclick="send_receipt()">Send Receipt to Email</button>
+<?php else: ?>
+    <button class="btn btn-success" disabled title="Receipt can only be sent once the order is delivered.">
+        Send Receipt to Email
+    </button>
+<?php endif; ?>
+
     </table>
 
     <div class="text-center mt-4">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
-        <?php if ($deliveryStatus == 'confirmed'): ?>
+        <?php if ($deliveryStatus == 'confirmed' || $deliveryStatus == 'delivered'): ?>
     <button class="btn btn-success" type="button" onclick="print_receipt()">Print Receipt</button>
 <?php endif; ?>
 
@@ -241,7 +251,7 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
     var receiptWindow = window.open('', '', 'height=800,width=600,location=no');
 
     // Logo and signature image URLs
-    var logoUrl = 'assets/img/logo.jpg'; // Replace with the actual logo URL
+    var logoUrl = '1.jpg'; // Replace with the actual logo URL
     var signatureUrl = '3.png'; // Corrected signature URL
 
     var orderNumber = '<?php echo $order["order_number"]; ?>';
@@ -331,6 +341,47 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
 }
 
 
+function send_receipt() {
+    Swal.fire({
+        title: 'Send Receipt to Email',
+        text: 'Are you sure you want to send this receipt to the customer?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, send!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            start_load();
+            $.ajax({
+                url: 'send_receipt.php',  // This should be the PHP file for sending the email
+                method: 'POST',
+                data: { order_id: '<?php echo $_GET['id']; ?>' },  // Send order ID for the backend
+                success: function(response) {
+                    if (response == 'Receipt sent to email!') {
+                        Swal.fire('Success!', 'Receipt has been sent to the customer.', 'success');
+                    } else {
+                        Swal.fire('Error!', response, 'error');
+                    }
+                    end_load();
+                },
+                error: function() {
+                    end_load();
+                    Swal.fire('Error!', 'AJAX request failed.', 'error');
+                }
+            });
+        }
+    });
+}
+    function start_load() {
+        $('body').prepend('<div id="preloader2"></div>');
+    }
+
+    function end_load() {
+        $('#preloader2').fadeOut('fast', function() {
+            $(this).remove();
+        });
+    }
     function delete_order() {
         Swal.fire({
             title: 'Delete Order',
