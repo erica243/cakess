@@ -28,9 +28,3 @@ RewriteRule ^([^\.]+)$ $1.php [NC,L]
 # Redirect from .php to non-php URLs
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
 RewriteRule ^ %1 [R=301,L]
-
-# Protect against SQL Injection
-RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
-RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
-RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
-RewriteRule ^(.*)$ index.php [F,L]
