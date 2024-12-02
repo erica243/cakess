@@ -87,7 +87,12 @@ while($row = $query->fetch_assoc()) {
                 </small>
             </div>
             
-           
+            <div class="form-check mb-3">
+                    <input type="checkbox" id="termsCheckbox" class="form-check-input" required>
+                    <label for="termsCheckbox" class="form-check-label">
+                        I agree to the <a href="#" id="openModal">Terms and Conditions</a>
+                    </label>
+                </div>
             
             <button type="submit" class="btn btn-primary">Create Account</button>
         </form>
