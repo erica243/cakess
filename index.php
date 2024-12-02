@@ -1,4 +1,3 @@
-
 <?php ob_start(); ?>
 
 <!DOCTYPE html>
@@ -226,17 +225,6 @@ nav#mainNav * {
     color: #fff !important;
     text-shadow: 0px 0px 5px #000;
     font-family: "Times New Roman", Times, serif !important;
-}/* Change the hover color of dropdown items */
-.dropdown-item:hover {
-    background-color: #007bff; /* Custom hover background color */
-    color: black; /* Change text color to black on hover */
-}
-  /* Force dropdown visibility on mobile */
-  @media (max-width: 767px) {
-  .navbar-nav .dropdown-menu {
-    display: block !important;
-    position: relative !important;
-  }
 }
 </style>
 
@@ -261,27 +249,26 @@ nav#mainNav * {
         <li class="nav-item"><a class="nav-link js-scroll-trigger" href="index.php?page=about"style="font-size: 20px";>About</a></li>
        
           <?php if (isset($_SESSION['login_user_id'])): ?>
-            <li class="nav-item">
-    <a class="nav-link js-scroll-trigger" href="notification.php" style="font-size: 20px;">
+    <!--<li class="nav-item"><a class="nav-link" href="customer_portal.php "style="font-size: 18px;">Customer Portal</a></li>-->
+    <li class="nav-item">
+    <a class="nav-link js-scroll-trigger" href="notification.php" style="font-size: 20px";>
         <i class="fa fa-bell"></i>
         <?php
         // Check if the user is logged in
         if (isset($_SESSION['login_user_id'])) {
             $user_id = $_SESSION['login_user_id'];
-
-            // Prepared statement to get the count of unread notifications with admin replies
-            $stmt = $conn->prepare("SELECT COUNT(*) as count 
-                                    FROM notifications 
-                                    WHERE user_id = ? AND message IS NOT NULL AND is_read = 0");
+            
+            // Prepared statement to get the count of unread notifications
+            $stmt = $conn->prepare("SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0");
             $stmt->bind_param("i", $user_id);  // Bind the user_id as an integer parameter
-
+            
             $stmt->execute();
             $result = $stmt->get_result();
-
+            
             if ($result) {
-                // Fetch the count of unread admin replies
+                // Fetch the count of unread notifications
                 $notify_count = $result->fetch_assoc()['count'];
-
+                
                 // If there are unread notifications, display the badge
                 if ($notify_count > 0):
         ?>
@@ -292,7 +279,7 @@ nav#mainNav * {
                 // Handle query execution error
                 echo "Error fetching notification count: " . $stmt->error;
             }
-
+            
             $stmt->close(); // Close the statement
         } else {
             echo "User is not logged in.";
@@ -300,7 +287,6 @@ nav#mainNav * {
         ?>
     </a>
 </li>
-
 
 
   <li class="nav-item"><a class="nav-link js-scroll-trigger" href="my_orders.php"style="font-size: 20px";>Your Orders</a></li>
@@ -313,12 +299,10 @@ nav#mainNav * {
                 <i class="fa fa-user"></i>
               </a>
               
-              </button>
-  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-    <a class="dropdown-item" href="profile.php"style="color:black;">Profile</a>
-    <a class="dropdown-item" href="admin/ajax.php?action=logout2">Logout</a>
-  </div>
-</div>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="profile.php">Profile</a>
+                <a class="dropdown-item" href="admin/ajax.php?action=logout2">Logout</a>
+              </div>
             </li>
             </li>
           <?php else: ?>
