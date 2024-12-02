@@ -36,7 +36,7 @@ foreach ($query as $key => $value) {
 
 $recaptchaSecret = '6LeTzYsqAAAAAP_7m4g-0qo8Ek7bEYMUlzsYYiRh';
 
-/if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Check if reCAPTCHA response exists before processing
   if (isset($_POST['g-recaptcha-response'])) {
       $recaptchaResponse = $_POST['g-recaptcha-response'];
