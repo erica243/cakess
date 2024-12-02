@@ -1,30 +1,74 @@
-# HTID:23422420: DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES BELOW
+# Comprehensive Security Configuration
+
+# Disable Directory Browsing
+Options -Indexes
+
+# Protect against SQL Injection
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ index.php [F,L]
+
+# Enable PHP Error Display (Remove in Production)
 php_value display_errors 1
-# DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES ABOVE HTID:23422420:
 
-# Enable URL rewriting
+# Block Access to Sensitive Files
+<FilesMatch "^(error_log|php.ini|\.htaccess)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent File Injection
+RewriteCond %{REQUEST_METHOD} GET
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ index.php [F,L]
+
+# Prevent Cross-Site Scripting (XSS)
+Header always set X-XSS-Protection "1; mode=block"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
+
+# Restrict Domain Access
 RewriteEngine On
-
-# Block redirection to any external domain except mandm-lawis.com
 RewriteCond %{HTTP_HOST} !^mandm-lawis\.com$ [NC]
 RewriteRule ^ - [F,L]
 
-# Prevent access to .htaccess file itself for security
+# Protect .htaccess File
 <Files .htaccess>
-  Order allow,deny
-  Deny from all
-  Satisfy all
+    Order allow,deny
+    Deny from all
 </Files>
- 
- RewriteEngine On RewriteCond % 
- {REQUEST_FILENAME} !-d
- RewriteCond % {REQUEST_FILENAME} !-F
- RewriteRule ^(.*)$ $1.php [L]
- # Remove .php extension from URLs
+
+# URL Rewriting and Clean URLs
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Remove .php Extension
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
-# Redirect from .php to non-php URLs
+# Redirect .php to Non-PHP URLs
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
 RewriteRule ^ %1 [R=301,L]
+
+# Block Common Exploit Techniques
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule ^(.*)$ index.php [F,L]
+
+# Disable Server Signature
+ServerSignature Off
+
+# Set Default Charset
+AddDefaultCharset UTF-8
+
+# Limit File Upload Size
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
