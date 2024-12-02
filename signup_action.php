@@ -28,7 +28,7 @@ function sendJsonResponse($status, $message) {
 try {
     // Check if it's a POST request
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
-        sendJsonResponse('error', 'Invalid request method');
+        sendJsonResponse('error', 'Invalid request method. Expected POST but received ' . $_SERVER["REQUEST_METHOD"]);
     }
 
     // Validate input data
