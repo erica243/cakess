@@ -71,8 +71,13 @@ try {
     $address_parts = explode(', ', $address);
     $municipality = end($address_parts);
 
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    // Hash password using Argon2i
+    $hashed_password = password_hash($password, PASSWORD_ARGON2I);
+
+    // Check if hashing was successful
+    if ($hashed_password === false) {
+        sendJsonResponse('error', 'Password hashing failed. Please try again.');
+    }
 
     // Generate 6-digit OTP
     $otp = sprintf("%06d", mt_rand(1, 999999));
