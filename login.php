@@ -4,7 +4,7 @@
     <div id="login-section">
         <form action="" id="login-frm">
             <div class="form-group">
-                <label for="" class="control-label">Email</label>
+                <label for="" class="control-label">Emails</label>
                 <input type="email" name="email" required class="form-control">
             </div>
             <div class="form-group">
@@ -12,8 +12,6 @@
                 <input type="password" name="password" required class="form-control">
                 <small><a href="javascript:void(0)" class="text-dark" id="new_account">Create New Account</a></small>
             </div>
-           
-            <div class="g-recaptcha" data-sitekey="6LdR3YsqAAAAAH0rpWu_53RTuTeRsaqdhEI6-_yo"></div>
             <button class="button btn btn-dark btn-sm">Login</button>
             <div>
                 <br><a href="javascript:void(0)" class="text-dark" id="forgot_password">Forgot Password?</a>
@@ -41,36 +39,7 @@
         display: none;
     }
 </style>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
 <script>
-    $('#new_account').click(function () {
-		uni_modal("Create an Account", 'signup.php?redirect=index.php?page=home')
-	})
-	$('#login-frm').submit(function (e) {
-		e.preventDefault();
-		$('#login-frm button[type="submit"]').attr('disabled', true).html('Logging in...');
-		if ($(this).find('.alert-danger').length > 0)
-			$(this).find('.alert-danger').remove();
-		$.ajax({
-			url: 'admin/ajax.php?action=login2',
-			method: 'POST',
-			data: $(this).serialize(),
-			dataType: 'json',
-			error: err => {
-				console.log(err);
-				$('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
-			},
-			success: function (resp) {
-				if (resp.status === 'success') {
-					location.href = '<?php echo isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php?page=home' ?>';
-				} else {
-					$('#login-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
-					$('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
-				}
-			}
-		});
-	});
     // Handle navigation between login and forgot password sections
     $('#forgot_password').click(function () {
         $('#login-section').hide(); // Hide login form
@@ -130,40 +99,27 @@
 
     // Existing Login Form submission logic
     $('#login-frm').submit(function (e) {
-    e.preventDefault();
-
-    // Ensure reCAPTCHA is completed
-    var recaptchaResponse = grecaptcha.getResponse();
-    if (recaptchaResponse === "") {
-        alert("Please verify the reCAPTCHA.");
-        return;
-    }
-
-    $('#login-frm button[type="submit"]').attr('disabled', true).html('Logging in...');
-    if ($(this).find('.alert-danger').length > 0)
-        $(this).find('.alert-danger').remove();
-
-    // Add the reCAPTCHA response to the form data
-    let formData = $(this).serialize() + '&recaptcha_response=' + recaptchaResponse;
-
-    $.ajax({
-        url: 'admin/ajax.php?action=login2',
-        method: 'POST',
-        data: formData,
-        dataType: 'json',
-        error: function (err) {
-            console.log(err);
-            $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
-        },
-        success: function (resp) {
-            if (resp.status === 'success') {
-                location.href = '<?php echo isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php?page=home' ?>';
-            } else {
-                $('#login-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
+        e.preventDefault();
+        $('#login-frm button[type="submit"]').attr('disabled', true).html('Logging in...');
+        if ($(this).find('.alert-danger').length > 0)
+            $(this).find('.alert-danger').remove();
+        $.ajax({
+            url: 'admin/ajax.php?action=login2',
+            method: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            error: function (err) {
+                console.log(err);
                 $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
+            },
+            success: function (resp) {
+                if (resp.status === 'success') {
+                    location.href = '<?php echo isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php?page=home' ?>';
+                } else {
+                    $('#login-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
+                    $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
+                }
             }
-        }
+        });
     });
-});
-
 </script>

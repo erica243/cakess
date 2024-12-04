@@ -115,13 +115,13 @@ $messages = $stmt->get_result();
                     <?php
                         if (!empty($row['image_path'])) {
                             // Remove any leading 'uploads/' from the stored filename if it exists
-                            $image_path = htmlspecialchars($row['photo_path']);
+                            $image_path = htmlspecialchars($row['image_path']);
                             if (strpos($image_path, 'uploads/') === 0) {
                                 $image_path = substr($image_path, strlen('uploads/'));
                             }
 
                             // Now construct the full image path correctly
-                            $full_image_path = "../uploads/" . $photo_path;
+                            $full_image_path = "../uploads/" . $image_path;
                             
                             // Check if file exists and is readable
                             if (file_exists($full_image_path)) {

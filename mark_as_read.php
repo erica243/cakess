@@ -2,30 +2,24 @@
 session_start();
 include 'admin/db_connect.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['login_user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Not logged in']);
+if (!isset($_SESSION['login_user_id']) || !isset($_GET['id'])) {
+    header('Location: login.php');
     exit();
 }
 
+$notificationId = $_GET['id'];
 $userId = $_SESSION['login_user_id'];
-$notificationId = $_POST['notification_id'];
 
-// Validate input
-if (empty($notificationId)) {
-    echo json_encode(['success' => false, 'error' => 'Invalid notification ID']);
-    exit();
-}
-
-// Prepare and execute update query
-$query = "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND order_number = ?";
+// Update the notification to mark it as read
+$query = "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("is", $userId, $notificationId);
+$stmt->bind_param("ii", $notificationId, $userId);
 
 if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
+    // Redirect back to the notifications page after marking as read
+    header('Location: notifications.php');
 } else {
-    echo json_encode(['success' => false, 'error' => $stmt->error]);
+    echo "Error marking notification as read.";
 }
 
 $stmt->close();

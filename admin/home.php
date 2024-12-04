@@ -98,27 +98,7 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $total_orders = $row['total_orders'];
 }
-// Fetch the number of Pending Orders (where delivery status is 'pending', NULL, or empty)
-$pending_orders_result = $conn->query("
-    SELECT * 
-    FROM orders 
-    WHERE delivery_status = 'pending' 
-       OR delivery_status IS NULL 
-       OR delivery_status = ''
-");
-$pending_orders = $pending_orders_result->num_rows;
-
- 
-/// Fetch the number of Confirmed Orders (including statuses: confirmed, preparing, read, in_transit, delivered)
-$confirmed_orders_result = $conn->query("
-SELECT * 
-FROM orders 
-WHERE delivery_status IN ('confirmed', 'preparing', 'ready', 'in_transit', 'delivered')
-");
-$confirmed_orders = $confirmed_orders_result->num_rows;
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -128,7 +108,7 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel = "icon" href="assets/img/LOGO.jpg"  type = ".///image/x-icon">
+    <link rel = "icon" href="assets/img/1.jpg"  type = ".///image/x-icon">
     <style>
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% {
@@ -297,7 +277,7 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
                     </div>
                     <div class="media-body media-text-center">
                         <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Sales</h5>
-                        <h2 class="text-right" style="color: black;"><b>₱<?= number_format($total_sales, 2) ?></b></h2>
+                        <h2 class="text-right" style="color: black;"><b><?= number_format($total_sales, 2) ?></b></h2>
                     </div>
                 </div>
             </div>
@@ -312,10 +292,10 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
                     <div class="media-left meida media-middle"> 
                                 <span><i class="fa fa-times-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
                             </div>
-                            <div class="media-body media-text-center">
-                    <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Pending Orders</h5>
-                    <h2 class="text-right" style="color: black;"><b><?= number_format($pending_orders) ?></b></h2>
-                </div>
+                    <div class="media-body media-text-center">
+                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Pending Orders</h5>
+                        <h2 class="text-right" style="color: black;"><b><?= number_format($cancelled_orders) ?></b></h2>
+                    </div>
                 </div>
             </div>
         </div>
@@ -330,9 +310,9 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
                         <span><i class="fa fa-check-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
                     </div>
                     <div class="media-body media-text-center">
-                    <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Confirmed Orders</h5>
-                    <h2 class="text-right" style="color: black;"><b><?= number_format($confirmed_orders) ?></b></h2>
-                </div>
+                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Confirmed Orders</h5>
+                        <h2 class="text-right" style="color: black;"><b><?= number_format($confirmed_orders) ?></b></h2>
+                    </div>
                 </div>
             </div>
         </div>
@@ -348,7 +328,7 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
                     </div>
                     <div class="media-body media-text-center">
                         <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Sales This Month</h5>
-                        <h2 class="text-right" style="color: black;"><b>₱<?= number_format(array_sum($monthly_sales_data)) ?></b></h2>
+                        <h2 class="text-right" style="color: black;"><b><?= number_format(array_sum($monthly_sales_data)) ?></b></h2>
                     </div>
                 </div>
             </div>

@@ -22,14 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $mobile = $_POST['mobile'];
     $address = $_POST['address'];
-    $street = $_POST['street'];  // Added street field
 
     $update_query = $conn->prepare("
         UPDATE user_info 
-        SET first_name = ?, last_name = ?, email = ?, mobile = ?, address = ?, street = ? 
+        SET first_name = ?, last_name = ?, email = ?, mobile = ?, address = ? 
         WHERE user_id = ?
     ");
-    $update_query->bind_param("ssssssi", $first_name, $last_name, $email, $mobile, $address, $street, $user_id);
+    $update_query->bind_param("sssssi", $first_name, $last_name, $email, $mobile, $address, $user_id);
     
     if ($update_query->execute()) {
         // Update session variables
@@ -38,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['login_email'] = $email;
         $_SESSION['login_mobile'] = $mobile;
         $_SESSION['login_address'] = $address;
-        $_SESSION['login_street'] = $street;  // Update session for street
 
         // Redirect to index.php after successful update
         header("Location: index.php?page=home");
@@ -134,50 +132,11 @@ $conn->close();
             background-color: #0056b3;
         }
 
-        /* Back Button */
-        .btn-back {
-            background-color: #6c757d;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
-
         /* Error Message */
         .text-danger {
             color: #dc3545;
             text-align: center;
             margin-top: 10px;
-        }
-
-        /* Media Queries for Mobile */
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-                margin: 10px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-
-            .form-control {
-                padding: 8px;
-                font-size: 14px;
-            }
-
-            .btn-primary, .btn-back {
-                width: 100%;
-                margin-top: 10px;
-            }
         }
     </style>
 </head>
@@ -205,12 +164,7 @@ $conn->close();
                 <label for="address">Address</label>
                 <textarea class="form-control" id="address" name="address" rows="3" required><?php echo htmlspecialchars($user['address']); ?></textarea>
             </div>
-            <div class="form-group">
-                <label for="street">Street</label>
-                <input type="text" class="form-control" id="street" name="street" value="<?php echo htmlspecialchars($user['street']); ?>" required>
-            </div>
             <button type="submit" class="btn-primary">Update Profile</button>
-            <a href="javascript:history.back()" class="btn-back">Back</a>
         </form>
     </div>
 </body>
