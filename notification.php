@@ -239,67 +239,32 @@ $conn->close();
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
     <script>
-$(document).ready(function() {
+       $(document).ready(function() {
     // Mark single notification as read
     $('.mark-read').click(function() {
         const btn = $(this);
         const notificationId = btn.data('id');
         
-        $.ajax({
-            url: 'mark_as_read.php',
-            method: 'POST',
-            data: {
-                notification_id: notificationId
-            },
-            success: function(response) {
-                try {
-                    const result = JSON.parse(response);
-                    if (result.success) {
-                        btn.closest('.notification-item').removeClass('unread');
-                        btn.remove(); // Remove the "Mark as Read" button
-                    } else {
-                        console.error('Error marking notification as read:', result.error);
-                        alert('Failed to mark notification as read');
-                    }
-                } catch (e) {
-                    console.error('Invalid JSON response:', response);
-                    alert('An error occurred');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error:', status, error);
-                alert('Failed to mark notification as read');
+        $.post('mark_as_read.php', {
+            notification_id: notificationId
+        })
+        .done(function(response) {
+            const result = JSON.parse(response);
+            if (result.success) {
+                btn.closest('.notification-item').removeClass('unread');
             }
         });
     });
 
     // Mark all notifications as read
     $('#markAllRead').click(function() {
-        $.ajax({
-            url: 'mark_all_read.php',
-            method: 'POST',
-            success: function(response) {
-                try {
-                    const result = JSON.parse(response);
-                    if (result.success) {
-                        $('.notification-item').removeClass('unread');
-                        $('.mark-read').remove(); // Remove all "Mark as Read" buttons
-                        $('#markAllRead').hide(); // Hide the "Mark All as Read" button
-                    } else {
-                        console.error('Error marking all notifications as read:', result.error);
-                        alert('Failed to mark all notifications as read');
-                    }
-                } catch (e) {
-                    console.error('Invalid JSON response:', response);
-                    alert('An error occurred');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error:', status, error);
-                alert('Failed to mark all notifications as read');
+        $.post('mark_all_read.php', function(response) {
+            if (response.success) {
+                $('.notification-item').removeClass('unread');
             }
         });
     });
+
     // Filter notifications
     $('[data-filter]').click(function() {
         var filter = $(this).data('filter');

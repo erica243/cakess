@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 01, 2024 at 09:10 PM
+-- Generation Time: Dec 04, 2024 at 10:41 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -51,10 +51,7 @@ CREATE TABLE `category_list` (
 --
 
 INSERT INTO `category_list` (`id`, `name`) VALUES
-(8, 'Baptismal Cake '),
-(10, 'Fathers/Mothers Day Cake'),
-(19, 'Wedding Cake'),
-(23, 'Birthday Cake');
+(25, 'Wedding Cake');
 
 -- --------------------------------------------------------
 
@@ -93,6 +90,14 @@ CREATE TABLE `messages` (
   `status` tinyint(1) DEFAULT 0,
   `is_read` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `user_id`, `email`, `order_number`, `message`, `photo_path`, `created_at`, `admin_reply`, `user_reply`, `reply_date`, `status`, `is_read`) VALUES
+(218, 53, 'erica204chavez@gmail.com', 1081, 'pa customize pa add ng toppings', 'uploads/1733231471__6292e5b9-9a68-4547-b465-9562e06e3faf.jpg', '2024-12-03 13:11:11', 'okay', NULL, '2024-12-03 13:12:04', 1, 0),
+(219, 54, 'erica204chavez@gmail.com', 7398, 'Pa custumatize ng cake gusto ko flavor chocolate add some strawberry toppings ', NULL, '2024-12-03 13:53:31', NULL, NULL, NULL, 0, 0);
 
 --
 -- Triggers `messages`
@@ -163,6 +168,14 @@ CREATE TABLE `orders` (
   `tracking_notes` text DEFAULT NULL,
   `tracking_status` varchar(50) DEFAULT 'Order Placed'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_id`, `order_number`, `order_date`, `name`, `address`, `mobile`, `email`, `delivery_method`, `transaction_id`, `payment_method`, `created_at`, `shipping`, `pickup_date`, `pickup_time`, `payment_proof`, `delivery_status`, `status`, `ref_no`, `status_updated_at`, `estimated_delivery`, `tracking_notes`, `tracking_status`) VALUES
+(126, 53, 5142, '2024-12-03 14:33:13', 'Erica Adlit', 'Tarong', '0915825964', 'mandmcakeorderingsystem@gmail.com', 'delivery', 0, 'gcash', '2024-12-03 21:33:13', 0, '0000-00-00', '00:00:00', 'uploads/payment_proof/1733232793_GCash-639932685248-18102024161456.PNG.jpg', NULL, '', '6021 873 775360', '2024-12-03 21:33:13', NULL, NULL, 'Order Placed'),
+(127, 54, 7398, '2024-12-03 14:52:10', 'Erica Adlit', 'Tarong', '0915825964', 'erica204chavez@gmail.com', 'delivery', 0, 'gcash', '2024-12-03 21:52:10', 0, '0000-00-00', '00:00:00', 'uploads/payment_proof/1733233930_GCash-639932685248-18102024161456.PNG.jpg', 'ready', '', '6021 873 775360', '2024-12-03 21:52:10', NULL, NULL, 'Order Placed');
 
 --
 -- Triggers `orders`
@@ -260,8 +273,7 @@ CREATE TABLE `product_list` (
 --
 
 INSERT INTO `product_list` (`id`, `category_id`, `name`, `description`, `price`, `img_path`, `status`, `size`, `size_unit`, `stock`) VALUES
-(38, 8, 'Chocolate cakek', 'jkh', 480, '_6292e5b9-9a68-4547-b465-9562e06e3faf.jpg', 'unavailable', '1', 'inches', 2),
-(39, 8, 'Lunavalera ', 'scd', 43, '', 'unavailable', '1', 'inches', 0);
+(40, 25, 'choco', 'ready made', 450, '1710248520_1600652880_chicken.jpg', 'Available', '2', 'inches', 5);
 
 -- --------------------------------------------------------
 
@@ -365,7 +377,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `username`, `password`, `type`, `profile_picture`, `email`, `reset_token`, `reset_code`, `reset_code_expiry`, `temp_reset_token`) VALUES
-(1, 'Erica Adlit', 'erica204chavez@gmail.com', '$2y$10$lXfOwGzKOEFvh/etqFVUvOmcnCXDEG9Pwf4NGHPHQctQemh1WKjyq', 1, NULL, 'erica204chavez@gmail.com', '4c995728de1cd7d49abf5a2412323af1bf74d4ec852f6f824e08c26b56827894', '132362', '2024-12-02 05:00:45', NULL);
+(1, 'Erica Adlit', 'chavez24erica@gmail.com', '$argon2i$v=19$m=65536,t=4,p=1$OC9WS1J2ZXJManI2NTNEdw$JhOAbnxWrH7L/2Caabt4g8J3qwUiy+u+bewU1E96PsM', 1, NULL, 'mandmcakeorderingsystem@gmail.com', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -391,6 +403,13 @@ CREATE TABLE `user_info` (
   `token` varchar(100) NOT NULL,
   `token_expiry` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `user_info`
+--
+
+INSERT INTO `user_info` (`user_id`, `first_name`, `last_name`, `email`, `password`, `mobile`, `address`, `street`, `municipality`, `active`, `code`, `reset_time`, `otp`, `otp_expiry`, `token`, `token_expiry`) VALUES
+(54, 'Erica', 'Adlit', 'erica204chavez@gmail.com', '$2y$10$9x.DaECS0CifHePzJzrtYuTbc7W0XIFHc5tQfyW899GzMt2eL6ntO', '0915825964', 'Tarong', 'Sitio Kagwangan', 'Tarong', 1, 389812, '00:00:00', NULL, NULL, '', '');
 
 --
 -- Indexes for dumped tables
@@ -502,13 +521,13 @@ ALTER TABLE `user_info`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=278;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=295;
 
 --
 -- AUTO_INCREMENT for table `category_list`
 --
 ALTER TABLE `category_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `comments`
@@ -520,25 +539,25 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=220;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
 
 --
 -- AUTO_INCREMENT for table `order_list`
 --
 ALTER TABLE `order_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
 
 --
 -- AUTO_INCREMENT for table `order_status_logs`
@@ -550,13 +569,13 @@ ALTER TABLE `order_status_logs`
 -- AUTO_INCREMENT for table `product_list`
 --
 ALTER TABLE `product_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `product_ratings`
 --
 ALTER TABLE `product_ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `replies`
@@ -586,7 +605,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_info`
 --
 ALTER TABLE `user_info`
-  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- Constraints for dumped tables
@@ -596,7 +615,8 @@ ALTER TABLE `user_info`
 -- Constraints for table `order_status_logs`
 --
 ALTER TABLE `order_status_logs`
-  ADD CONSTRAINT `order_status_logs_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+  ADD CONSTRAINT `order_status_logs_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  ADD CONSTRAINT `order_status_logs_ibfk_2` FOREIGN KEY (`id`) REFERENCES `cart` (`id`);
 
 --
 -- Constraints for table `product_ratings`
@@ -609,7 +629,8 @@ ALTER TABLE `product_ratings`
 -- Constraints for table `replies`
 --
 ALTER TABLE `replies`
-  ADD CONSTRAINT `replies_ibfk_1` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `replies_ibfk_1` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `replies_ibfk_2` FOREIGN KEY (`id`) REFERENCES `comments` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

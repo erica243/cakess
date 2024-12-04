@@ -445,7 +445,7 @@ function display_star_rating($rating) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    $(document).ready(function() {
+   $(document).ready(function() {
         // Load initial cart count
         updateCartCount();
 
@@ -509,7 +509,6 @@ function display_star_rating($rating) {
         }
     });
 });
-
 
         // Function to update the cart count
         function updateCartCount() {

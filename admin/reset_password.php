@@ -16,7 +16,7 @@ function resetPassword($conn, $token, $newPassword, $resetCode) {
         return ['status' => 'error', 'message' => 'Password must be at least 8 characters long.'];
     }
 
-    // Validate password complexity (optional but recommended)
+    // Validate password complexity
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $newPassword)) {
         return [
             'status' => 'error', 
@@ -34,8 +34,8 @@ function resetPassword($conn, $token, $newPassword, $resetCode) {
         return ['status' => 'error', 'message' => 'Invalid or expired reset token/code.'];
     }
 
-    // Hash the new password
-    $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
+    // Hash the new password with Argon2i
+    $hashedPassword = password_hash($newPassword, PASSWORD_ARGON2I);
 
     // Update password and clear reset fields
     $updateStmt = $conn->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_code = NULL, reset_code_expiry = NULL WHERE reset_token = ?");
@@ -146,14 +146,20 @@ if (!$user) {
             
             <div class="form-group">
                 <label>New Password</label>
-                <input type="password" name="new_password" class="form-control" required 
-                       placeholder="Min 8 chars, include uppercase, lowercase, number, special char">
+                <div style="position: relative;">
+                    <input type="password" name="new_password" class="form-control password-input" required 
+                           placeholder="Min 8 chars, include uppercase, lowercase, number, special char">
+                    <button type="button" class="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">👁️</button>
+                </div>
             </div>
             
             <div class="form-group">
                 <label>Confirm New Password</label>
-                <input type="password" name="confirm_password" class="form-control" required 
-                       placeholder="Repeat new password">
+                <div style="position: relative;">
+                    <input type="password" name="confirm_password" class="form-control password-input" required 
+                           placeholder="Repeat new password">
+                    <button type="button" class="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">👁️</button>
+                </div>
             </div>
             
             <button type="submit" class="btn">Reset Password</button>
@@ -163,6 +169,14 @@ if (!$user) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
     $(document).ready(function() {
+        // Toggle password visibility
+        $('.toggle-password').on('click', function() {
+            var input = $(this).siblings('.password-input');
+            var type = input.attr('type') === 'password' ? 'text' : 'password';
+            input.attr('type', type);
+            $(this).text(type === 'password' ? '👁️' : '👁️‍🗨️');
+        });
+
         $('#reset-password-form').on('submit', function(e) {
             e.preventDefault();
             var form = $(this);
