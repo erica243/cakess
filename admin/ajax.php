@@ -227,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['action'] == 'update_delivery
                     <p>Your order (Order Number: $orderNumber) has been <strong>confirmed</strong>.</p>
                     <p>Thank you for shopping with us!</p>
                     <br>
-                    <p>Best Regards,<br>M&M Cake Ordering System</p>";
+                    <p>Best Regards,<br>Your Store Name</p>";
 
                 $mail->send();
                 error_log("Confirmation email sent to $email for order ID $orderId.");
@@ -346,19 +346,6 @@ if($action == "update_order_status") {
     
     if($update)
         echo 1;
-}
-
-if (isset($_POST['action']) && $_POST['action'] == 'send_receipt') {
-    $orderId = $_POST['order_id']; // Get order ID
-    $email = $_POST['email']; // Get customer email
-    
-    // Fetch order details from the database based on $orderId
-    // Example: You can retrieve the receipt HTML or generate it from data
-    $receiptHtml = "<h1>Receipt for Order #$orderId</h1>";
-    $receiptHtml .= "<p>Details of the order...</p>"; // Add order details here
-
-    // Send email
-    sendEmail($email, $receiptHtml);
 }
 
 ?>

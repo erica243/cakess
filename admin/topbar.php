@@ -91,7 +91,7 @@ $unreadMessagesCount = get_unread_messages_count();
     <div class="container-fluid mt-2 mb-2">
       <div class="col-lg-12">
         <div class="col-md-1 float-left" style="display: flex;">
-          
+          <div class="logo"></div>
         </div>
         <div class="col-md-4 float-left" style="font-size: 30px;">
           <large style="font-family: 'Dancing Script', cursive !important;"><b><?php echo $_SESSION['setting_name']; ?></b></large>

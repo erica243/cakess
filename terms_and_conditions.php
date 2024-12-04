@@ -49,112 +49,76 @@
             cursor: pointer;
             text-decoration: none; /* Make sure it looks like a button */
         }
-         /* Sticky modal header */
-.modal-header-sticky {
-    position: sticky;
-    top: 0;
-    background-color: white; /* Match modal background */
-    z-index: 10; /* Ensure it stays above scrollable content */
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd; /* Optional: subtle border for separation */
-}
-
-/* Blue text for the title */
-.modal-title-blue {
-    color: #007bff; /* Bootstrap primary blue */
-    margin: 0;
-}
-
-/* Scrollable modal body */
-.modal-scrollable {
-    max-height: 80vh; /* Limit height for scrolling */
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding: 15px; /* Optional: spacing for better readability */
-}
-
-/* Ensure modal close button stays styled */
-.modal-close {
-    background-color: #7272eb;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
     </style>
 </head>
 <body>
 
 <!-- Terms and Conditions Modal -->
-<div class="modal" id="termsModal">
-    <div class="modal-dialog">
+<div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+            </div>
             <div class="modal-body">
-                <div class="modal-header-sticky">
-                    <h1 class="modal-title-blue">Terms and Conditions</h1>
-                </div>
-                <div class="modal-scrollable">
-                 
+                <p><strong>Effective Date:</strong> [Insert Date]</p>
 
                 <p>Welcome to the M&M Cake Ordering System! By using our website and services, you agree to the following terms and conditions. Please read them carefully.</p>
 
                 <h5>1. Acceptance of Terms</h5>
-                <p>By placing an order through our M&M Cake Ordering System, you agree to be bound by these terms and conditions. Please read them carefully before proceeding with your order.</p>
+                <p>By accessing or using the M&M Cake Ordering System, you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.</p>
 
-                <h5>2. Ordering Process</h5>
-                <p>Customers are responsible for providing accurate and complete information, including contact details, delivery address, and cake specifications.</p>
-              <p>  Orders will be confirmed via email after payment is received (if payment method is G- Cash).</p>
+                <h5>2. Changes to Terms</h5>
+                <p>We reserve the right to modify these Terms and Conditions at any time. Any changes will be effective immediately upon posting on our website. Your continued use of the service after any changes signifies your acceptance of the revised terms.</p>
 
                 <h5>3. User Accounts</h5>
                 <p>To place an order, you may need to create an account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. Please notify us immediately of any unauthorized use of your account.</p>
 
-                <h5>4. Payment Terms</h5>
-                <p>All orders must be paid in full at the time of placing the order unless otherwise agreed.</p>
-<p>Accepted payment methods include [Cash , Gcash].</p>
-<p>Prices are subject to change without notice but will not affect orders already confirmed.</p>
+                <h5>4. Orders and Payments</h5>
+                <p>All orders are subject to availability. We strive to provide accurate product descriptions and prices; however, errors may occur. We reserve the right to cancel or refuse any order for any reason, including but not limited to product availability, errors in product or pricing information, or suspected fraudulent activity.</p>
                 <p>Payment must be made at the time of order placement. We accept various payment methods, including credit/debit cards and other specified options.</p>
 
                 <h5>5. Delivery and Pickup</h5>
                 <p>Delivery options and fees will be provided during the checkout process. We will make every effort to deliver your order on time; however, we are not responsible for delays caused by circumstances beyond our control.</p>
-                               <p> Customers opting for pickup must arrive at the scheduled time to avoid delays.</p>
- <p>Delivery is available within Local areas for an additional fee depending on the distance of area.</p>
- <p>We are not responsible for damages to cakes once they have been picked up or delivered successfully.</p>
+
                 <h5>6. No Cancellations</h5>
-                <p>Orders can only be canceled if the delivery status has not been confirmed. Once the delivery status is confirmed, cancellations and refunds will no longer be accepted.</p>
+                <p>All orders placed through the M&M Cake Ordering System are final and cannot be canceled once confirmed. Please ensure that your order details are correct before completing your purchase.</p>
 
                 <h5>7. Refunds</h5>
                 <p>Refunds will be issued at our discretion and only in cases where an error has occurred on our part. Please contact us for further assistance if you believe you are eligible for a refund.</p>
 
-                <h5>8.Customization</h5>
-                <p>Customization requests (e.g., specific designs, colors, or additional toppings) must be submitted at the time of ordering.
-                While we will make every effort to match designs and colors, slight variations may occur due to the handmade nature of our cakes.</p>
-                
+                <h5>8. User Conduct</h5>
+                <p>You agree not to engage in any of the following prohibited activities:</p>
+                <ul>
+                    <li>Using the service for any unlawful purpose.</li>
+                    <li>Impersonating any person or entity or misrepresenting your affiliation with any person or entity.</li>
+                    <li>Transmitting any harmful, offensive, or disruptive content.</li>
+                </ul>
 
-                <h5>9.Allergies and Dietary Restrictions</h5>
-                <p>Our cakes may contain or come into contact with allergens such as nuts, dairy, eggs, gluten, and soy.</p>
-                <p>It is the customer’s responsibility to inform us of any allergies or dietary restrictions at the time of ordering.</p>
-                <p>While we take precautions to minimize cross-contamination, we cannot guarantee a completely allergen-free product.</p>
-                <h5>10. Liability</h5>
-                <p>We are not liable for delays caused by circumstances beyond our control (e.g., adverse weather, transportation issues).</p>
-                <p> In the rare event of an issue with your order, please contact us within  1-2 hours before of pickup/delivery for resolution.</p>
-                <h5>11. Changes to Terms</h5>
-                <p>We reserve the right to update or modify these terms and conditions at any time. Any changes will be communicated via our website or directly to customers with active orders.
-                </p>
+                <h5>9. Intellectual Property</h5>
+                <p>All content on the M&M Cake Ordering System, including text, graphics, logos, and software, is the property of M&M Cake Ordering System and is protected by copyright and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.</p>
+
+                <h5>10. Limitation of Liability</h5>
+                <p>To the fullest extent permitted by law, M&M Cake Ordering System shall not be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the service.</p>
+
+                <h5>11. Governing Law</h5>
+                <p>These Terms and Conditions shall be governed by and construed in accordance with the laws of [insert jurisdiction]. Any disputes arising from these terms shall be resolved in the courts of [insert jurisdiction].</p>
 
                 <h5>12. Contact Us</h5>
                 <p>If you have any questions about these Terms and Conditions, please contact us at:</p>
                 <p><strong>M&M Cake Ordering System</strong><br>
-                Phone: 09158259643<br>
-                Email: mandmcakeorderingsystem@gmail.com<br>
-                Address: Poblacion, Madridejos, Cebu</p>
-
-                    <button class="modal-close btn btn-secondary mt-3" id="closeModal">Close</button>
-                </div>
+                [Insert Contact Information]<br>
+                [Insert Email Address]<br>
+                [Insert Phone Number]</p>
+            </div>
+            <div class="modal-footer">
+                <button id="acceptBtn" class="btn btn-accept">
+                    <i class=""></i> Accept
+                </button>
             </div>
         </div>
     </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

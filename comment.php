@@ -14,12 +14,12 @@ if (!isset($_SESSION['login_user_id'])) {
 // Fetch the logged-in user's ID
 $user_id = intval($_SESSION['login_user_id']);
 
-// Check if `order_id` is provided in the URL
+// Check if order_id is provided in the URL
 if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {
     die("Order ID is required to leave a comment.");
 }
 
-// Fetch the `order_id` from the URL
+// Fetch the order_id from the URL
 $order_id = intval($_GET['order_id']);
 
 // Query to fetch the email and order_number for the given order_id

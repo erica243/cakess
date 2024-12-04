@@ -43,8 +43,8 @@ Class Action {
         }
     
         // Set max attempts and lockout time (in seconds)
-        $max_attempts = 3;
-        $lockout_time = 10; // 15 minutes
+        $max_attempts = 5;
+        $lockout_time = 180; // 15 minutes
     
         // If the max attempts are reached, check if lockout time has passed
         if ($_SESSION['failed_attempts'] >= $max_attempts) {
@@ -130,31 +130,26 @@ Class Action {
         }
     }
 
-   function signup() {
-    extract($_POST); // Extract POST variables, including 'street'
-    $password = password_hash($password, PASSWORD_DEFAULT); // Hash the password
-    $data = " first_name = '$first_name' ";
-    $data .= ", last_name = '$last_name' ";
-    $data .= ", mobile = '$mobile' ";
-    $data .= ", address = '$address' ";
-    $data .= ", street = '$street' "; // Add the street to the query
-    $data .= ", email = '$email' ";
-    $data .= ", password = '$password' ";
-
-    // Check if the email is already in use
-    $chk = $this->db->query("SELECT * FROM user_info WHERE email = '$email'")->num_rows;
-    if($chk > 0) {
-        return 2; // Email already exists
-        exit;
+    function signup() {
+        extract($_POST);
+        $password = password_hash($password, PASSWORD_DEFAULT);
+        $data = " first_name = '$first_name' ";
+        $data .= ", last_name = '$last_name' ";
+        $data .= ", mobile = '$mobile' ";
+        $data .= ", address = '$address' ";
+        $data .= ", email = '$email' ";
+        $data .= ", password = '$password' ";
+        $chk = $this->db->query("SELECT * FROM user_info WHERE email = '$email'")->num_rows;
+        if($chk > 0) {
+            return 2;
+            exit;
+        }
+        $save = $this->db->query("INSERT INTO user_info SET ".$data);
+        if($save) {
+            $login = $this->login2();
+            return 1;
+        }
     }
-
-    // Insert the new user record
-    $save = $this->db->query("INSERT INTO user_info SET ".$data);
-    if($save) {
-        $login = $this->login2(); // Optional: Automatically log in the user after signup
-        return 1; // Signup successful
-    }
-}
 
     function save_settings() {
         extract($_POST);
@@ -261,48 +256,11 @@ Class Action {
     }
 
     function delete_cart() {
-        // Extract the cart ID from the URL parameter
         extract($_GET);
-        
-        // Get the product details (quantity and stock) from the cart
-        $product_query = $this->db->query("SELECT c.qty, p.stock, c.product_id FROM cart c INNER JOIN product_list p ON c.product_id = p.id WHERE c.id = $id");
-        $product = $product_query->fetch_assoc();
-        
-        if ($product) {
-            // Get the product quantity in the cart and current stock
-            $product_qty = $product['qty'];
-            $current_stock = $product['stock'];
-            $product_id = $product['product_id'];
-    
-            // Calculate the new stock after removing the item
-            $new_stock = $current_stock + $product_qty;
-    
-            // Update the stock of the product in the product list
-            $update_stock_query = $this->db->query("UPDATE product_list SET stock = $new_stock WHERE id = $product_id");
-    
-            // If stock update is successful, proceed with deletion
-            if ($update_stock_query) {
-                // Delete the item from the cart
-                $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
-    
-                if ($delete_query) {
-                    // Redirect back to the previous page if deletion is successful
-                    header('location:' . $_SERVER['HTTP_REFERER']);
-                    exit;
-                } else {
-                    // Handle error if deletion fails
-                    echo "Error: Unable to delete the item from the cart.";
-                }
-            } else {
-                // Handle error if stock update fails
-                echo "Error: Unable to update the stock.";
-            }
-        } else {
-            // Handle error if the cart item is not found
-            echo "Error: Cart item not found.";
-        }
+        $delete = $this->db->query("DELETE FROM cart WHERE id = ".$id);
+        if($delete)
+            header('location:'.$_SERVER['HTTP_REFERER']);
     }
-    
 
     function add_to_cart() {
         extract($_POST);
@@ -385,7 +343,6 @@ Class Action {
     }
     
 
-   
     function update_cart_qty() {
         extract($_POST);
         
@@ -453,7 +410,6 @@ Class Action {
         }
     
         // Use mysqli_real_escape_string to escape all inputs
-        $user_id = $_SESSION['login_user_id']; // Fetch logged-in user's ID
         $order_number = rand(1000, 9999); // Example random order number
         $order_date = date('Y-m-d H:i:s'); // Current date and time
         $delivery_method = isset($_POST['order_type']) ? $this->db->real_escape_string($_POST['order_type']) : 'Delivery'; // Default to delivery
@@ -488,9 +444,9 @@ Class Action {
             }
         }
     
-        $sql = "INSERT INTO orders (user_id, order_number, order_date, delivery_method, name, address, mobile, email, payment_method, transaction_id, ref_no, pickup_date, pickup_time, payment_proof) 
-            VALUES ('$user_id', '$order_number', '$order_date', '$delivery_method', '$first_name $last_name', '$address', '$mobile', '$email', '$payment_method', '$transaction_id', '$ref_no', '$pickup_date', '$pickup_time', '$payment_proof_path')";
-
+        // Include ref_no in the SQL insert statement
+        $sql = "INSERT INTO orders (order_number, order_date, delivery_method, name, address, mobile, email, payment_method, transaction_id, ref_no, pickup_date, pickup_time, payment_proof) VALUES ('$order_number', '$order_date', '$delivery_method', '$first_name $last_name', '$address', '$mobile', '$email', '$payment_method', '$transaction_id', '$ref_no', '$pickup_date', '$pickup_time', '$payment_proof_path')";
+    
         // Execute query
         $save = $this->db->query($sql);
         if (!$save) {
@@ -519,6 +475,7 @@ Class Action {
         }
         return 1; // Indicate success
     }
+    
     function confirm_order() {
         extract($_POST);
         $date = date("m-d-Y H:i:s");
@@ -700,34 +657,5 @@ function createNotification($user_id, $order_id, $message) {
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iis", $user_id, $order_id, $message);
     return $stmt->execute();
-}
-function sendEmail($to, $receiptHtml) {
-    $mail = new PHPMailer(true);
-
-    try {
-        //Server settings
-        $mail->isSMTP();
-        $mail->Host = 'smtp.example.com';  // Set the SMTP server to send through
-        $mail->SMTPAuth = true;
-        $mail->Username = 'mandmcakeorderingsystem@gmail.com'; 
-        $mail->Password = 'dgld kvqo yecu wdka'; 
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-
-        //Recipients
-        $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
-        $mail->addAddress($to);  // Add a recipient
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Receipt for Your Order';
-        $mail->Body    = $receiptHtml;  // The receipt HTML or a PDF if needed
-
-        // Send the email
-        $mail->send();
-        echo 'Message has been sent';
-    } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-    }
 }
 ?>

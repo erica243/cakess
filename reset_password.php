@@ -129,13 +129,6 @@ if (!$user) {
             background-color: #d4edda;
             color: #155724;
         }
-        .input-group {
-            display: flex;
-            align-items: center;
-        }
-        .input-group-text {
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -153,28 +146,14 @@ if (!$user) {
             
             <div class="form-group">
                 <label>New Password</label>
-                <div class="input-group">
-                    <input type="password" name="new_password" class="form-control" required 
-                           placeholder="Min 8 chars, include uppercase, lowercase, number, special char" id="new_password">
-                    <div class="input-group-append">
-                        <span class="input-group-text" id="toggle_new_password">
-                            <i class="fa fa-eye-slash"></i>
-                        </span>
-                    </div>
-                </div>
+                <input type="password" name="new_password" class="form-control" required 
+                       placeholder="Min 8 chars, include uppercase, lowercase, number, special char">
             </div>
             
             <div class="form-group">
                 <label>Confirm New Password</label>
-                <div class="input-group">
-                    <input type="password" name="confirm_password" class="form-control" required 
-                           placeholder="Repeat new password" id="confirm_password">
-                    <div class="input-group-append">
-                        <span class="input-group-text" id="toggle_confirm_password">
-                            <i class="fa fa-eye-slash"></i>
-                        </span>
-                    </div>
-                </div>
+                <input type="password" name="confirm_password" class="form-control" required 
+                       placeholder="Repeat new password">
             </div>
             
             <button type="submit" class="btn">Reset Password</button>
@@ -182,36 +161,8 @@ if (!$user) {
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script>
     $(document).ready(function() {
-        // Toggle visibility for new password
-        $('#toggle_new_password').on('click', function() {
-            var passwordField = $('#new_password');
-            var icon = $(this).find('i');
-            if (passwordField.attr('type') === 'password') {
-                passwordField.attr('type', 'text');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            } else {
-                passwordField.attr('type', 'password');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            }
-        });
-
-        // Toggle visibility for confirm password
-        $('#toggle_confirm_password').on('click', function() {
-            var confirmPasswordField = $('#confirm_password');
-            var icon = $(this).find('i');
-            if (confirmPasswordField.attr('type') === 'password') {
-                confirmPasswordField.attr('type', 'text');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            } else {
-                confirmPasswordField.attr('type', 'password');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            }
-        });
-
-        // Handle form submission
         $('#reset-password-form').on('submit', function(e) {
             e.preventDefault();
             var form = $(this);

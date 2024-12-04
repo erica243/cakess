@@ -37,11 +37,10 @@ try {
     $email = trim($_POST['email'] ?? '');
     $mobile = trim($_POST['mobile'] ?? '');
     $address = trim($_POST['address'] ?? '');
-    $street = trim($_POST['street'] ?? '');
     $password = $_POST['password'] ?? '';
 
     // Check for empty fields
-    if (empty($first_name) || empty($last_name) || empty($email) || empty($mobile) || empty($address) || empty($street) || empty($password)) {
+    if (empty($first_name) || empty($last_name) || empty($email) || empty($mobile) || empty($address) || empty($password)) {
         sendJsonResponse('error', 'All fields are required');
     }
 
@@ -82,19 +81,11 @@ try {
     $conn->begin_transaction();
 
     // Insert new user
-    $insert_stmt = $conn->prepare("
-        INSERT INTO user_info 
-        (first_name, last_name, email, password, mobile, address, street, municipality, active, code) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
-    ");
+    $insert_stmt = $conn->prepare("INSERT INTO user_info (first_name, last_name, email, password, mobile, address, municipality, active, code) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)");
     if (!$insert_stmt) {
         sendJsonResponse('error', 'Database error: ' . $conn->error);
     }
-    $insert_stmt->bind_param(
-        "ssssssssi", 
-        $first_name, $last_name, $email, $hashed_password, $mobile, 
-        $address, $street, $municipality, $otp
-    );
+    $insert_stmt->bind_param("sssssssi", $first_name, $last_name, $email, $hashed_password, $mobile, $address, $municipality, $otp);
     if (!$insert_stmt->execute()) {
         sendJsonResponse('error', 'Registration failed: ' . $insert_stmt->error);
     }
