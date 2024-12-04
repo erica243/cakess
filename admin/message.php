@@ -112,42 +112,28 @@ $messages = $stmt->get_result();
                     <td><?php echo htmlspecialchars($row['message']); ?></td>
                     <td><?php echo date('Y-m-d H:i:s', strtotime($row['created_at'])); ?></td>
                     <td>
-                    <?php
-                        if (!empty($row['image_path'])) {
-                            // Remove any leading 'uploads/' from the stored filename if it exists
-                            $image_path = htmlspecialchars($row['photo_path']);
-                            if (strpos($image_path, 'uploads/') === 0) {
-                                $image_path = substr($image_path, strlen('uploads/'));
-                            }
-
-                            // Now construct the full image path correctly
-                            $full_image_path = "../uploads/" . $photo_path;
-                            
-                            // Check if file exists and is readable
-                            if (file_exists($full_image_path)) {
-                                if (is_readable($full_image_path)) {
-                                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                                    $mime_type = finfo_file($finfo, $full_image_path);
-                                    finfo_close($finfo);
-                                    
-                                    if (strpos($mime_type, 'image') === 0) {
-                                        echo '<a href="' . htmlspecialchars($full_image_path) . '" data-fancybox="gallery" data-caption="User Image">';
-                                        echo '<img src="' . htmlspecialchars($full_image_path) . '" alt="User Image" style="max-width: 100px; max-height: 100px;">';
-                                        echo '</a>';
-                                    } else {
-                                        echo 'Invalid file type';
-                                    }
-                                } else {
-                                    echo 'Image file not readable';
-                                }
-                            } else {
-                                echo 'Image file not found';
-                            }
-                        } else {
-                            echo 'No image available';
-                        }
-                    ?>
-                    </td>
+    <?php
+    if (!empty($row['photo_path'])) { // Correct column name from the database
+        $photoPath = "../" . htmlspecialchars($row['photo_path']); // Prepend the correct path to the uploads directory
+        
+        // Check if the file exists and is an image
+        if (file_exists($photoPath)) {
+            $mimeType = mime_content_type($photoPath);
+            if (strpos($mimeType, 'image/') === 0) {
+                echo '<a href="' . htmlspecialchars($photoPath) . '" target="_blank">';
+                echo '<img src="' . htmlspecialchars($photoPath) . '" alt="User Uploaded Photo" style="max-width: 100px; max-height: 100px;">';
+                echo '</a>';
+            } else {
+                echo 'File is not a valid image.';
+            }
+        } else {
+            echo 'Image file not found.';
+        }
+    } else {
+        echo 'No image available.';
+    }
+    ?>
+</td>
                     <td>
                         <?php echo htmlspecialchars($row['user_reply']) ?: 'No reply from user'; ?> <!-- Display user reply if available -->
                     </td>
