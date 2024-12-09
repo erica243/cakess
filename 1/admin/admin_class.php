@@ -286,11 +286,9 @@ Class Action {
                 $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
     
                 if ($delete_query) {
-                    // Redirect to the cart_list page if deletion is successful
-                    header('Location: index.php?page=cart_list');
+                    // Redirect back to the previous page if deletion is successful
+                    header('location:' . $_SERVER['HTTP_REFERER']);
                     exit;
-                }
-                
                 } else {
                     // Handle error if deletion fails
                     echo "Error: Unable to delete the item from the cart.";
