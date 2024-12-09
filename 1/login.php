@@ -13,7 +13,7 @@
                 <small><a href="javascript:void(0)" class="text-dark" id="new_account">Create New Account</a></small>
             </div>
              
-            <div class="g-recaptcha" data-sitekey="6LeTzYsqAAAAADeYgqUq2nEL6iaLLccFPqeo4Ezy"></div>
+            <div class="g-recaptcha" data-sitekey="6LcIf5YqAAAAAIxUD3AAJ7FBNKhK9E5TxfQ5Iyed"></div>
             <button class="button btn btn-dark btn-sm">Login</button>
             <div>
                 <br><a href="javascript:void(0)" class="text-dark" id="forgot_password">Forgot Password?</a>
@@ -43,6 +43,7 @@
  
 </style>
  
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
     $('#new_account').click(function () {
 		uni_modal("Create an Account", 'signup.php?redirect=index.php?page=home')
@@ -71,7 +72,6 @@
 			}
 		});
 	});
- 
 
     // Handle navigation between login and forgot password sections
     $('#forgot_password').click(function () {
