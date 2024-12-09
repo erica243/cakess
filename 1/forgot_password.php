@@ -56,7 +56,7 @@ try {
     $mail->Username = 'mandmcakeorderingsystem@gmail.com'; 
     $mail->Password = 'dgld kvqo yecu wdka'; // Ensure correct credentials
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = 3306;
+    $mail->Port = 587;
 
     $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
     $mail->addAddress($email);
