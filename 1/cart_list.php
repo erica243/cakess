@@ -222,7 +222,7 @@
         }
     });
 }
-    $('.rem_cart').click(function(e){
+$('.rem_cart').click(function(e){
     e.preventDefault(); // Prevent the default action (the link)
 
     // Use SweetAlert to show a confirmation dialog
@@ -236,9 +236,46 @@
     }).then((result) => {
         if (result.isConfirmed) {
             // Proceed with the deletion
-            var id = $(this).attr('data-id');
-            window.location.href = "admin/ajax.php?action=delete_cart&id=" + id; // Redirect to delete the item
+            var id = $(this).attr('data-id'); // Get the cart item ID
+
+            // Send AJAX request to delete the item
+            $.ajax({
+                url: 'admin/ajax.php', // Your PHP file that handles the deletion
+                method: 'GET',
+                data: {
+                    action: 'delete_cart',
+                    id: id
+                },
+                success: function(response) {
+                    // Check for success response from PHP
+                    if (response == 'success') {
+                        // Reload the page to update the cart
+                        Swal.fire(
+                            'Deleted!',
+                            'The item has been removed from your cart.',
+                            'success'
+                        ).then(() => {
+                            location.reload(); // Reload the page after successful deletion
+                        });
+                    } else {
+                        // Handle error if deletion fails
+                        Swal.fire(
+                            'Error!',
+                            'There was an issue deleting the item.',
+                            'error'
+                        );
+                    }
+                },
+                error: function() {
+                    Swal.fire(
+                        'Error!',
+                        'There was an issue with the request.',
+                        'error'
+                    );
+                }
+            });
         }
     });
 });
+
 </script>
