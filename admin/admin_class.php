@@ -259,7 +259,6 @@ Class Action {
         if($delete)
             return 1;
     }
-
     function delete_cart() {
         // Extract the cart ID from the URL parameter
         extract($_GET);
