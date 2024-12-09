@@ -1,4 +1,14 @@
-<?php session_start(); ?>
+<?php session_start()
+$recaptcha_token = $_POST['recaptcha_token'];
+$secret_key = '6LcIf5YqAAAAAIxUD3AAJ7FBNKhK9E5TxfQ5Iyed';
+
+$verify_response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret_key.'&response='.$recaptcha_token);
+$response_data = json_decode($verify_response);
+
+if (!$response_data->success || $response_data->score < 0.5) {
+    // Failed reCAPTCHA verification
+    die(json_encode(['status' => 'error', 'message' => 'Bot detection failed']));
+}; ?>
 <div class="container-fluid">
     <!-- Login Section -->
     <div id="login-section">
