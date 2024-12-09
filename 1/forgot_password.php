@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Include necessary files
-require_once '../db_connect.php'; // Ensure this path is correct
+require_once 'admin/db_connect.php'; // Ensure this path is correct
 require_once 'PHPMailer/PHPMailer.php';
 require_once 'PHPMailer/SMTP.php';
 require_once 'PHPMailer/Exception.php';
