@@ -13,7 +13,7 @@
                 <small><a href="javascript:void(0)" class="text-dark" id="new_account">Create New Account</a></small>
             </div>
              
-            <div class="g-recaptcha" data-sitekey="6LcoapYqAAAAADr1OaM8FGmlLTTnF0nNkGOCmVI0"></div>
+            <div class="g-recaptcha" data-sitekey="6LeTzYsqAAAAADeYgqUq2nEL6iaLLccFPqeo4Ezy"></div>
             <button class="button btn btn-dark btn-sm">Login</button>
             <div>
                 <br><a href="javascript:void(0)" class="text-dark" id="forgot_password">Forgot Password?</a>
@@ -108,14 +108,13 @@
             }
         },
         error: function (xhr, status, error) {
-            submitButton.removeAttr('disabled').html('Submit');
-            console.error("Error: " + status + ": " + error);
-            console.error(xhr.responseText);  // This will log the detailed error message from the server
-            $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
-        }
+    submitButton.removeAttr('disabled').html('Submit');
+    console.error("Error: " + status + ": " + error);
+    console.error(xhr.responseText);
+    $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+}
     });
 });
-
 
     // Existing Login Form submission logic
     $('#login-frm').submit(function (e) {

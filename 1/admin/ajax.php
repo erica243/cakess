@@ -269,86 +269,33 @@ if ($action == 'send_otp') {
         echo json_encode(['success' => false, 'message' => 'Invalid email address.']);
     }
 }
-if ($action == "forgot_password") {
-    // Validate email input
-    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-    if (!$email) {
-        $resp['status'] = 'failed';
-        $resp['message'] = 'Invalid email format.';
-        echo json_encode($resp);
-        exit;
-    }
-
-    // Check if the email exists in the database
-    $query = $conn->prepare("SELECT * FROM user_info WHERE email = ?");
-    $query->bind_param("s", $email);
-    $query->execute();
-    $result = $query->get_result();
-
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+if($action == "forgot_password"){
+    $email = $_POST['email'];
+    $query = $conn->query("SELECT * FROM user_info WHERE email = '$email'");
+    if($query->num_rows > 0){
+        $user = $query->fetch_assoc();
+        $code = rand(100000, 999999);
+        $reset_time = date('H:i:s');
         
-        // Generate a secure random code with expiration
-        $code = bin2hex(random_bytes(16));
-        $reset_time = date('Y-m-d H:i:s');
-        $expiry_time = date('Y-m-d H:i:s', strtotime('+1 hour')); // Link valid for 1 hour
+        $conn->query("UPDATE user_info SET code = '$code', reset_time = '$reset_time' WHERE email = '$email'");
         
-        // Store the code, reset time, and expiry time in the database
-        $update_query = $conn->prepare("UPDATE user_info SET reset_code = ?, reset_time = ?, reset_expiry = ? WHERE email = ?");
-        $update_query->bind_param("ssss", $code, $reset_time, $expiry_time, $email);
-        $update_query->execute();
-
-        // Construct the reset password link (use HTTPS)
-        $reset_link = "https://mandm-lawis.com/1/reset_password.php?code=" . urlencode($code) . "&email=" . urlencode($email);
-
-        // Prepare email content
+        // Send email
+        $to = $email;
         $subject = "Password Reset Request";
-        $message = "
-            <html>
-            <body>
-                <p>Hi,</p>
-                <p>You requested a password reset. Click the link below to reset your password:</p>
-                <p><a href='$reset_link'>Reset Password</a></p>
-                <p>This link will expire in 1 hour.</p>
-                <p>If you did not request this, please ignore this email.</p>
-            </body>
-            </html>
-        ";
-
-        // Send the email using PHPMailer
-        $mail = new PHPMailer(true);
-
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'mandmcakeorderingsystem@gmail.com';
-            $mail->Password = 'dgld kvqo yecu wdka';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
-            $mail->addAddress($email);
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = $message;
-
-            $mail->send();
-
-            $resp['status'] = 'success';
-            $resp['message'] = 'Password reset instructions have been sent to your email.';
-        } catch (Exception $e) {
-            error_log("Email send error: " . $e->getMessage());
-            $resp['status'] = 'failed';
-            $resp['message'] = 'Could not send reset instructions. Please try again later.';
-        }
-    } else {
+        $reset_link = "http://mandm-lawis.com/1/reset_password.php?code=".$code."&email=".$email;
+        $message = "Click the following link to reset your password: ".$reset_link;
+        $headers = "From: your@email.com";
+        
+        mail($to, $subject, $message, $headers);
+        
+        $resp['status'] = 'success';
+    }else{
         $resp['status'] = 'failed';
         $resp['message'] = 'Email not found in our records.';
     }
-
     echo json_encode($resp);
 }
+
 
 if(isset($_GET['action'])) {
     $action = $_GET['action'];
@@ -412,31 +359,6 @@ if (isset($_POST['action']) && $_POST['action'] == 'send_receipt') {
 
     // Send email
     sendEmail($email, $receiptHtml);
-}
-// Login Action
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['action']) && $_GET['action'] == 'login2') {
-    $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-
-    if (!ReCaptcha::verify($recaptchaToken, 'login')) {
-        sendResponse('error', 'Bot verification failed');
-    }
-
-    $db = new Database();
-    
-    if (empty($email) || empty($password)) {
-        sendResponse('error', 'Email and password are required');
-    }
-
-    $userId = $db->verifyUser($email, $password);
-    
-    if ($userId) {
-        $_SESSION['user_id'] = $userId;
-        sendResponse('success', 'Login successful');
-    } else {
-        sendResponse('error', 'Invalid email or password');
-    }
 }
 
 ?>

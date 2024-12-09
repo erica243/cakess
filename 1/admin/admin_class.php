@@ -260,58 +260,58 @@ Class Action {
             return 1;
     }
 
-    function delete_cart() {
-        // Extract the cart ID from the URL parameter
-        extract($_GET);
-        
-        // Ensure the ID is a valid integer
-        if (!is_numeric($id)) {
-            echo "Invalid ID";
-            return;
-        }
+   function delete_cart() {
+    // Extract the cart ID from the URL parameter
+    extract($_GET);
     
-        // Get the product details (quantity and stock) from the cart
-        $product_query = $this->db->query("SELECT c.qty, p.stock, c.product_id FROM cart c INNER JOIN product_list p ON c.product_id = p.id WHERE c.id = $id");
-        $product = $product_query->fetch_assoc();
-    
-        if ($product) {
-            // Get the product quantity in the cart and current stock
-            $product_qty = $product['qty'];
-            $current_stock = $product['stock'];
-            $product_id = $product['product_id'];
-    
-            // Calculate the new stock after removing the item
-            $new_stock = $current_stock + $product_qty;
-    
-            // Update the stock of the product in the product list
-            $update_stock_query = $this->db->query("UPDATE product_list SET stock = $new_stock WHERE id = $product_id");
-    
-            // If stock update is successful, proceed with deletion
-            if ($update_stock_query) {
-                // Delete the item from the cart
-                $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
-    
-                if ($delete_query) {
-                    // Return success response
-                    echo 'success';
-                    exit;
-                } else {
-                    // Return error if deletion fails
-                    echo 'Error: Unable to delete the item from the cart.';
-                    exit;
-                }
+    // Ensure the ID is a valid integer
+    if (!is_numeric($id)) {
+        echo "Invalid ID";
+        return;
+    }
+
+    // Get the product details (quantity and stock) from the cart
+    $product_query = $this->db->query("SELECT c.qty, p.stock, c.product_id FROM cart c INNER JOIN product_list p ON c.product_id = p.id WHERE c.id = $id");
+    $product = $product_query->fetch_assoc();
+
+    if ($product) {
+        // Get the product quantity in the cart and current stock
+        $product_qty = $product['qty'];
+        $current_stock = $product['stock'];
+        $product_id = $product['product_id'];
+
+        // Calculate the new stock after removing the item
+        $new_stock = $current_stock + $product_qty;
+
+        // Update the stock of the product in the product list
+        $update_stock_query = $this->db->query("UPDATE product_list SET stock = $new_stock WHERE id = $product_id");
+
+        // If stock update is successful, proceed with deletion
+        if ($update_stock_query) {
+            // Delete the item from the cart
+            $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
+
+            if ($delete_query) {
+                // Return success response
+                echo 'success';
+                exit;
             } else {
-                // Return error if stock update fails
-                echo 'Error: Unable to update the stock.';
+                // Return error if deletion fails
+                echo 'Error: Unable to delete the item from the cart.';
                 exit;
             }
         } else {
-            // Return error if the cart item is not found
-            echo 'Error: Cart item not found.';
+            // Return error if stock update fails
+            echo 'Error: Unable to update the stock.';
             exit;
         }
+    } else {
+        // Return error if the cart item is not found
+        echo 'Error: Cart item not found.';
+        exit;
     }
-    
+}
+
     
 
     function add_to_cart() {
