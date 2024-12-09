@@ -83,37 +83,53 @@
         $('#forgot-password-section').hide(); // Hide forgot password form
         $('#login-section').show(); // Show login form
     });
-    $('#forgot-password-frm').submit(function (e) {
-    e.preventDefault();
-    
-    let submitButton = $('#forgot-password-frm button[type="submit"]');
-    submitButton.attr('disabled', true).html('Submitting...');
 
-    // Clear previous alert messages before making a new submission
-    $('#forgot-password-frm .alert').remove();
+    // Handle Forgot Password Form submission
+	$('#forgot-password-frm').submit(function (e) {
+        e.preventDefault(); // Prevent default form submission
 
-    $.ajax({
-        url: 'ajax.php?action=forgot_password',  // Ensure the correct path to your PHP script
-        method: 'POST',
-        data: $(this).serialize(),
-        dataType: 'json',
-        success: function (resp) {
-            submitButton.removeAttr('disabled').html('Submit');
-            
-            if (resp.status === 'success') {
-                $('#forgot-password-frm').prepend('<div class="alert alert-success">' + resp.message + '</div>');
-            } else {
-                $('#forgot-password-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
-            }
-        },
-        error: function (xhr, status, error) {
-            submitButton.removeAttr('disabled').html('Submit');
-            console.error("Error: " + status + ": " + error);
-            console.error(xhr.responseText);
-            $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+        // Check if the email input is valid
+        if (!$(this).find('[name="email"]').val()) {
+            alert('Please enter a valid email address.');
+            return;
         }
+
+        // Disable submit button and show loading text
+        let submitButton = $('#forgot-password-frm button[type="submit"]');
+        submitButton.attr('disabled', true).html('Submitting...');
+
+        // Clear any previous alerts
+        $('#forgot-password-frm .alert').remove();
+
+        // Perform AJAX request
+        $.ajax({
+            url: 'forgot_password.php', // Ensure the correct path to the PHP script
+            method: 'POST',
+            data: $(this).serialize(), // Serialize form data
+            dataType: 'json', // Expect JSON response
+            success: function (resp) {
+                // Re-enable the button
+                submitButton.removeAttr('disabled').html('Submit');
+
+                if (resp.status === 'success') {
+                    // Display success message
+                    $('#forgot-password-frm').prepend('<div class="alert alert-success">' + resp.message + '</div>');
+                } else {
+                    // Display error message
+                    $('#forgot-password-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
+                }
+            },
+            error: function (xhr, status, error) {
+                // Re-enable the button
+                submitButton.removeAttr('disabled').html('Submit');
+
+                // Display generic error message
+                console.error(xhr.responseText);
+                $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+            }
+        });
     });
-});
+
 
 
     // Existing Login Form submission logic
