@@ -37,9 +37,3 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
     Order allow,deny
     Deny from all
 </FilesMatch>
-
-# Prevent direct access to PHP files
-<FilesMatch "^(?!index\.php$).*\.php$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
