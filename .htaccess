@@ -33,13 +33,6 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
   Header set X-Content-Type-Options nosniff
 </IfModule>
 
- 
-
-# Prevent direct access to PHP files, except index.php and admin/login.php
-<FilesMatch "^(?!index\.php$|admin/login\.php$).*\.php$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
 
 
 
