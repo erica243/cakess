@@ -287,7 +287,7 @@ Class Action {
     
                 if ($delete_query) {
                     // Redirect to the cart_list page after successful deletion
-                    header('Location: cart_list.php');
+                    header('Location:1/index.php?page=cart_list');
                     exit;
                 } else {
                     // Handle error if deletion fails
