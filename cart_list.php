@@ -1,3 +1,7 @@
+<!-- SweetAlert2 CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <header class="masthead">
     <div class="container h-100">
         <div class="row h-100 align-items-center justify-content-center text-center">
@@ -187,4 +191,54 @@
             uni_modal("Checkout","login.php?page=checkout")
         }
     })
+    function update_qty(qty, id, price){
+    start_load();
+    $.ajax({
+        url: 'admin/ajax.php?action=update_cart_qty',
+        method: "POST",
+        data: {id: id, qty: qty},
+        success: function(resp){
+            if(resp == 1){
+                var itemTotal = parseFloat(price) * qty;
+                $('button[data-id="'+id+'"]').closest('.card').find('.item-total').text(itemTotal.toFixed(2));
+                update_total_amount();
+                end_load();
+                
+                // Show success message using SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated!',
+                    text: 'The quantity has been updated successfully.',
+                });
+            } else {
+                // Show error message using SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'There was an issue updating the cart. Please try again.',
+                });
+                end_load();
+            }
+        }
+    });
+}
+    $('.rem_cart').click(function(e){
+    e.preventDefault(); // Prevent the default action (the link)
+
+    // Use SweetAlert to show a confirmation dialog
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to remove this item from your cart?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Proceed with the deletion
+            var id = $(this).attr('data-id');
+            window.location.href = "admin/ajax.php?action=delete_cart&id=" + id; // Redirect to delete the item
+        }
+    });
+});
 </script>

@@ -13,6 +13,6 @@ while ($row = $result->fetch_assoc()) {
     $notifications[] = $row;
 }
 $query->close();
-
+z
 echo json_encode(['status' => 'success', 'notifications' => $notifications]);
 ?>

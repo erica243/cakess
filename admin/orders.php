@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +30,10 @@
             max-height: 80vh;
             display: block;
             margin: auto;
+        }
+        .cancelled-order-message {
+            color: red;
+            font-style: italic;
         }
     </style>
 </head>
@@ -99,8 +104,11 @@
                                 case 'delivered':
                                     echo '<span class="badge badge-dark">Delivered</span>';
                                     break;
+                                    case 'cancelled':
+                                        echo '<span class="badge badge-danger">Cancelled</span>';
+                                        break;
                                 default:
-                                    echo '<span class="badge badge-secondary">Unknown</span>';
+                                    echo '<span class="badge badge-secondary">Pending</span>';
                                     break;
                             }
                             ?>
@@ -113,7 +121,11 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-primary view_order" data-id="<?php echo $row['id'] ?>">View Order</button>
+                            <?php if ($row['delivery_status'] === 'cancelled'): ?>
+                                <div class="cancelled-order-message">This order has been cancelled by the user</div>
+                            <?php else: ?>
+                                <button class="btn btn-sm btn-primary view_order" data-id="<?php echo $row['id'] ?>">View Order</button>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endwhile; ?>

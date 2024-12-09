@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 26, 2024 at 08:44 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 8.0.25
+-- Generation Time: Dec 01, 2024 at 09:10 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -35,16 +35,6 @@ CREATE TABLE `cart` (
   `qty` int(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `cart`
---
-
-INSERT INTO `cart` (`id`, `client_ip`, `user_id`, `product_id`, `qty`) VALUES
-(11, '', 2, 6, 2),
-(16, '', 3, 9, 1),
-(17, '', 3, 8, 1),
-(28, '', 4, 12, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -61,10 +51,86 @@ CREATE TABLE `category_list` (
 --
 
 INSERT INTO `category_list` (`id`, `name`) VALUES
-(7, 'Birthdayd Cake'),
 (8, 'Baptismal Cake '),
 (10, 'Fathers/Mothers Day Cake'),
-(19, 'Wedding Cake');
+(19, 'Wedding Cake'),
+(23, 'Birthday Cake');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `comments`
+--
+
+CREATE TABLE `comments` (
+  `id` int(11) NOT NULL,
+  `order_number` varchar(50) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `comment` text DEFAULT NULL,
+  `photo_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `admin_reply` text DEFAULT NULL,
+  `reply_date` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `order_number` int(50) NOT NULL,
+  `message` text NOT NULL,
+  `photo_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `admin_reply` text DEFAULT NULL,
+  `user_reply` text DEFAULT NULL,
+  `reply_date` timestamp NULL DEFAULT NULL,
+  `status` tinyint(1) DEFAULT 0,
+  `is_read` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `messages`
+--
+DELIMITER $$
+CREATE TRIGGER `after_admin_reply` AFTER UPDATE ON `messages` FOR EACH ROW BEGIN
+    -- Check if admin reply was added (was NULL, now has value)
+    IF NEW.admin_reply IS NOT NULL AND OLD.admin_reply IS NULL THEN
+        -- Insert into the notifications table
+        INSERT INTO notifications (user_id, message, type, order_number, order_id)
+        VALUES (
+            NEW.user_id, 
+            CONCAT('Admin replied to your message regarding order #', NEW.order_number), 
+            'admin_reply', 
+            NEW.order_number,  -- Insert order_number directly from messages table
+            (SELECT id FROM orders WHERE order_number = NEW.order_number LIMIT 1)
+        );
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `order_number` int(50) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_read` tinyint(1) DEFAULT 0,
+  `order_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -74,45 +140,75 @@ INSERT INTO `category_list` (`id`, `name`) VALUES
 
 CREATE TABLE `orders` (
   `id` int(30) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `order_number` int(11) NOT NULL,
   `order_date` datetime NOT NULL DEFAULT current_timestamp(),
   `name` text NOT NULL,
   `address` text NOT NULL,
   `mobile` text NOT NULL,
   `email` text NOT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT 0,
   `delivery_method` varchar(100) NOT NULL,
   `transaction_id` int(11) NOT NULL,
   `payment_method` varchar(100) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `shipping` int(11) NOT NULL,
   `pickup_date` date DEFAULT NULL,
-  `pickup_time` time DEFAULT NULL
+  `pickup_time` time DEFAULT NULL,
+  `payment_proof` varchar(255) DEFAULT NULL,
+  `delivery_status` varchar(100) DEFAULT NULL,
+  `status` varchar(100) NOT NULL,
+  `ref_no` varchar(100) NOT NULL,
+  `status_updated_at` datetime DEFAULT current_timestamp(),
+  `estimated_delivery` datetime DEFAULT NULL,
+  `tracking_notes` text DEFAULT NULL,
+  `tracking_status` varchar(50) DEFAULT 'Order Placed'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `orders`
+-- Triggers `orders`
 --
-
-INSERT INTO `orders` (`id`, `order_number`, `order_date`, `name`, `address`, `mobile`, `email`, `status`, `delivery_method`, `transaction_id`, `payment_method`, `created_at`, `shipping`, `pickup_date`, `pickup_time`) VALUES
-(1, 5932, '2024-07-24 19:27:07', 'Erica Adlit', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 07:00:35', 0, '0000-00-00', '00:00:00'),
-(2, 9001, '2024-07-24 19:32:26', 'Erica Adlit', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 07:00:35', 0, '0000-00-00', '00:00:00'),
-(3, 6169, '2024-07-25 06:39:32', 'Erica Adlit', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 07:00:35', 0, '0000-00-00', '00:00:00'),
-(4, 3060, '2024-07-25 06:41:46', 'Happy Meal', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '0915825964', 'ducaykristel@gmail.com', 1, 'delivery', 0, 'gcash', '2024-07-25 07:00:35', 0, '0000-00-00', '00:00:00'),
-(5, 2054, '2024-07-25 07:02:44', 'Happy Meal', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '0915825964', 'ducaykristel@gmail.com', 1, 'delivery', 0, 'gcash', '2024-07-25 07:03:49', 0, '0000-00-00', '00:00:00'),
-(6, 3205, '2024-07-25 07:03:13', 'Happy Meal', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '0915825964', 'ducaykristel@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 07:03:56', 0, '0000-00-00', '00:00:00'),
-(7, 3458, '2024-07-25 07:03:39', 'Happy Meal', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '0915825964', 'ducaykristel@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 07:05:04', 0, '0000-00-00', '00:00:00'),
-(8, 8019, '2024-07-25 07:37:04', 'Happy Meal', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '0915825964', 'ducaykristel@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 08:16:13', 0, '0000-00-00', '00:00:00'),
-(9, 4500, '2024-07-25 08:15:50', 'Happy Meal', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '0915825964', 'ducaykristel@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 08:28:15', 0, '0000-00-00', '00:00:00'),
-(10, 1556, '2024-07-25 08:36:42', 'Erica Adlit', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'delivery', 0, 'cash', '2024-07-25 08:37:17', 0, '0000-00-00', '00:00:00'),
-(12, 9725, '2024-07-25 11:04:43', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'delivery', 0, 'gcash', '2024-07-25 15:30:32', 0, '0000-00-00', '00:00:00'),
-(13, 1506, '2024-07-25 13:55:28', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'pickup', 0, 'cash', '2024-07-25 21:07:47', 0, '2024-07-31', '21:57:00'),
-(14, 1225, '2024-07-25 15:48:45', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 0, 'delivery', 0, 'cash', '2024-07-25 21:48:45', 0, '0000-00-00', '00:00:00'),
-(15, 5804, '2024-07-25 21:07:27', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 0, 'delivery', 0, 'gcash', '2024-07-26 03:07:27', 0, '0000-00-00', '00:00:00'),
-(16, 3429, '2024-07-25 21:38:56', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'Delivery', 0, 'gcash', '2024-07-26 08:25:55', 0, '0000-00-00', '00:00:00'),
-(17, 4696, '2024-07-26 03:46:03', 'erica adlit', 'malbago', '9815825964', 'eica204@chavezgmail.com', 0, 'pickup', 0, 'gcash', '2024-07-26 09:46:03', 0, '2024-07-26', '00:48:00'),
-(18, 8866, '2024-07-26 08:27:52', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 1, 'delivery', 0, 'gcash', '2024-07-26 08:28:11', 0, '0000-00-00', '00:00:00'),
-(19, 4210, '2024-07-26 08:31:53', 'Salve De Mesa', 'tarong madridejos cebu', '0915825964', 'erica204chavez@gmail.com', 0, 'delivery', 0, 'gcash', '2024-07-26 14:31:53', 0, '0000-00-00', '00:00:00');
+DELIMITER $$
+CREATE TRIGGER `after_delivery_status_update` AFTER UPDATE ON `orders` FOR EACH ROW BEGIN
+    -- Check if delivery status is changed
+    IF NEW.delivery_status != OLD.delivery_status THEN
+        -- If the new status is not 'cancelled', send an update message
+        IF NEW.delivery_status != 'cancelled' THEN
+            INSERT INTO notifications (user_id, message, type, order_number)
+            VALUES (
+                NEW.user_id, 
+                CONCAT('Your order #', NEW.order_number, ' has been updated. The current delivery status is: ', NEW.delivery_status),
+                'delivery_status', 
+                NEW.order_number
+            );
+        -- If the new status is 'cancelled', send a cancellation message
+        ELSE
+            INSERT INTO notifications (user_id, message, type, order_number)
+            VALUES (
+                NEW.user_id, 
+                CONCAT('You have canceled your order #', NEW.order_number),
+                'delivery_status', 
+                NEW.order_number
+            );
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `after_order_status_update` AFTER UPDATE ON `orders` FOR EACH ROW BEGIN
+    IF NEW.status != OLD.status THEN
+        INSERT INTO notifications (user_id, type, reference_id, message)
+        SELECT 
+            u.id,
+            'order_status',
+            NEW.order_number,
+            CONCAT('Your order #', NEW.order_number, ' status has been updated to: ', NEW.status)
+        FROM users u
+        WHERE u.email = NEW.email;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -127,29 +223,18 @@ CREATE TABLE `order_list` (
   `qty` int(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `order_list`
+-- Table structure for table `order_status_logs`
 --
 
-INSERT INTO `order_list` (`id`, `order_id`, `product_id`, `qty`) VALUES
-(54, 0, 12, 1),
-(55, 0, 15, 1),
-(56, 5, 10, 1),
-(57, 6, 11, 1),
-(58, 7, 15, 1),
-(59, 8, 15, 1),
-(60, 9, 12, 1),
-(61, 10, 11, 1),
-(62, 11, 15, 1),
-(63, 12, 19, 1),
-(64, 13, 16, 1),
-(65, 14, 10, 1),
-(66, 15, 10, 1),
-(67, 15, 18, 1),
-(68, 16, 16, 6),
-(69, 17, 16, 1),
-(70, 18, 14, 1),
-(71, 19, 18, 1);
+CREATE TABLE `order_status_logs` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `timestamp` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -165,20 +250,18 @@ CREATE TABLE `product_list` (
   `price` float NOT NULL DEFAULT 0,
   `img_path` text NOT NULL,
   `status` varchar(100) NOT NULL,
-  `size` varchar(100) NOT NULL
+  `size` varchar(100) NOT NULL,
+  `size_unit` varchar(10) NOT NULL DEFAULT 'inches',
+  `stock` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `product_list`
 --
 
-INSERT INTO `product_list` (`id`, `category_id`, `name`, `description`, `price`, `img_path`, `status`, `size`) VALUES
-(11, 7, 'Wedding Cake', 'fsdf', 55543, '1720082160_b8.jpg', 'Unavailable', '0'),
-(14, 8, 'sdsd', 'sdsd', 22, '1720083240_b1.jpg', 'Available', '0'),
-(15, 8, 'qq', 'as', 1, '1720083240_b6.jpg', 'Unavailable', '0'),
-(16, 7, 'Wedding Cakes', 's', 480, '1721756460_Messenger_creation_178d1d8b-412c-4402-a406-9d2893f31320.png', 'Available', '0'),
-(18, 8, 'Vitamins salve', 'se', 9, '1721897280_logo.jpg', 'Available', '1'),
-(29, 7, 'Wedding Cake', 'z', 123, '', 'Available', '122');
+INSERT INTO `product_list` (`id`, `category_id`, `name`, `description`, `price`, `img_path`, `status`, `size`, `size_unit`, `stock`) VALUES
+(38, 8, 'Chocolate cakek', 'jkh', 480, '_6292e5b9-9a68-4547-b465-9562e06e3faf.jpg', 'unavailable', '1', 'inches', 2),
+(39, 8, 'Lunavalera ', 'scd', 43, '', 'unavailable', '1', 'inches', 0);
 
 -- --------------------------------------------------------
 
@@ -188,12 +271,52 @@ INSERT INTO `product_list` (`id`, `category_id`, `name`, `description`, `price`,
 
 CREATE TABLE `product_ratings` (
   `id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
-  `rating` tinyint(4) NOT NULL,
-  `feedback` text NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `rating` int(11) DEFAULT NULL CHECK (`rating` between 1 and 5),
+  `review_date` datetime DEFAULT current_timestamp(),
+  `feedback` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `replies`
+--
+
+CREATE TABLE `replies` (
+  `id` int(11) NOT NULL,
+  `message_id` int(11) NOT NULL,
+  `reply` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shipping_info`
+--
+
+CREATE TABLE `shipping_info` (
+  `id` int(11) NOT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `street_address` varchar(255) DEFAULT NULL,
+  `map_location` text DEFAULT NULL,
+  `municipality` varchar(100) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `shipping_amount` decimal(10,2) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shipping_info`
+--
+
+INSERT INTO `shipping_info` (`id`, `address`, `street_address`, `map_location`, `municipality`, `email`, `shipping_amount`, `created_at`) VALUES
+(165, 'Atop-atop', NULL, NULL, 'Bantayan', '', 110.00, '2024-11-10 11:07:10'),
+(166, 'Baigad', NULL, NULL, 'Santa Fe', '', 1100.00, '2024-11-22 13:23:21'),
+(186, 'Tarong', NULL, NULL, 'Madridejos', '', 70.00, '2024-11-19 10:19:41'),
+(190, 'Malbago', NULL, NULL, 'Madridejos', '', 120.00, '2024-11-19 10:20:27');
 
 -- --------------------------------------------------------
 
@@ -215,7 +338,7 @@ CREATE TABLE `system_settings` (
 --
 
 INSERT INTO `system_settings` (`id`, `name`, `email`, `contact`, `cover_img`, `about_content`) VALUES
-(1, 'M&M Cake Ordering System', 'erica204chavez@gmail.com', '+639158259643', '1721754180_bg.jpg', '&lt;h1 style=&quot;text-align: center; background: transparent; position: relative;&quot;&gt;&lt;span style=&quot;color:rgb(68,68,68);text-align: center; background: transparent; position: relative;&quot;&gt;&lt;h1&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;b style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;ABOUT US&lt;/b&gt;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;h1&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&amp;nbsp;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;/span&gt;&lt;span style=&quot;font-size:20px;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); text-align: center; background: transparent; position: relative; font-size: 20px;&quot;&gt;&lt;h1 style=&quot;font-size: 20px;&quot;&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 20px;&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 20px;&quot;&gt;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;/span&gt;&lt;span style=&quot;font-size: 24px; text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); text-align: center; background: transparent; position: relative; font-size: 24px;&quot;&gt;&lt;h1 style=&quot;font-size: 24px;&quot;&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;b style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;Welcome to the M&amp;amp;M Cake Ordering System, home of beautifully tasty cakes, an unforgettable cake for every one! We at M&amp;amp;M believe that every occasion is of the highest importance: Celebrate with a cake as exceptional and unique as you. Our selection of beautifully crafted cakes is perfect for your special occasions, whether it&rsquo;s celebrating a birthday, wedding, anniversary - you name it.&lt;/b&gt;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;h3 style=&quot;font-size: 24px;&quot;&gt;&lt;b style=&quot;font-size: 24px;&quot;&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;br style=&quot;font-size: 24px;&quot;&gt;&lt;/sup&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;/sup&gt;&lt;/sup&gt;&lt;/b&gt;&lt;/h3&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;span style=&quot;font-size: 24px; color: rgb(68, 68, 68);&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); text-align: center; background: transparent; position: relative; font-size: 24px;&quot;&gt;&lt;h3 style=&quot;font-size: 24px;&quot;&gt;&lt;b style=&quot;font-size: 24px;&quot;&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt; The story of M&amp;amp;M started in the 1980s with a love of baking and a dedication to perfection. The name &quot;M&amp;amp;M&quot; stands for &quot;Money and Millions,&quot; symbolizing our commitment to delivering value and abundance in every creation we make.&lt;br style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;/sup&gt;&lt;/sup&gt;&lt;sup style=&quot;font-size: 24px;&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;br style=&quot;font-size: 24px;&quot;&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp; We pride ourselves on selecting only the best ingredients, meaning that every cake we make not only looks amazing but tastes delicious too. Our talented bakers and decorators bring some of your favorite classic flavors to new heights, as well as one-of-a-kind creations inspired by your sweetest visions.&lt;/span&gt;&lt;/sup&gt;&lt;/b&gt;&lt;/h3&gt;&lt;/span&gt;&lt;p style=&quot;text-align: center; font-size: 24px;&quot;&gt;&lt;/p&gt;&lt;/span&gt;&lt;p style=&quot;text-align: center; font-size: 24px;&quot;&gt;&lt;/p&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;p style=&quot;text-align: center; font-size: 24px;&quot;&gt;&lt;/p&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 16px;&quot;&gt;&lt;p style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;/span&gt;&lt;/h1&gt;');
+(1, 'M&M Cake Ordering System', 'erica204chavez@gmail.com', '+639158259643', '1729917480_bg.jpg', '&lt;h1 style=&quot;text-align: center; background: transparent; position: relative;&quot;&gt;&lt;span style=&quot;color:rgb(68,68,68);text-align: center; background: transparent; position: relative;&quot;&gt;&lt;h1&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;b style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;ABOUT US&lt;/b&gt;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;h1&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&amp;nbsp;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;/span&gt;&lt;span style=&quot;font-size:20px;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); text-align: center; background: transparent; position: relative; font-size: 20px;&quot;&gt;&lt;h1 style=&quot;font-size: 20px;&quot;&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 20px;&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 20px;&quot;&gt;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;/span&gt;&lt;span style=&quot;font-size: 24px; text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68);&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); text-align: center; background: transparent; position: relative; font-size: 24px;&quot;&gt;&lt;h1 style=&quot;font-size: 24px;&quot;&gt;&lt;span style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;sup style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;b style=&quot;text-align: center; background: transparent; position: relative; color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;Welcome to the M&amp;amp;M Cake Ordering System, home of beautifully tasty cakes, an unforgettable cake for every one! We at M&amp;amp;M believe that every occasion is of the highest importance: Celebrate with a cake as exceptional and unique as you. Our selection of beautifully crafted cakes is perfect for your special occasions, whether it&rsquo;s celebrating a birthday, wedding, anniversary - you name it.&lt;/b&gt;&lt;/sup&gt;&lt;/span&gt;&lt;/h1&gt;&lt;h3 style=&quot;font-size: 24px;&quot;&gt;&lt;b style=&quot;font-size: 24px;&quot;&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;br style=&quot;font-size: 24px;&quot;&gt;&lt;/sup&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;/sup&gt;&lt;/sup&gt;&lt;/b&gt;&lt;/h3&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;span style=&quot;font-size: 24px; color: rgb(68, 68, 68);&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); text-align: center; background: transparent; position: relative; font-size: 24px;&quot;&gt;&lt;h3 style=&quot;font-size: 24px;&quot;&gt;&lt;b style=&quot;font-size: 24px;&quot;&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;sup style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt; The story of M&amp;amp;M started in the 1980s with a love of baking and a dedication to perfection. The name &quot;M&amp;amp;M&quot; stands for &quot;Money and Millions,&quot; symbolizing our commitment to delivering value and abundance in every creation we make.&lt;br style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;/sup&gt;&lt;/sup&gt;&lt;sup style=&quot;font-size: 24px;&quot;&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;br style=&quot;font-size: 24px;&quot;&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&amp;nbsp; &amp;nbsp; We pride ourselves on selecting only the best ingredients, meaning that every cake we make not only looks amazing but tastes delicious too. Our talented bakers and decorators bring some of your favorite classic flavors to new heights, as well as one-of-a-kind creations inspired by your sweetest visions.&lt;/span&gt;&lt;/sup&gt;&lt;/b&gt;&lt;/h3&gt;&lt;/span&gt;&lt;p style=&quot;text-align: center; font-size: 24px;&quot;&gt;&lt;/p&gt;&lt;/span&gt;&lt;p style=&quot;text-align: center; font-size: 24px;&quot;&gt;&lt;/p&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 24px;&quot;&gt;&lt;p style=&quot;text-align: center; font-size: 24px;&quot;&gt;&lt;/p&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(68, 68, 68); font-size: 16px;&quot;&gt;&lt;p style=&quot;text-align: center;&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;/span&gt;&lt;/h1&gt;');
 
 -- --------------------------------------------------------
 
@@ -228,17 +351,21 @@ CREATE TABLE `users` (
   `name` varchar(200) NOT NULL,
   `username` text NOT NULL,
   `password` varchar(200) NOT NULL,
-  `type` tinyint(1) NOT NULL DEFAULT 2 COMMENT '1=admin , 2 = staff'
+  `type` tinyint(1) NOT NULL DEFAULT 2 COMMENT '1=admin , 2 = staff',
+  `profile_picture` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(100) DEFAULT NULL,
+  `reset_code` varchar(6) DEFAULT NULL,
+  `reset_code_expiry` datetime DEFAULT NULL,
+  `temp_reset_token` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `username`, `password`, `type`) VALUES
-(1, 'Administrator', 'admin', '$2y$10$efDvenHYJ5Fu/xxt1ANbXuRx5/TuzNs/s4k6keUiiFvr2ueE0GmrG', 1),
-(3, 'manilyn', 'staff', '$2y$10$/WrVxpafEU4nupXFPnpznOPebS7FgQHM9cQUgSIIRp8G6ZjIvkVdG', 1),
-(5, 'Wedding Cake', 'admin', '$2y$10$HCPYY2qxNuuhHX0jQhYiG.l/HtaweFPQ3uFspBy5/FnL2.CTcgtw6', 1);
+INSERT INTO `users` (`id`, `name`, `username`, `password`, `type`, `profile_picture`, `email`, `reset_token`, `reset_code`, `reset_code_expiry`, `temp_reset_token`) VALUES
+(1, 'Erica Adlit', 'erica204chavez@gmail.com', '$2y$10$lXfOwGzKOEFvh/etqFVUvOmcnCXDEG9Pwf4NGHPHQctQemh1WKjyq', 1, NULL, 'erica204chavez@gmail.com', '4c995728de1cd7d49abf5a2412323af1bf74d4ec852f6f824e08c26b56827894', '132362', '2024-12-02 05:00:45', NULL);
 
 -- --------------------------------------------------------
 
@@ -253,22 +380,17 @@ CREATE TABLE `user_info` (
   `email` varchar(300) NOT NULL,
   `password` varchar(300) NOT NULL,
   `mobile` varchar(10) NOT NULL,
-  `address` varchar(300) NOT NULL
+  `address` varchar(300) NOT NULL,
+  `street` varchar(100) NOT NULL,
+  `municipality` varchar(100) NOT NULL,
+  `active` tinyint(1) DEFAULT 0,
+  `code` int(11) NOT NULL,
+  `reset_time` time NOT NULL,
+  `otp` int(6) DEFAULT NULL,
+  `otp_expiry` datetime DEFAULT NULL,
+  `token` varchar(100) NOT NULL,
+  `token_expiry` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
---
--- Dumping data for table `user_info`
---
-
-INSERT INTO `user_info` (`user_id`, `first_name`, `last_name`, `email`, `password`, `mobile`, `address`) VALUES
-(1, 'James', 'Smith', 'jsmith@sample.com', '1254737c076cf867dc53d60a0364f38e', '4756463215', 'adasdasd asdadasd'),
-(2, 'Claire', 'Blake', 'cblake@mail.com', '$2y$10$QYX8P9KwBKXunMEE4I5hVO/hO9pxUU/aswTlf.v.Uy1CNDEabTafS', '0912365487', 'Sample Address'),
-(3, 'erica', 'adlit', 'manilyndemesa87@gmail.com', '$2y$10$lye723KpwQVP76Urjas03OBI/I0AUVxkGJaGtNteHZL.9c000gjmK', '0915829634', 'tarong'),
-(4, 'Keneth', 'Ducay', 'kenethducay12@gmail.com', '$2y$10$x9FMoDT/WR2Ungg.8kutnO.o3LtuMq/vimb4uhO8dWnCAY/S2XrUe', '0915829634', 'Atop-Atop, Bantayan, Cebu'),
-(5, 'erica', 'adlit', 'mdemesa@gmail.com', '$2y$10$nde4A5aYOfo8tyj2M4eoOOVnbcavB4nusFunQWDFVhBVIEhhTAznK', '0915829634', 'tarong'),
-(6, 'erica', 'adlit', 'us1071591@gmail.com', '$2y$10$1XyTnLIuoMvX/Wrlj0rBMu4oQPEDbK61mU3SS9CLV3u92W2rkXTFa', '0915829634', 'w'),
-(7, 'Salves', 'De Mesa', 'erica204chavez@gmail.com', '$2y$10$eu05fn9zN6mnYz97w1R0EuNrOrb7ygMGGmeu8MP/wlolsthgb8jYq', '0915825964', 'tarong madridejos cebu'),
-(9, 'Erica', 'Adlit', 'eica204@chavezgmail.com', '$2y$10$WpZN5wYpw0dstOT6AUKkBeCgLNJkfgtQhSBJpKMW9XldgPBvaRKX2', '9815825964', 'malbago');
 
 --
 -- Indexes for dumped tables
@@ -287,16 +409,44 @@ ALTER TABLE `category_list`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `comments`
+--
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id_index` (`user_id`),
+  ADD KEY `is_read_index` (`is_read`);
+
+--
 -- Indexes for table `orders`
 --
 ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `order_number` (`order_number`);
 
 --
 -- Indexes for table `order_list`
 --
 ALTER TABLE `order_list`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `order_status_logs`
+--
+ALTER TABLE `order_status_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`);
 
 --
 -- Indexes for table `product_list`
@@ -308,7 +458,23 @@ ALTER TABLE `product_list`
 -- Indexes for table `product_ratings`
 --
 ALTER TABLE `product_ratings`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `replies`
+--
+ALTER TABLE `replies`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `message_id` (`message_id`);
+
+--
+-- Indexes for table `shipping_info`
+--
+ALTER TABLE `shipping_info`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `address` (`address`);
 
 --
 -- Indexes for table `system_settings`
@@ -336,37 +502,73 @@ ALTER TABLE `user_info`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=278;
 
 --
 -- AUTO_INCREMENT for table `category_list`
 --
 ALTER TABLE `category_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT for table `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=206;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT for table `order_list`
 --
 ALTER TABLE `order_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=181;
+
+--
+-- AUTO_INCREMENT for table `order_status_logs`
+--
+ALTER TABLE `order_status_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `product_list`
 --
 ALTER TABLE `product_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `product_ratings`
 --
 ALTER TABLE `product_ratings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `replies`
+--
+ALTER TABLE `replies`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shipping_info`
+--
+ALTER TABLE `shipping_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=193;
 
 --
 -- AUTO_INCREMENT for table `system_settings`
@@ -384,7 +586,30 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_info`
 --
 ALTER TABLE `user_info`
-  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `order_status_logs`
+--
+ALTER TABLE `order_status_logs`
+  ADD CONSTRAINT `order_status_logs_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+
+--
+-- Constraints for table `product_ratings`
+--
+ALTER TABLE `product_ratings`
+  ADD CONSTRAINT `product_ratings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_info` (`user_id`),
+  ADD CONSTRAINT `product_ratings_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product_list` (`id`);
+
+--
+-- Constraints for table `replies`
+--
+ALTER TABLE `replies`
+  ADD CONSTRAINT `replies_ibfk_1` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -23,7 +23,9 @@
 </head>
 <body>
 <?php
+
 include 'db_connect.php';
+
 $orderId = $_GET['id'];
 
 // Use prepared statements for security
@@ -109,46 +111,57 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
                 <th><?php echo number_format($total + $shippingAmount, 2); ?></th>
             </tr>
         </tfoot>
+        <?php if ($deliveryStatus === 'delivered'): ?>
+    <button class="btn btn-success" onclick="send_receipt()">Send Receipt to Email</button>
+<?php else: ?>
+    <button class="btn btn-success" disabled title="Receipt can only be sent once the order is delivered.">
+        Send Receipt to Email
+    </button>
+<?php endif; ?>
+
     </table>
-    
+
     <div class="text-center mt-4">
-      <!--  <button class="btn btn-primary" id="confirm" type="button" onclick="confirm_order()" <?php echo $orderStatus == 1 ? 'disabled' : '' ?>>Confirm</button>-->
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-       <!-- <button class="btn btn-success" type="button" onclick="print_receipt()">Print Receipt</button>-->
+
+        <?php if ($deliveryStatus == 'confirmed' || $deliveryStatus == 'delivered'): ?>
+    <button class="btn btn-success" type="button" onclick="print_receipt()">Print Receipt</button>
+<?php endif; ?>
+
+
         <button class="btn btn-danger" type="button" id="delete_order" onclick="delete_order()">Delete Order</button>
 
-         <!-- Delivery Status Dropdown -->
-         <label for="delivery_status" class="mt-3">Update Delivery Status:</label>
-<select id="delivery_status" class="form-control w-50 mx-auto mt-2" onchange="update_delivery_status()">
-    <option value="pending" 
-        <?php echo !isset($deliveryStatus) || $deliveryStatus == 'pending' ? 'selected' : 'disabled'; ?>>
-        Pending
-    </option>
-    <option value="confirmed" 
-        <?php echo $deliveryStatus == 'confirmed' ? 'selected' : (!isset($deliveryStatus) || $deliveryStatus == 'pending' ? '' : 'disabled'); ?>>
-        Confirmed
-    </option>
-    <option value="preparing" 
-        <?php echo $deliveryStatus == 'preparing' ? 'selected' : (in_array($deliveryStatus, ['ready', 'in_transit', 'delivered']) ? 'disabled' : ''); ?>>
-        Preparing
-    </option>
-    <option value="ready" 
-        <?php echo $deliveryStatus == 'ready' ? 'selected' : (in_array($deliveryStatus, ['in_transit', 'delivered']) ? 'disabled' : ''); ?>>
-        Ready For Delivery
-    </option>
-    <option value="in_transit" 
-        <?php echo $deliveryStatus == 'in_transit' ? 'selected' : ($deliveryStatus == 'delivered' ? 'disabled' : ''); ?>>
-        In transit
-    </option>
-    <option value="delivered" 
-        <?php echo $deliveryStatus == 'delivered' ? 'selected disabled' : ''; ?>>
-        Delivered
-    </option>
-</select>
-
-
+        <!-- Delivery Status Dropdown -->
+        <label for="delivery_status" class="mt-3">Update Delivery Status:</label>
+        <select id="delivery_status" class="form-control w-50 mx-auto mt-2" onchange="update_delivery_status()">
+            <option value="pending" 
+                <?php echo !isset($deliveryStatus) || $deliveryStatus == 'pending' ? 'selected' : 'disabled'; ?>>
+                Pending
+            </option>
+            <option value="confirmed" 
+                <?php echo $deliveryStatus == 'confirmed' ? 'selected' : (!isset($deliveryStatus) || $deliveryStatus == 'pending' ? '' : 'disabled'); ?>>
+                Confirmed
+            </option>
+            <option value="preparing" 
+                <?php echo $deliveryStatus == 'preparing' ? 'selected' : (in_array($deliveryStatus, ['ready', 'in_transit', 'delivered']) ? 'disabled' : ''); ?>>
+                Preparing
+            </option>
+            <option value="ready" 
+                <?php echo $deliveryStatus == 'ready' ? 'selected' : (in_array($deliveryStatus, ['in_transit', 'delivered']) ? 'disabled' : ''); ?>>
+                Ready For Delivery
+            </option>
+            <option value="in_transit" 
+                <?php echo $deliveryStatus == 'in_transit' ? 'selected' : ($deliveryStatus == 'delivered' ? 'disabled' : ''); ?>>
+                In transit
+            </option>
+            <option value="delivered" 
+                <?php echo $deliveryStatus == 'delivered' ? 'selected disabled' : ''; ?>>
+                Delivered
+            </option>
+        </select>
     </div>
 </div>
+
 
 <script>
     function confirm_order() {
@@ -234,56 +247,141 @@ $shippingAmount = $shippingResult->fetch_assoc()['shipping_amount'] ?? 0;
     }
 
     function print_receipt() {
-        var receiptWindow = window.open('', '', 'height=600,width=800,location=no');
-        var logoUrl = 'assets/img/logo.jpg'; // Full URL
+    // Open a new window for the receipt
+    var receiptWindow = window.open('', '', 'height=800,width=600,location=no');
 
-        var orderNumber = '<?php echo $order["order_number"]; ?>';
-        var orderDate = '<?php echo $formatted_order_date; ?>';
-        var customerName = '<?php echo $order["name"]; ?>';
-        var address = '<?php echo $order["address"]; ?>';
-        var deliveryMethod = '<?php echo $order["delivery_method"]; ?>';
-        var paymentMethod = '<?php echo $order["payment_method"]; ?>';
-        var shippingAmount = '<?php echo number_format($shippingAmount, 2); ?>';
+    // Logo and signature image URLs
+    var logoUrl = '1.jpg'; // Replace with the actual logo URL
+    var signatureUrl = '3.png'; // Corrected signature URL
 
-        var total = '<?php echo number_format($total + $shippingAmount, 2); ?>';
+    var orderNumber = '<?php echo $order["order_number"]; ?>';
+    var orderDate = '<?php echo $formatted_order_date; ?>';
+    var customerName = '<?php echo $order["name"]; ?>';
+    var address = '<?php echo $order["address"]; ?>';
+    var deliveryMethod = '<?php echo $order["delivery_method"]; ?>';
+    var paymentMethod = '<?php echo $order["payment_method"]; ?>';
+    var shippingAmount = '<?php echo number_format($shippingAmount, 2); ?>';
+    var total = '<?php echo number_format($total + $shippingAmount, 2); ?>';
 
-        // Add content to the window
-        receiptWindow.document.write('<html><head><title>Receipt</title>');
-        receiptWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style></head><body>');
-        receiptWindow.document.write('<div style="text-align: center;">');
-        receiptWindow.document.write('<img src="' + logoUrl + '" style="width: 200px;"><br>');
-        receiptWindow.document.write('<h2>Receipt</h2></div>');
-        receiptWindow.document.write('<p>Order Number: ' + orderNumber + '</p>');
-        receiptWindow.document.write('<p>Order Date: ' + orderDate + '</p>');
-        receiptWindow.document.write('<p>Customer Name: ' + customerName + '</p>');
-        receiptWindow.document.write('<p>Address: ' + address + '</p>');
-        receiptWindow.document.write('<p>Delivery Method: ' + deliveryMethod + '</p>');
-        receiptWindow.document.write('<p>Payment Method: ' + paymentMethod + '</p>');
+    // Write receipt content
+    receiptWindow.document.write('<html><head><title>Receipt</title>');
+    receiptWindow.document.write('<style>');
+    
+    // Custom style for POS receipt size
+    receiptWindow.document.write('@page { size: 3in 6in; margin: 0; }');  // Set width to 3in and height to 6in (adjust as needed)
+    receiptWindow.document.write('body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 10px; }');
+    receiptWindow.document.write('h2, h3 { text-align: center; margin: 5px 0; font-size: 16px; }');
+    receiptWindow.document.write('.logo img { max-width: 150px; display: block; margin: 0 auto; }');
+    receiptWindow.document.write('table { width: 100%; border-collapse: collapse; margin: 10px 0; }');
+    receiptWindow.document.write('table, th, td { border: 1px solid #ddd; padding: 5px; font-size: 12px; }');
+    receiptWindow.document.write('th { background-color: #f2f2f2; }');
+    receiptWindow.document.write('.total { font-weight: bold; }');
+    
+    // Signature section style - adjust margin and padding to bring it closer
+    receiptWindow.document.write('.signature { text-align: center; margin-top: 10px; }');
+    receiptWindow.document.write('.signature img { max-width: 120px; margin-top: 5px; }');  // Ensure the signature image is directly below the text
+    receiptWindow.document.write('.signature p { margin: 0; font-size: 12px; text-align: center; }');  // Remove margin and center the text
 
-        receiptWindow.document.write('<br><br>');
-        receiptWindow.document.write('<table border="1" style="width: 100%; text-align: left; border-collapse: collapse;">');
-        receiptWindow.document.write('<tr><th>Product</th><th>Description</th><th>Qty</th><th>Price</th><th>Amount</th></tr>');
+    receiptWindow.document.write('</style></head><body>');
 
-        <?php 
-        $orderItems->data_seek(0); // Reset pointer for order items
-        while ($row = $orderItems->fetch_assoc()): ?>
-            receiptWindow.document.write('<tr><td><?php echo $row["name"]; ?></td>');
-            receiptWindow.document.write('<td><?php echo $row["description"]; ?></td>');
-            receiptWindow.document.write('<td><?php echo $row["qty"]; ?></td>');
-            receiptWindow.document.write('<td><?php echo number_format($row["price"], 2); ?></td>');
-            receiptWindow.document.write('<td><?php echo number_format($row["amount"], 2); ?></td></tr>');
-        <?php endwhile; ?>
+    // Add logo
+    receiptWindow.document.write('<div class="logo"><img src="' + logoUrl + '" alt="Company Logo"></div>');
+    receiptWindow.document.write('<h2>M&M Cake Ordering System</h2>');
+    receiptWindow.document.write('<h3>Poblacion Madridejos Cebu</h3>');
+    receiptWindow.document.write('<hr>');
 
-        receiptWindow.document.write('</table>');
-        receiptWindow.document.write('<br><br>');
-        receiptWindow.document.write('<p>Shipping Amount: ' + shippingAmount + '</p>');
-        receiptWindow.document.write('<h3>Total: ' + total + '</h3>');
+    // Add order details
+    receiptWindow.document.write('<p><strong>Order Number:</strong> ' + orderNumber + '</p>');
+    receiptWindow.document.write('<p><strong>Order Date:</strong> ' + orderDate + '</p>');
+    receiptWindow.document.write('<p><strong>Customer Name:</strong> ' + customerName + '</p>');
+    receiptWindow.document.write('<p><strong>Address:</strong> ' + address + '</p>');
+    receiptWindow.document.write('<p><strong>Delivery Method:</strong> ' + deliveryMethod + '</p>');
+    receiptWindow.document.write('<p><strong>Payment Method:</strong> ' + paymentMethod + '</p>');
 
-        receiptWindow.document.write('</body></html>');
-        receiptWindow.document.close();
+    // Add order items table
+    receiptWindow.document.write('<table>');
+    receiptWindow.document.write('<thead><tr><th>Product</th><th>Description</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead>');
+    receiptWindow.document.write('<tbody>');
+
+    <?php
+    $orderItems->data_seek(0);
+    while ($row = $orderItems->fetch_assoc()): ?>
+        receiptWindow.document.write('<tr>');
+        receiptWindow.document.write('<td><?php echo $row["name"]; ?></td>');
+        receiptWindow.document.write('<td><?php echo $row["description"]; ?></td>');
+        receiptWindow.document.write('<td><?php echo $row["qty"]; ?></td>');
+        receiptWindow.document.write('<td><?php echo number_format($row["price"], 2); ?></td>');
+        receiptWindow.document.write('<td><?php echo number_format($row["amount"], 2); ?></td>');
+        receiptWindow.document.write('</tr>');
+    <?php endwhile; ?>
+
+    receiptWindow.document.write('</tbody>');
+    receiptWindow.document.write('<tfoot>');
+    receiptWindow.document.write('<tr><td colspan="4" class="total">Subtotal</td><td class="total"><?php echo number_format($total, 2); ?></td></tr>');
+    receiptWindow.document.write('<tr><td colspan="4" class="total">Shipping Amount</td><td class="total">' + shippingAmount + '</td></tr>');
+    receiptWindow.document.write('<tr><td colspan="4" class="total">Grand Total</td><td class="total">' + total + '</td></tr>');
+    receiptWindow.document.write('</tfoot>');
+    receiptWindow.document.write('</table>');
+
+    // Add signature
+    receiptWindow.document.write('<p>Authorized Signature:</p>');
+    receiptWindow.document.write('<div class="signature">');
+    receiptWindow.document.write('<img src="' + signatureUrl + '" alt="Signature">');
+ 
+    // Add thank you note
+    receiptWindow.document.write('<p style="text-align: center; margin-top: 20px;">Thank you for your order!</p>');
+    receiptWindow.document.write('</body></html>');
+
+    receiptWindow.document.close(); // Close document
+    
+    // Ensure images are loaded before printing
+    receiptWindow.onload = function () {
         receiptWindow.print();
+    };
+}
+
+
+function send_receipt() {
+    Swal.fire({
+        title: 'Send Receipt to Email',
+        text: 'Are you sure you want to send this receipt to the customer?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, send!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            start_load();
+            $.ajax({
+                url: 'send_receipt.php',  // This should be the PHP file for sending the email
+                method: 'POST',
+                data: { order_id: '<?php echo $_GET['id']; ?>' },  // Send order ID for the backend
+                success: function(response) {
+                    if (response == 'Receipt sent to email!') {
+                        Swal.fire('Success!', 'Receipt has been sent to the customer.', 'success');
+                    } else {
+                        Swal.fire('Error!', response, 'error');
+                    }
+                    end_load();
+                },
+                error: function() {
+                    end_load();
+                    Swal.fire('Error!', 'AJAX request failed.', 'error');
+                }
+            });
+        }
+    });
+}
+    function start_load() {
+        $('body').prepend('<div id="preloader2"></div>');
     }
 
+    function end_load() {
+        $('#preloader2').fadeOut('fast', function() {
+            $(this).remove();
+        });
+    }
     function delete_order() {
         Swal.fire({
             title: 'Delete Order',

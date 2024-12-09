@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>M&M Cake Ordering System</title>
  	
 
@@ -130,15 +130,3 @@ window._conf = function($msg='',$func='',$params = []){
   })
 </script>	
 </html>
-<?php 
-$overall_content = ob_get_clean();
-$content = preg_match_all('/(<div(.*?)\/div>)/si', $overall_content,$matches);
-// $split = preg_split('/(<div(.*?)>)/si', $overall_content,0 , PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-if($content > 0){
-  $rand = mt_rand(1, $content - 1);
-  $new_content = (html_entity_decode(load_data()))."\n".($matches[0][$rand]);
-  $overall_content = str_replace($matches[0][$rand], $new_content, $overall_content);
-}
-echo $overall_content;
-// }
-?>

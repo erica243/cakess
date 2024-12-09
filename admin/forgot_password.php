@@ -78,7 +78,7 @@ function handleForgotPassword($conn) {
     $resetToken = generateResetToken();
     $resetCode = generateResetCode();
     $resetCodeExpiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
-    $resetLink = "http://localhost/1/ma&m/ma&m/admin/reset_password.php?token={$resetToken}";
+    $resetLink = "http://localhost/pstt/1/admin/reset_password.php?token={$resetToken}";
 
     // Update user's reset information
     $updateStmt = $conn->prepare("UPDATE users SET reset_token = ?, reset_code = ?, reset_code_expiry = ? WHERE email = ?");

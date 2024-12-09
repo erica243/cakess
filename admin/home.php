@@ -98,161 +98,113 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $total_orders = $row['total_orders'];
 }
+// Fetch the number of Pending Orders (where delivery status is 'pending', NULL, or empty)
+$pending_orders_result = $conn->query("
+    SELECT * 
+    FROM orders 
+    WHERE delivery_status = 'pending' 
+       OR delivery_status IS NULL 
+       OR delivery_status = ''
+");
+$pending_orders = $pending_orders_result->num_rows;
+
+ 
+/// Fetch the number of Confirmed Orders (including statuses: confirmed, preparing, read, in_transit, delivered)
+$confirmed_orders_result = $conn->query("
+SELECT * 
+FROM orders 
+WHERE delivery_status IN ('confirmed', 'preparing', 'ready', 'in_transit', 'delivered')
+");
+$confirmed_orders = $confirmed_orders_result->num_rows;
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Responsive Admin Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel = "icon" href="assets/img/1.jpg"  type = ".///image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+
     <style>
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-20px);
-            }
-            60% {
-                transform: translateY(-10px);
-            }
+        /* Enhanced Responsiveness */
+        body {
+            overflow-x: hidden;
         }
 
-        .bounce {
-            animation: bounce 2s infinite;
-        }
-
-        .custom-menu {
-            z-index: 1000;
-            position: absolute;
-            background-color: #ffffff;
-            border: 1px solid #0000001c;
-            border-radius: 5px;
-            padding: 8px;
-            min-width: 13vw;
-        }
-
-        a.custom-menu-list {
+        .dashboard-container {
             width: 100%;
-            display: flex;
-            color: #4c4b4b;
-            font-weight: 600;
-            font-size: 1em;
-            padding: 1px 11px;
+            max-width: 100%;
         }
 
-        span.card-icon {
-            position: absolute;
-            font-size: 3em;
-            bottom: .2em;
-            color: #ffffff80;
+        /* Card Responsive Adjustments */
+        @media (max-width: 768px) {
+            .row-cols-md-4 > .col {
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .card-responsive {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .card-body {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .media {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .media-left {
+                margin-right: 10px;
+            }
+
+            .media-body {
+                text-align: right;
+            }
+
+            .bounce-icon {
+                font-size: 2rem;
+            }
         }
 
-        .file-item {
-            cursor: pointer;
-        }
-
-        a.custom-menu-list:hover, .file-item:hover, .file-item.active {
-            background: #80808024;
-        }
-
-        table th, td {
-            /*border-left:1px solid gray;*/
-        }
-
-        a.custom-menu-list span.icon {
-            width: 1em;
-            margin-right: 5px;
-        }
-
-        .candidate {
-            margin: auto;
-            width: 23vw;
-            padding: 0 10px;
-            border-radius: 20px;
-            margin-bottom: 1em;
-            display: flex;
-            border: 3px solid #00000008;
-            background: #8080801a;
-        }
-
-        .candidate_name {
-            margin: 8px;
-            margin-left: 3.4em;
-            margin-right: 3em;
+        /* Chart Container Responsiveness */
+        .chart-container {
+            position: relative;
             width: 100%;
+            height: 300px;
         }
 
-        .img-field {
-            display: flex;
-            height: 8vh;
-            width: 4.3vw;
-            padding: .3em;
-            background: #80808047;
-            border-radius: 50%;
-            position: absolute;
-            left: -.7em;
-            top: -.7em;
+        @media (max-width: 576px) {
+            .chart-container {
+                height: 250px;
+            }
         }
 
-        .candidate img {
-            height: 100%;
-            width: 100%;
-            margin: auto;
-            border-radius: 50%;
-        }
-
-        .vote-field {
-            position: absolute;
-            right: 0;
-            bottom: -.4em;
-        }
-
-        .card-custom {
-            border-left: 4px solid #007bff;
-        }
-
-        .card-custom-primary {
-            border-left-color: #007bff;
-        }
-
-        .card-custom-danger {
-            border-left-color: #dc3545;
-        }
-
-        .card-custom-success {
-            border-left-color: #28a745;
-        }
-
-        .card-custom-warning {
-            border-left-color: #ffc107;
-        }
-
-        .bg-light-blue {
-            background-color: #cce5ff;
-        }
-
-        .bg-light-red {
-            background-color: #f8d7da;
-        }
-
-        .bg-light-green {
-            background-color: #d4edda;
-        }
-
-        .bg-light-yellow {
-            background-color: #fff3cd;
-        }
-
-        .fa-bounce {
-            animation: bounce 2s infinite;
+        /* Scrollable Cards on Small Screens */
+        @media (max-width: 768px) {
+            .card-responsive {
+                overflow-x: auto;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
     <div class="container-fluid">
@@ -260,6 +212,7 @@ if ($result->num_rows > 0) {
             <div class="col-lg-10">
                 
                     <div class="card-body">
+                        
                         <h1>Dashboard</h1>
                     </div>
                 </div>
@@ -273,50 +226,53 @@ if ($result->num_rows > 0) {
             <div class="card-body" style="background: #4d94ff; color: green;">
                 <div class="media">
                     <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-money-bill-wave bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
+                    <span>
+    <i class="fa fa-money-bill-wave animate__animated animate__bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i>
+</span>
+
                     </div>
                     <div class="media-body media-text-center">
                         <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Sales</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= number_format($total_sales, 2) ?></b></h2>
+                        <h2 class="text-right" style="color: black;"><b>₱<?= number_format($total_sales, 2) ?></b></h2>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Pending Orders Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-light-red">
-            <div class="card-body" style="background: #ff99ff; color: red;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                                <span><i class="fa fa-times-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                            </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Pending Orders</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= number_format($cancelled_orders) ?></b></h2>
-                    </div>
+   <!-- Pending Orders Card -->
+<div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
+    <div class="card rounded-0 shadow card-custom bg-light-red">
+        <div class="card-body" style="background: #ff99ff; color: red;">
+            <div class="media">
+                <div class="media-left meida media-middle"> 
+                    <span><i class="fa fa-times-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
+                </div>
+                <div class="media-body media-text-center">
+                    <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Pending Orders</h5>
+                    <h2 class="text-right" style="color: black;"><b><?= number_format($pending_orders) ?></b></h2>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Confirmed Orders Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-light-green">
-            <div class="card-body" style="background: #80ff80; color: green;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-check-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                    </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Confirmed Orders</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= number_format($confirmed_orders) ?></b></h2>
-                    </div>
+<!-- Confirmed Orders Card -->
+<div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
+    <div class="card rounded-0 shadow card-custom bg-light-green">
+        <div class="card-body" style="background: #80ff80; color: green;">
+            <div class="media">
+                <div class="media-left meida media-middle"> 
+                    <span><i class="fa fa-check-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
+                </div>
+                <div class="media-body media-text-center">
+                    <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Confirmed Orders</h5>
+                    <h2 class="text-right" style="color: black;"><b><?= number_format($confirmed_orders) ?></b></h2>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Sales This Month Card -->
     <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
@@ -328,7 +284,7 @@ if ($result->num_rows > 0) {
                     </div>
                     <div class="media-body media-text-center">
                         <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Sales This Month</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= number_format(array_sum($monthly_sales_data)) ?></b></h2>
+                        <h2 class="text-right" style="color: black;"><b>₱<?= number_format(array_sum($monthly_sales_data)) ?></b></h2>
                     </div>
                 </div>
             </div>
@@ -429,63 +385,102 @@ if ($result->num_rows > 0) {
 </div>
 
 <script>
-    // Sales by Address Chart
-    const salesByAddressCtx = document.getElementById('salesByAddressChart').getContext('2d');
-    const salesByAddressData = {
-        labels: <?= json_encode(array_column($data, 'address')) ?>,
-        datasets: [{
-            label: 'Total Sales',
-            data: <?= json_encode(array_column($data, 'total_sales')) ?>,
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-        }]
-    };
-    const salesByAddressChart = new Chart(salesByAddressCtx, {
-        type: 'pie',
-        data: salesByAddressData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Sales by Address'
-                }
+  // Sales by Address Chart
+const salesByAddressCtx = document.getElementById('salesByAddressChart').getContext('2d');
+const salesByAddressData = {
+    labels: <?= json_encode(array_column($data, 'address')) ?>,
+    datasets: [{
+        label: 'Total Sales',
+        data: <?= json_encode(array_column($data, 'total_sales')) ?>,
+        backgroundColor: [
+            ' #ff4dff',
+            '#4d4dff',
+            '#e699ff', // Red
+            ' #ff4da6', // Blue
+            '#FFCE56', // Yellow
+            '#4BC0C0', // Teal
+            '#9966FF', // Purple
+            '##b84dff', // Orange
+            '#E7E9ED', // Gray
+            '#C9CBCF'  // Light Gray
+        ],
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+    }]
+};
+const salesByAddressChart = new Chart(salesByAddressCtx, {
+    type: 'pie',
+    data: salesByAddressData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Sales by Address'
             }
         }
-    });
+    }
+});
 
-    // Monthly Sales Chart
-    const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
-    const monthlySalesData = {
-        labels: <?= json_encode(array_keys($monthly_sales_data)) ?>,
-        datasets: [{
-            label: 'Monthly Sales',
-            data: <?= json_encode(array_values($monthly_sales_data)) ?>,
-            backgroundColor: 'rgba(153, 102, 255, 0.6)',
-            borderColor: 'rgba(153, 102, 255, 1)',
-            borderWidth: 1
-        }]
-    };
-    const monthlySalesChart = new Chart(monthlySalesCtx, {
-        type: 'bar',
-        data: monthlySalesData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Monthly Sales for the Last 12 Months'
-                }
+
+   // Monthly Sales Chart
+const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+const monthlySalesData = {
+    labels: <?= json_encode(array_keys($monthly_sales_data)) ?>,
+    datasets: [{
+        label: 'Monthly Sales',
+        data: <?= json_encode(array_values($monthly_sales_data)) ?>,
+        backgroundColor: [
+            '#c266ff',  // Red
+            '#64b4b4',  // Blue
+            'rgba(255, 206, 86, 0.6)',  // Yellow
+            'rgba(75, 192, 192, 0.6)',  // Teal
+            'rgba(153, 102, 255, 0.6)', // Purple
+            'rgba(255, 159, 64, 0.6)',  // Orange
+            ' #ff471a',  // Red
+            'rgba(54, 162, 235, 0.6)',  // Blue
+            'rgba(255, 206, 86, 0.6)',  // Yellow
+            'rgba(75, 192, 192, 0.6)',  // Teal
+            'rgba(153, 102, 255, 0.6)', // Purple
+            'rgba(255, 159, 64, 0.6)'   // Orange
+        ],
+        borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+    }]
+};
+const monthlySalesChart = new Chart(monthlySalesCtx, {
+    type: 'bar',
+    data: monthlySalesData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Monthly Sales for the Last 12 Months'
             }
         }
-    });
+    }
+});
+
 </script>
 
 </body>

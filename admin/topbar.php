@@ -1,3 +1,4 @@
+
 <?php
 // Include your database connection file
 include 'db_connect.php';
@@ -45,19 +46,17 @@ $newOrdersCount = get_new_orders_count();
 // Fetch unread messages count
 $unreadMessagesCount = get_unread_messages_count();
 ?>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     .logo {
-      margin: auto;
       font-size: 20px;
       background: white;
       padding: 5px 11px;
@@ -67,7 +66,7 @@ $unreadMessagesCount = get_unread_messages_count();
     .notification-badge {
       position: absolute;
       top: -5px;
-      right: -25px;
+      right: -10px;
       background-color: red;
       color: white;
       padding: 5px 8px;
@@ -77,54 +76,86 @@ $unreadMessagesCount = get_unread_messages_count();
     .notification-icon {
       position: relative;
       cursor: pointer;
-      margin-right: 50px;
+      margin-right: 20px;
     }
     .notification-link {
-      display: flex;
-      align-items: center;
       text-decoration: none;
+      color: inherit;
     }
+    .dropdown-toggle::after {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .navbar-brand {
+        font-size: 20px;
+      }
+      .notification-icon {
+        margin-right: 10px;
+      }
+      .dropdown-toggle {
+        font-size: 14px;
+      }
+    }@media (max-width: 768px) {
+    body {
+        padding-top: 60px; /* For smaller screen sizes */
+    }
+}
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-light bg-light fixed-top" style="padding: 0; height: 3.4em">
-    <div class="container-fluid mt-2 mb-2">
-      <div class="col-lg-12">
-        <div class="col-md-1 float-left" style="display: flex;">
-          <div class="logo"></div>
-        </div>
-        <div class="col-md-4 float-left" style="font-size: 30px;">
-          <large style="font-family: 'Dancing Script', cursive !important;"><b><?php echo $_SESSION['setting_name']; ?></b></large>
-        </div>
-        <div class="col-md-2 float-right" style="display: flex; align-items: center;">
-          <!-- Notification Icon and Badge for Orders -->
-          <a href="index.php?page=orders" class="notification-link">
-            <div class="notification-icon">
-              <i class="fa fa-bell"></i>
-              <span class="notification-badge"><?php echo $newOrdersCount; ?></span>
-            </div>
-          </a>
-          <!-- Notification Icon and Badge for Messages -->
-          <a href="index.php?page=message" class="notification-link">
-            <div class="notification-icon">
-              <i class="fa fa-envelope"></i>
-              <span class="notification-badge"><?php echo $unreadMessagesCount; ?></span>
-            </div>
-          </a>
-          <!-- Admin Profile Dropdown -->
-          <div class="dropdown">
-            <a class="text-dark dropdown-toggle" href="#" role="button" id="adminDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  
+      <!-- Logo and Branding -->
+     
+  <!-- Logo Image -->
+  <img src="assets/img/logo.jpg" alt="Logo" class="logo me-2" style="width: 50px; height: 50px; object-fit: contain;">
+        <span style="font-family: 'Dancing Script', cursive; font-size: 24px;"><b><?php echo $_SESSION['setting_name']; ?></b></span>
+    </a>
+</a>
+
+      <!-- Toggler for Mobile View -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapsible Navbar -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <!-- Notifications for Orders -->
+          <li class="nav-item">
+            <a href="index.php?page=orders" class="nav-link notification-link">
+              <div class="notification-icon">
+                <i class="fa fa-bell"></i>
+                <span class="notification-badge"><?php echo $newOrdersCount; ?></span>
+              </div>
+            </a>
+          </li>
+          <!-- Notifications for Messages -->
+          <li class="nav-item">
+            <a href="index.php?page=message" class="nav-link notification-link">
+              <div class="notification-icon">
+                <i class="fa fa-envelope"></i>
+                <span class="notification-badge"><?php echo $unreadMessagesCount; ?></span>
+              </div>
+            </a>
+          </li>
+          <!-- Admin Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <?php echo $_SESSION['login_name']; ?>
             </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown">
-             <!---- <a class="dropdown-item" href="admin_profile.php">Profile</a>---->
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="ajax.php?action=logout">Logout <i class="fa fa-sign-out-alt"></i></a>
-            </div>
-          </div>
-        </div>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+              <!-- <li><a class="dropdown-item" href="admin_profile.php">Profile</a></li> -->
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="ajax.php?action=logout">Logout <i class="fa fa-sign-out-alt"></i></a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
   </nav>
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
