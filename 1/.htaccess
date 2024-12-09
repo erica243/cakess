@@ -42,7 +42,7 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
 # Remove .php extension from URLs (for browser navigation)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
-
+RewriteCond %{REQUEST_URI} !^/1/my_orders\.php$ [NC]
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
 # Optional: Ensure the home page is accessible without extension
