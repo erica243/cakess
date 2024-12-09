@@ -246,7 +246,8 @@ $('.rem_cart').click(function(e) {
                     id: id
                 },
                 success: function(response) {
-                    if (response === 'success') {
+                    // Check if the response is 'success'
+                    if (response.trim() === 'success') {
                         // Show SweetAlert success message and reload the page
                         Swal.fire(
                             'Deleted!',
@@ -256,10 +257,10 @@ $('.rem_cart').click(function(e) {
                             location.reload(); // Reload the page after successful deletion
                         });
                     } else {
-                        // Handle any other response (error, etc.)
+                        // Handle the error if the response is not 'success'
                         Swal.fire(
                             'Error!',
-                            response, // Show the error message returned from PHP
+                            'There was an issue with the deletion.',
                             'error'
                         );
                     }
