@@ -361,4 +361,44 @@ if (isset($_POST['action']) && $_POST['action'] == 'send_receipt') {
     sendEmail($email, $receiptHtml);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recaptchaToken = $_POST['recaptcha_token'] ?? '';
+    $secretKey = '6LcoapYqAAAAAKvZv36lF1Ru5fk24phEAjbhMak4'; // Replace with your reCAPTCHA secret key
+
+    // Verify the reCAPTCHA token
+    $recaptchaResponse = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$recaptchaToken");
+    $recaptchaData = json_decode($recaptchaResponse, true);
+
+    if ($recaptchaData['success'] && $recaptchaData['score'] >= 0.5) {
+        // Example: Login validation
+        if ($_POST['action'] === 'login2') {
+            // Validate user credentials (replace with your own login logic)
+            $email = $_POST['email'];
+            $password = $_POST['password'];
+
+            // Simulate database query (replace with actual query)
+            if ($email === 'test@example.com' && $password === 'password123') {
+                echo json_encode(['status' => 'success', 'redirect' => 'index.php?page=home']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid email or password.']);
+            }
+        }
+
+        // Example: Forgot password logic
+        elseif ($_POST['action'] === 'forgot_password') {
+            $email = $_POST['email'];
+
+            // Simulate email existence check
+            if ($email === 'test@example.com') {
+                echo json_encode(['status' => 'success', 'message' => 'Password reset instructions sent.']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Email not found.']);
+            }
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'reCAPTCHA verification failed.']);
+    }
+}
+
+
 ?>
