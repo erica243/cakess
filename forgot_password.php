@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updateStmt->execute();
 
         // Prepare the email content
-        $resetLink = "http://localhost/1/ma&m/ma&m/reset_password.php?token={$resetToken}";
+        $resetLink = "http://localhost/pstt/1//reset_password.php?token={$resetToken}";
         $emailContent = "
             <p>You have requested to reset your password.</p>
             <p>Your reset code is: <strong>{$resetCode}</strong></p>
