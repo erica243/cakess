@@ -646,7 +646,8 @@ Class Action {
         require 'PHPMailer/PHPMailer.php';
         require 'PHPMailer/SMTP.php';
         require 'PHPMailer/Exception.php';
-        
+        require 'vendor/autoload.php'; // Make sure this path is correct relative to your script
+
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         
         try {
