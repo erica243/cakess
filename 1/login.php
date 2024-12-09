@@ -125,7 +125,7 @@
 
                 // Display generic error message
                 console.error(xhr.responseText);
-                $('#forgot-password-frm').prepend('<div class="alert alert-danger">Please try again later.</div>');
+                $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
             }
         });
     });
