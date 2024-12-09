@@ -263,11 +263,11 @@ Class Action {
     function delete_cart() {
         // Extract the cart ID from the URL parameter
         extract($_GET);
-        
+    
         // Get the product details (quantity and stock) from the cart
         $product_query = $this->db->query("SELECT c.qty, p.stock, c.product_id FROM cart c INNER JOIN product_list p ON c.product_id = p.id WHERE c.id = $id");
         $product = $product_query->fetch_assoc();
-        
+    
         if ($product) {
             // Get the product quantity in the cart and current stock
             $product_qty = $product['qty'];
@@ -286,8 +286,8 @@ Class Action {
                 $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
     
                 if ($delete_query) {
-                    // Redirect back to the previous page if deletion is successful
-                    header('location:' . $_SERVER['HTTP_REFERER']);
+                    // Redirect to the cart_list page after successful deletion
+                    header('Location: index.php?page=cart_list');
                     exit;
                 } else {
                     // Handle error if deletion fails
