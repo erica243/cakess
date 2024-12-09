@@ -222,7 +222,7 @@
         }
     });
 }
-$('.rem_cart').click(function(e){
+$('.rem_cart').click(function(e) {
     e.preventDefault(); // Prevent the default action (the link)
 
     // Use SweetAlert to show a confirmation dialog
@@ -236,9 +236,8 @@ $('.rem_cart').click(function(e){
     }).then((result) => {
         if (result.isConfirmed) {
             // Proceed with the deletion
-            var id = $(this).attr('data-id'); // Get the cart item ID
-
-            // Send AJAX request to delete the item
+            var id = $(this).attr('data-id');
+            
             $.ajax({
                 url: 'admin/ajax.php', // Your PHP file that handles the deletion
                 method: 'GET',
@@ -257,15 +256,19 @@ $('.rem_cart').click(function(e){
                             location.reload(); // Reload the page after successful deletion
                         });
                     } else {
-                        // Handle error if deletion fails
+                        // Handle any other response (error, etc.)
                         Swal.fire(
                             'Error!',
-                            'There was an issue deleting the item.',
+                            response, // Show the error message returned from PHP
                             'error'
                         );
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    // Log the error details to the console
+                    console.log("Error: " + error);
+                    console.log("Status: " + status);
+                    console.log(xhr.responseText);
                     Swal.fire(
                         'Error!',
                         'There was an issue with the request.',
