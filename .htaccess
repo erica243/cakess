@@ -1,0 +1,21 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Force HTTPS (recommended for security)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Redirect www to non-www (clean domain)
+RewriteCond %{HTTP_HOST} ^www\.mandm-lawis\.com [NC]
+RewriteRule ^(.*)$ https://mandm-lawis.com/$1 [L,R=301]
+
+# URL Rewriting Rules (for clean URLs)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Block Access to Sensitive Files
+<FilesMatch "\.(env|ini|log|sh|sql|bak)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
