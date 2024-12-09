@@ -12,6 +12,8 @@
                 <input type="password" name="password" required class="form-control">
                 <small><a href="javascript:void(0)" class="text-dark" id="new_account">Create New Account</a></small>
             </div>
+             
+            <div class="g-recaptcha" data-sitekey="6LeTzYsqAAAAADeYgqUq2nEL6iaLLccFPqeo4Ezy"></div>
             <button class="button btn btn-dark btn-sm">Login</button>
             <div>
                 <br><a href="javascript:void(0)" class="text-dark" id="forgot_password">Forgot Password?</a>
@@ -38,36 +40,10 @@
     #uni_modal .modal-footer {
         display: none;
     }
+ 
 </style>
-<script src="https://www.google.com/recaptcha/api.js?render=6LcoapYqAAAAADr1OaM8FGmlLTTnF0nNkGOCmVI0"></script>
+ 
 <script>
-function handleFormSubmit(formId, actionUrl) {
-        grecaptcha.ready(function () {
-            grecaptcha.execute('6LcoapYqAAAAADr1OaM8FGmlLTTnF0nNkGOCmVI0', { action: 'submit' }).then(function (token) {
-                const form = $(formId);
-                form.append(`<input type="hidden" name="recaptcha_token" value="${token}">`);
-                $.ajax({
-                    url: actionUrl,
-                    method: 'POST',
-                    data: form.serialize(),
-                    dataType: 'json',
-                    error: function (err) {
-                        console.log(err);
-                        form.find('button[type="submit"]').removeAttr('disabled').html('Submit');
-                    },
-                    success: function (resp) {
-                        form.find('button[type="submit"]').removeAttr('disabled').html('Submit');
-                        if (resp.status === 'success') {
-                            location.href = resp.redirect || 'index.php?page=home';
-                        } else {
-                            form.prepend('<div class="alert alert-danger">' + resp.message + '</div>');
-                        }
-                    }
-                });
-            });
-        });
-    }
-
     $('#new_account').click(function () {
 		uni_modal("Create an Account", 'signup.php?redirect=index.php?page=home')
 	})
