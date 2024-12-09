@@ -413,5 +413,30 @@ if (isset($_POST['action']) && $_POST['action'] == 'send_receipt') {
     // Send email
     sendEmail($email, $receiptHtml);
 }
+// Login Action
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['action']) && $_GET['action'] == 'login2') {
+    $recaptchaToken = $_POST['g-recaptcha-response'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    if (!ReCaptcha::verify($recaptchaToken, 'login')) {
+        sendResponse('error', 'Bot verification failed');
+    }
+
+    $db = new Database();
+    
+    if (empty($email) || empty($password)) {
+        sendResponse('error', 'Email and password are required');
+    }
+
+    $userId = $db->verifyUser($email, $password);
+    
+    if ($userId) {
+        $_SESSION['user_id'] = $userId;
+        sendResponse('success', 'Login successful');
+    } else {
+        sendResponse('error', 'Invalid email or password');
+    }
+}
 
 ?>
