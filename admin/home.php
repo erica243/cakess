@@ -132,6 +132,163 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
 
 
     <style>
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .custom-menu {
+            z-index: 1000;
+            position: absolute;
+            background-color: #ffffff;
+            border: 1px solid #0000001c;
+            border-radius: 5px;
+            padding: 8px;
+            min-width: 13vw;
+        }
+
+        a.custom-menu-list {
+            width: 100%;
+            display: flex;
+            color: #4c4b4b;
+            font-weight: 600;
+            font-size: 1em;
+            padding: 1px 11px;
+        }
+
+        span.card-icon {
+            position: absolute;
+            font-size: 3em;
+            bottom: .2em;
+            color: #ffffff80;
+        }
+
+        .file-item {
+            cursor: pointer;
+        }
+
+        a.custom-menu-list:hover, .file-item:hover, .file-item.active {
+            background: #80808024;
+        }
+
+        table th, td {
+            /*border-left:1px solid gray;*/
+        }
+
+        a.custom-menu-list span.icon {
+            width: 1em;
+            margin-right: 5px;
+        }
+
+        .candidate {
+            margin: auto;
+            width: 23vw;
+            padding: 0 10px;
+            border-radius: 20px;
+            margin-bottom: 1em;
+            display: flex;
+            border: 3px solid #00000008;
+            background: #8080801a;
+        }
+
+        .candidate_name {
+            margin: 8px;
+            margin-left: 3.4em;
+            margin-right: 3em;
+            width: 100%;
+        }
+
+        .img-field {
+            display: flex;
+            height: 8vh;
+            width: 4.3vw;
+            padding: .3em;
+            background: #80808047;
+            border-radius: 50%;
+            position: absolute;
+            left: -.7em;
+            top: -.7em;
+        }
+
+        .candidate img {
+            height: 100%;
+            width: 100%;
+            margin: auto;
+            border-radius: 50%;
+        }
+
+        .vote-field {
+            position: absolute;
+            right: 0;
+            bottom: -.4em;
+        }
+
+        .card-custom {
+            border-left: 4px solid #007bff;
+        }
+
+        .card-custom-primary {
+            border-left-color: #007bff;
+        }
+
+        .card-custom-danger {
+            border-left-color: #dc3545;
+        }
+
+        .card-custom-success {
+            border-left-color: #28a745;
+        }
+
+        .card-custom-warning {
+            border-left-color: #ffc107;
+        }
+
+        .bg-light-blue {
+            background-color: #cce5ff;
+        }
+
+        .bg-light-red {
+            background-color: #f8d7da;
+        }
+
+        .bg-light-green {
+            background-color: #d4edda;
+        }
+
+        .bg-light-yellow {
+            background-color: #fff3cd;
+        }
+
+        .fa-bounce {
+            animation: bounce 2s infinite;
+        }
+           /* Media Queries for Responsiveness */
+           @media (max-width: 768px) {
+            .card-body h5 {
+                font-size: 20px;
+            }
+
+            .card-body h2 {
+                font-size: 24px;
+            }
+
+            .media .fa {
+                font-size: 2em !important;
+            }
+        }
+
         /* Enhanced Responsiveness */
         body {
             overflow-x: hidden;
@@ -143,46 +300,42 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
         }
 
         /* Card Responsive Adjustments */
+         .card-custom {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-custom:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .bounce {
+            animation: bounce 1s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        /* Ensure text doesn't overflow */
+        .card-body h5, .card-body h2 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .row-cols-md-4 > .col {
-                flex: 0 0 100%;
-                max-width: 100%;
+            .card-custom {
                 margin-bottom: 15px;
             }
-
-            .card-responsive {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-            }
-
             .card-body {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                width: 100%;
+                text-align: center;
             }
-
-            .media {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
+            .card-body .media {
+                flex-direction: column;
                 align-items: center;
             }
-
-            .media-left {
-                margin-right: 10px;
-            }
-
-            .media-body {
-                text-align: right;
-            }
-
-            .bounce-icon {
-                font-size: 2rem;
+            .card-body .media-left {
+                margin-bottom: 10px;
             }
         }
-
         /* Chart Container Responsiveness */
         .chart-container {
             position: relative;
@@ -205,162 +358,140 @@ $confirmed_orders = $confirmed_orders_result->num_rows;
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-10">
-                
-                    <div class="card-body">
-                        
-                        <h1>Dashboard</h1>
+            <div class="col-12">
+                <h1 >Dashboard</h1>
+            </div>
+        </div>
+<br>
+        <div class="row g-3">
+            <!-- Total Sales Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #bf80ff;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-money-bill-wave bounce" style="font-size: 50px; color: green;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                        <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Total Sales</h5>
+
+                            <h2 style="color: black;"><b>₱<?= number_format($total_sales, 2) ?></b></h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row m-3">
-    <!-- Total Sales Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-blue">
-            <div class="card-body" style="background: #4d94ff; color: green;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                    <span>
-    <i class="fa fa-money-bill-wave animate__animated animate__bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i>
-</span>
-
-                    </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Sales</h5>
-                        <h2 class="text-right" style="color: black;"><b>₱<?= number_format($total_sales, 2) ?></b></h2>
+            <!-- Pending Orders Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #ff99ff;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-times-circle bounce" style="font-size: 50px; color: red;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace;font-weight: bold;">Pending Orders</h5>
+                            <h2 style="color: black;"><b><?= number_format($pending_orders) ?></b></h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-   <!-- Pending Orders Card -->
-<div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-    <div class="card rounded-0 shadow card-custom bg-light-red">
-        <div class="card-body" style="background: #ff99ff; color: red;">
-            <div class="media">
-                <div class="media-left meida media-middle"> 
-                    <span><i class="fa fa-times-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                </div>
-                <div class="media-body media-text-center">
-                    <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Pending Orders</h5>
-                    <h2 class="text-right" style="color: black;"><b><?= number_format($pending_orders) ?></b></h2>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Confirmed Orders Card -->
-<div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-    <div class="card rounded-0 shadow card-custom bg-light-green">
-        <div class="card-body" style="background: #80ff80; color: green;">
-            <div class="media">
-                <div class="media-left meida media-middle"> 
-                    <span><i class="fa fa-check-circle bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                </div>
-                <div class="media-body media-text-center">
-                    <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Confirmed Orders</h5>
-                    <h2 class="text-right" style="color: black;"><b><?= number_format($confirmed_orders) ?></b></h2>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-    <!-- Sales This Month Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-light-yellow">
-            <div class="card-body" style="background: #ffff99; color: orange;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-chart-bar bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                    </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Sales This Month</h5>
-                        <h2 class="text-right" style="color: black;"><b>₱<?= number_format(array_sum($monthly_sales_data)) ?></b></h2>
+            <!-- Confirmed Orders Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #80ff80;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-check-circle bounce" style="font-size: 50px; color: green;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Confirmed Orders</h5>
+                            <h2 style="color: black;"><b><?= number_format($confirmed_orders) ?></b></h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div class="row m-3">
-    <!-- Total Categories Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-blue">
-            <div class="card-body" style="background:#d1c7b5; color: #26bf33;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-folder-open bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                    </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Categories</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= $total_categories ?></b></h2>
+            <!-- Sales This Month Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #ffff99;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-chart-bar bounce" style="font-size: 50px; color: orange;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Sales This Month</h5>
+                            <h2 style="color: black;"><b>₱<?= number_format(array_sum($monthly_sales_data)) ?></b></h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Total Products Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-blue">
-            <div class="card-body" style="background:#cce5ff; color: #0056b3;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-cube bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                    </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Products</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= $total_products ?></b></h2>
+            <!-- Total Categories Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #d1c7b5;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-folder-open bounce" style="font-size: 50px; color: #26bf33;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Total Categories</h5>
+                            <h2 style="color: black;"><b><?= $total_categories ?></b></h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Total Users Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-blue">
-            <div class="card-body" style="background:#d1ecf1; color: #0c5460;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-users bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
+            <!-- Total Products Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #cce5ff;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-cube bounce" style="font-size: 50px; color: #0056b3;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Total Products</h5>
+                            <h2 style="color: black;"><b><?= $total_products ?></b></h2>
+                        </div>
                     </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Users</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= $total_users ?></b></h2>
+                </div>
+            </div>
+
+            <!-- Total Users Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #d1ecf1;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-users bounce" style="font-size: 50px; color: #0c5460;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Total Users</h5>
+                            <h2 style="color: black;"><b><?= $total_users ?></b></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Orders Card -->
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="card card-custom rounded-0 shadow h-100" style="background: #f8d7da;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                        <div class="icon-container mb-3">
+                            <i class="fa fa-shopping-cart bounce" style="font-size: 50px; color: #721c24;" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-container">
+                            <h5 style="color: black; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">Total Orders</h5>
+                            <h2 style="color: black;"><b><?= $total_orders ?></b></h2>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Total Orders Card -->
-    <div class="col-lg-3 col-md-6 col-sm-12 col-xs-12 mb-3">
-        <div class="card rounded-0 shadow card-custom bg-blue">
-            <div class="card-body" style="background:#f8d7da; color: #721c24;">
-                <div class="media">
-                    <div class="media-left meida media-middle"> 
-                        <span><i class="fa fa-shopping-cart bounce" style="height: 50px; width: 50px;" aria-hidden="true"></i></span>
-                    </div>
-                    <div class="media-body media-text-center">
-                        <h5 class="text-right" style="color: black; font-size: 30px; font-family: courier-new;">Total Orders</h5>
-                        <h2 class="text-right" style="color: black;"><b><?= $total_orders ?></b></h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="row m-3">
     <!-- Pie Chart for Sales by Address -->

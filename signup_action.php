@@ -25,19 +25,25 @@ function sendJsonResponse($status, $message) {
     exit;
 }
 
+// Function to sanitize input
+function sanitizeInput($data) {
+    // Trim unnecessary spaces and remove unwanted characters (e.g., extra spaces, tabs)
+    return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+}
+
 try {
     // Check if it's a POST request
     if ($_SERVER["REQUEST_METHOD"] != "POST") {
         sendJsonResponse('error', 'Invalid request method');
     }
 
-    // Validate input data
-    $first_name = trim($_POST['first_name'] ?? '');
-    $last_name = trim($_POST['last_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $mobile = trim($_POST['mobile'] ?? '');
-    $address = trim($_POST['address'] ?? '');
-    $street = trim($_POST['street'] ?? '');
+    // Sanitize and validate input data
+    $first_name = sanitizeInput($_POST['first_name'] ?? '');
+    $last_name = sanitizeInput($_POST['last_name'] ?? '');
+    $email = sanitizeInput($_POST['email'] ?? '');
+    $mobile = sanitizeInput($_POST['mobile'] ?? '');
+    $address = sanitizeInput($_POST['address'] ?? '');
+    $street = sanitizeInput($_POST['street'] ?? '');
     $password = $_POST['password'] ?? '';
 
     // Check for empty fields
@@ -50,12 +56,17 @@ try {
         sendJsonResponse('error', 'Invalid email format');
     }
 
+    // Validate mobile number: Only digits, length 11
+    if (!preg_match('/^\d{11}$/', $mobile)) {
+        sendJsonResponse('error', 'Invalid mobile number. Please enter an 11-digit number');
+    }
+
     // Validate password
     if (strlen($password) < 8) {
         sendJsonResponse('error', 'Password must be at least 8 characters long');
     }
 
-    // Check if email exists
+    // Check if email exists in the database
     $stmt = $conn->prepare("SELECT email FROM user_info WHERE email = ?");
     if (!$stmt) {
         sendJsonResponse('error', 'Database error: ' . $conn->error);
@@ -72,8 +83,8 @@ try {
     $address_parts = explode(', ', $address);
     $municipality = end($address_parts);
 
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    // Hash password using Argon2i
+    $hashed_password = password_hash($password, PASSWORD_ARGON2I);
 
     // Generate 6-digit OTP
     $otp = sprintf("%06d", mt_rand(1, 999999));

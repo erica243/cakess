@@ -1,10 +1,6 @@
 <?php
-// Include necessary files and start session
-include 'db_connect.php';
-
-
-// Enable error reporting
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+include 'db_connect.php'; // Ensure this is included once
+include_once 'header.php'; // Ensure header.php is included only once
 
 // Check if admin is logged in
 if (!isset($_SESSION['login_id']) || $_SESSION['login_type'] != 1) {
@@ -12,7 +8,35 @@ if (!isset($_SESSION['login_id']) || $_SESSION['login_type'] != 1) {
     exit;
 }
 
-// Fetch messages that haven't been replied to by the admin yet
+if (isset($_POST['reply'])) {
+    $message_id = $_POST['message_id'];
+    $reply = $_POST['reply_message'];
+
+    // Check if connection is successful
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    // Prepare the SQL query
+    $stmt = $conn->prepare("UPDATE messages SET admin_reply = ?, reply_date = NOW(), status = 1 WHERE user_id = ?");
+    
+    if ($stmt === false) {
+        die("Error preparing statement: " . $conn->error); // Error in the query
+    }
+
+    // Bind parameters and execute the statement
+    $stmt->bind_param("si", $reply, $message_id); // "s" for string, "i" for integer
+    if ($stmt->execute()) {
+        echo "<script>alert('Reply sent successfully'); window.location='message.php';</script>";
+    } else {
+        echo "<script>alert('Failed to send reply');</script>";
+    }
+
+    // Close the prepared statement
+    $stmt->close();
+}
+
+// Fetch messages without admin replies, but include user reply
 $stmt = $conn->prepare("SELECT * FROM messages WHERE admin_reply IS NULL ORDER BY created_at DESC");
 $stmt->execute();
 $messages = $stmt->get_result();
@@ -21,6 +45,7 @@ $messages = $stmt->get_result();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -31,7 +56,7 @@ $messages = $stmt->get_result();
     main#view-panel {
         margin: 20px;
         padding: 20px;
-        margin-left: 160px;
+        margin-left: 140px;
         float: left;
     }
 
@@ -59,8 +84,7 @@ $messages = $stmt->get_result();
 </style>
 
 <body>
-    <?php include 'topbar.php'; ?>
-    <?php include 'navbar.php'; ?>
+    
 
     <main id="view-panel">
         <h1>Admin Messages</h1>
@@ -70,11 +94,11 @@ $messages = $stmt->get_result();
                 <tr>
                     <th>Message ID</th>
                     <th>Email</th>
-                    <th>Order Number</th>
+                    <th>Order Number</th> <!-- New column for order number -->
                     <th>Message</th>
                     <th>Date</th>
                     <th>Image</th>
-                    <th>User Reply</th>
+                   
                     <th>Reply</th>
                 </tr>
             </thead>
@@ -83,43 +107,33 @@ $messages = $stmt->get_result();
                 <tr>
                     <td><?php echo htmlspecialchars($row['user_id']); ?></td>
                     <td><?php echo htmlspecialchars($row['email']); ?></td>
-                    <td><?php echo htmlspecialchars($row['order_number']); ?></td>
+                    <td><?php echo htmlspecialchars($row['order_number']); ?></td> <!-- Display order number -->
                     <td><?php echo htmlspecialchars($row['message']); ?></td>
                     <td><?php echo date('Y-m-d H:i:s', strtotime($row['created_at'])); ?></td>
                     <td>
-                        <?php
-                        // Check if the photo exists and is readable
-                        $photo_path = htmlspecialchars($row['photo_path']);
-                        if (!empty($photo_path)) {
-                            $full_image_path = "../uploads/" . $photo_path;
-
-                            // Full server path to check file existence
-                            $full_server_path = $_SERVER['DOCUMENT_ROOT'] . $full_image_path;
-
-                            if (file_exists($full_server_path) && is_readable($full_server_path)) {
-                                // Mime type check
-                                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                                $mime_type = finfo_file($finfo, $full_server_path);
-                                finfo_close($finfo);
-
-                                if (strpos($mime_type, 'image') === 0) {
-                                    echo '<a href="' . $full_image_path . '" data-fancybox="gallery" data-caption="User Image">';
-                                    echo '<img src="' . $full_image_path . '" alt="User Image">';
-                                    echo '</a>';
-                                } else {
-                                    echo 'Invalid file type';
-                                }
-                            } else {
-                                echo 'Image file not found or not readable';
-                            }
-                        } else {
-                            echo 'No image available';
-                        }
-                        ?>
-                    </td>
-                    <td>
-                        <?php echo htmlspecialchars($row['user_reply']) ?: 'No reply from user'; ?>
-                    </td>
+    <?php
+    if (!empty($row['photo_path'])) { // Correct column name from the database
+        $photoPath = "../" . htmlspecialchars($row['photo_path']); // Prepend the correct path to the uploads directory
+        
+        // Check if the file exists and is an image
+        if (file_exists($photoPath)) {
+            $mimeType = mime_content_type($photoPath);
+            if (strpos($mimeType, 'image/') === 0) {
+                echo '<a href="' . htmlspecialchars($photoPath) . '" target="_blank">';
+                echo '<img src="' . htmlspecialchars($photoPath) . '" alt="User Uploaded Photo" style="max-width: 100px; max-height: 100px;">';
+                echo '</a>';
+            } else {
+                echo 'File is not a valid image.';
+            }
+        } else {
+            echo 'Image file not found.';
+        }
+    } else {
+        echo 'No image available.';
+    }
+    ?>
+</td>
+                  
                     <td>
                         <button class="btn btn-primary" onclick="showReplyForm(<?php echo $row['user_id']; ?>)">Reply</button>
                     </td>
@@ -163,4 +177,5 @@ $messages = $stmt->get_result();
         }
     </script>
 </body>
+
 </html>

@@ -6,23 +6,66 @@
     <title>Menu Management System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Additional responsive styles */
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+            
+            .table td, .table th {
+                padding: 0.5rem;
+            }
+            
+            .img-thumbnail {
+                max-width: 100px !important;
+                height: auto !important;
+            }
+            
+            .card-tools {
+                margin-top: 10px;
+                text-align: left;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Ensure images are responsive */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Improve form layout on small screens */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        #preview_image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="row mt-3">
-        <div class="col-lg-12">
+        <div class="col-12">
             <div class="card card-outline card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">List of Menu Items</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">List of Menu Items</h3>
                     <div class="card-tools">
-                        <a href="javascript:void(0)" id="add_menu_button" class="btn btn-flat btn-primary">
+                        <a href="javascript:void(0)" id="add_menu_button" class="btn btn-flat btn-primary btn-sm">
                             <span class="fas fa-plus"></span> Create New
                         </a>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="container-fluid">
+                    <div class="table-responsive">
                         <table class="table table-hover table-striped">
                             <colgroup>
                                 <col width="10%">
@@ -49,7 +92,7 @@
     <tr>
         <td class="text-center"><?php echo $i++ ?></td>
         <td class="text-center">
-            <img src="<?php echo isset($row['img_path']) ? '../assets/img/'.$row['img_path'] : 'https://via.placeholder.com/150' ?>" alt="" class="img-fluid img-thumbnail" style="max-width: 200px; height: 200px">
+            <img src="<?php echo isset($row['img_path']) ? '../assets/img/'.$row['img_path'] : 'https://via.placeholder.com/150' ?>" alt="" class="img-fluid img-thumbnail" style="max-width: 200px; height: 200px; object-fit: cover;">
         </td>
         <td>
             <p><b>Name:</b> <?php echo $row['name'] ?></p>
@@ -57,25 +100,27 @@
             <p><b>Description:</b> <?php echo $row['description'] ?></p>
             <p><b>Price:</b> <?php echo number_format($row['price'], 2) ?></p>
             <p><b>Size:</b> <?php echo $row['size'] . ' ' . $row['size_unit']; ?></p>
-            <p><b>Stock:</b> <?php echo $row['stock'] ?></p> <!-- Display stock -->
+            <p><b>Stock:</b> <?php echo $row['stock'] ?></p>
         </td>
         <td class="text-center">
             <p><?php echo $row['status'] == 'Available' ? 'Available' : 'Unavailable' ?></p>
         </td>
         <td class="text-center">
-            <button class="btn btn-sm btn-primary edit_menu" type="button" 
-                    data-id="<?php echo $row['id'] ?>"
-                    data-name="<?php echo $row['name'] ?>"
-                    data-status="<?php echo $row['status'] ?>"
-                    data-description="<?php echo $row['description'] ?>"
-                    data-price="<?php echo $row['price'] ?>"
-                    data-category_id="<?php echo $row['category_id'] ?>"
-                    data-size="<?php echo $row['size'] ?>"
-                    data-size_unit="<?php echo $row['size_unit'] ?>"
-                    data-img_path="<?php echo $row['img_path'] ?>"
-                    data-stock="<?php echo $row['stock'] ?>">Edit
-            </button>
-            <button class="btn btn-sm btn-danger delete_menu" type="button" data-id="<?php echo $row['id'] ?>">Delete</button>
+            <div class="btn-group-vertical">
+                <button class="btn btn-sm btn-primary edit_menu mb-1" type="button" 
+                        data-id="<?php echo $row['id'] ?>"
+                        data-name="<?php echo $row['name'] ?>"
+                        data-status="<?php echo $row['status'] ?>"
+                        data-description="<?php echo $row['description'] ?>"
+                        data-price="<?php echo $row['price'] ?>"
+                        data-category_id="<?php echo $row['category_id'] ?>"
+                        data-size="<?php echo $row['size'] ?>"
+                        data-size_unit="<?php echo $row['size_unit'] ?>"
+                        data-img_path="<?php echo $row['img_path'] ?>"
+                        data-stock="<?php echo $row['stock'] ?>">Edit
+                </button>
+                <button class="btn btn-sm btn-danger delete_menu" type="button" data-id="<?php echo $row['id'] ?>">Delete</button>
+            </div>
         </td>
     </tr>
     <?php endwhile; ?>
@@ -90,7 +135,7 @@
 
 <div class="container-fluid">
     <div class="row mt-3">
-        <div class="col-lg-12" id="manage-menu-form" style="display: none;">
+        <div class="col-12" id="manage-menu-form" style="display: none;">
             <div class="card card-outline card-primary">
                 <form action="" id="manage-menu">
                     <div class="card-header">
@@ -125,36 +170,46 @@
                                 <?php endwhile; ?>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="control-label">Price</label>
-                            <input type="number" class="form-control text-left" name="price" step="any" required>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="control-label">Price</label>
+                                <input type="number" class="form-control text-left" name="price" step="any" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="stock">Stock</label>
+                                <input type="number" class="form-control" name="stock" id="stock" required>
+                            </div>
                         </div>
-                        <div class="form-group">
-    <label for="stock">Stock</label>
-    <input type="number" class="form-control" name="stock" id="stock" required>
-</div>
-
-                        <label for="size">Size:</label>
-                        <input type="text" name="size" id="size" required>
-                        <label for="size_unit">Size Unit:</label>
-                        <select name="size_unit" id="size_unit" required>
-                            <option value="inches">Inches</option>
-                            <option value="cm">Centimeters</option>
-                            <option value="mm">Millimeters</option>
-                        </select>
+                        <div class="form-row">
+                            <div class="form-group col-md-8">
+                                <label for="size">Size:</label>
+                                <input type="text" name="size" id="size" class="form-control" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="size_unit">Size Unit:</label>
+                                <select name="size_unit" id="size_unit" class="form-control" required>
+                                    <option value="inches">Inches</option>
+                                    <option value="cm">Centimeters</option>
+                                    <option value="mm">Millimeters</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="control-label">Image</label>
-                            <input type="file" class="form-control" name="img" onchange="displayImg(this)">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" name="img" id="customFile" onchange="displayImg(this)">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <img src="" alt="" id="preview_image" style="max-width: 100px;">
+                        <div class="form-group text-center">
+                            <img src="" alt="" id="preview_image" class="img-fluid" style="max-height: 200px;">
                         </div>
                     </div>
                     <div class="card-footer">
                         <div class="row">
-                            <div class="col-md-12">
-                                <button type="submit" class="btn btn-sm btn-primary col-sm-3 offset-md-3">Save</button>
-                                <button type="button" class="btn btn-sm btn-default col-sm-3" onclick="$('#manage-menu').get(0).reset(); $('#preview_image').attr('src', ''); $('#manage-menu-form').hide();">Cancel</button>
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary mr-2">Save</button>
+                                <button type="button" class="btn btn-secondary" onclick="$('#manage-menu').get(0).reset(); $('#preview_image').attr('src', ''); $('#manage-menu-form').hide();">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -165,9 +220,16 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <script>
+    // File input label update
+    $(".custom-file-input").on("change", function() {
+        var fileName = $(this).val().split("\\").pop();
+        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+
     function displayImg(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -178,18 +240,48 @@
         }
     }
 
-    $('#add_menu_button').click(function() {
-        $('#manage-menu-form').show();
+    // Function to scroll to the menu form
+    function scrollToMenuForm() {
         $('html, body').animate({
-            scrollTop: $("#manage-menu-form").offset().top
+            scrollTop: $("#manage-menu-form").offset().top - 100 // Added offset to prevent form being hidden behind fixed headers
         }, 500);
+        $('#manage-menu-form').show();
+    }
+
+    // Create New button click handler
+    $('#add_menu_button').click(function() {
+        // Reset the form when creating a new menu item
+        $('#manage-menu')[0].reset();
+        $('#preview_image').attr('src', '');
+        
+        // Show and scroll to the form
+        scrollToMenuForm();
     });
 
+    // Edit button click handler
+    $('.edit_menu').click(function() {
+        // Populate form fields with existing data
+        $('input[name=id]').val($(this).attr('data-id'));
+        $('input[name=name]').val($(this).attr('data-name'));
+        $('textarea[name=description]').val($(this).attr('data-description'));
+        $('input[name=price]').val($(this).attr('data-price'));
+        $('select[name=status]').val($(this).attr('data-status'));
+        $('select[name=category_id]').val($(this).attr('data-category_id'));
+        $('input[name=size]').val($(this).attr('data-size'));
+        $('select[name=size_unit]').val($(this).attr('data-size_unit'));
+        $('#preview_image').attr('src', $(this).attr('data-img_path'));
+        $('input[name=stock]').val($(this).attr('data-stock'));
+        
+        // Show and scroll to the form
+        scrollToMenuForm();
+    });
+
+    // Rest of the script remains the same
     $('#manage-menu').submit(function(e) {
         e.preventDefault();
         var formData = new FormData(this);
         $.ajax({
-            url: 'ajax.php?action=save_menu', // Ensure your PHP file handles the request correctly
+            url: 'ajax.php?action=save_menu',
             method: 'POST',
             data: formData,
             contentType: false,
@@ -207,20 +299,7 @@
         });
     });
 
-    $('.edit_menu').click(function() {
-        $('#manage-menu-form').show();
-        $('input[name=id]').val($(this).attr('data-id'));
-        $('input[name=name]').val($(this).attr('data-name'));
-        $('textarea[name=description]').val($(this).attr('data-description'));
-        $('input[name=price]').val($(this).attr('data-price'));
-        $('select[name=status]').val($(this).attr('data-status'));
-        $('select[name=category_id]').val($(this).attr('data-category_id'));
-        $('input[name=size]').val($(this).attr('data-size'));
-        $('select[name=size_unit]').val($(this).attr('data-size_unit'));
-        $('#preview_image').attr('src', $(this).attr('data-img_path'));
-        $('input[name=stock]').val($(this).attr('data-stock')); // Load stock value
-    });
-
+    // Remaining delete functionality stays the same
     $('.delete_menu').click(function() {
         const menu_id = $(this).attr('data-id');
         Swal.fire({

@@ -86,7 +86,6 @@ while ($row = $query->fetch_assoc()) {
 <body>
     <div class="container">
         <div class="signup-container">
-            <h2 class="text-center mb-4">Create an Account</h2>
             <form id="signup-form" method="POST">
                 <div class="form-group">
                     <label for="first_name">First Name</label>
@@ -158,16 +157,14 @@ while ($row = $query->fetch_assoc()) {
     </div>
 
     <!-- Terms Modal -->
-   
-            
-                <div class="modal fade" id="termsModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen-sm-down">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Terms and Conditions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
+    <div class="modal fade" id="termsModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Terms and Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
             <p>Welcome to the M&M Cake Ordering System! By using our website and services, you agree to the following terms and conditions. Please read them carefully.</p>
 
 <h5>1. Acceptance of Terms</h5>
@@ -222,12 +219,11 @@ Address: Poblacion, Madridejos, Cebu</p>
 
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">accept</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-         
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -238,174 +234,174 @@ Address: Poblacion, Madridejos, Cebu</p>
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>// Add to existing script
-$(document).ready(function() {
-    // Prevent zoom on input focus for mobile
-    $('input, select, textarea').on('focus', function() {
-        if (window.innerWidth <= 576) {
-            $(this).css('font-size', '16px');
-        }
-    });
-
-    // Optionally, adjust modal scrolling for mobile
-    $('#termsModal').on('shown.bs.modal', function () {
-        if (window.innerWidth <= 576) {
-            $('body').css('overflow', 'hidden');
-        }
-    }).on('hidden.bs.modal', function () {
-        $('body').css('overflow', '');
-    });
-});
-    $(document).ready(function() {
-        // Store shipping info for client-side filtering
-        const shippingInfo = <?php echo json_encode($shipping_info); ?>;
-
-        // Municipality change handler
-        $('#municipality').change(function() {
-            const selectedMunicipality = $(this).val();
-            const addressSelect = $('#address');
-
-            // Clear and disable address select if no municipality is selected
-            if (!selectedMunicipality) {
-                addressSelect.html('<option value="">Select Municipality First</option>').prop('disabled', true);
-                return;
-            }
-
-            // Filter addresses for selected municipality
-            const filteredAddresses = shippingInfo.filter(info => info.municipality === selectedMunicipality);
-
-            // Enable and populate address select
-            addressSelect.prop('disabled', false);
-            addressSelect.html('<option value="">Select Address</option>');
-
-            filteredAddresses.forEach(info => {
-                addressSelect.append(`<option value="${info.address}">${info.address}</option>`);
+    <script>
+        $(document).ready(function() {
+            // Prevent zoom on input focus for mobile
+            $('input, select, textarea').on('focus', function() {
+                if (window.innerWidth <= 576) {
+                    $(this).css('font-size', '16px');
+                }
             });
-        });
 
-        // Terms Modal
-        const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
-        $('#openModal').on('click', function(e) {
-            e.preventDefault();
-            termsModal.show();
-        });
+            // Store shipping info for client-side filtering
+            const shippingInfo = <?php echo json_encode($shipping_info); ?>;
 
-        // Password visibility toggle
-        $('#togglePassword').click(function() {
-            const password = $('#password');
-            const icon = $(this).find('i');
+            // Municipality change handler
+            $('#municipality').change(function() {
+                const selectedMunicipality = $(this).val();
+                const addressSelect = $('#address');
 
-            if (password.attr('type') === 'password') {
-                password.attr('type', 'text');
-                icon.removeClass('fa-eye').addClass('fa-eye-slash');
-            } else {
-                password.attr('type', 'password');
-                icon.removeClass('fa-eye-slash').addClass('fa-eye');
-            }
-        });
+                // Clear and disable address select if no municipality is selected
+                if (!selectedMunicipality) {
+                    addressSelect.html('<option value="">Select Municipality First</option>').prop('disabled', true);
+                    return;
+                }
 
-        // Mobile number handling
-        $('#mobile').on('input', function() {
-            // Remove any non-digit characters
-            let value = $(this).val().replace(/\D/g, '');
+                // Filter addresses for selected municipality
+                const filteredAddresses = shippingInfo.filter(info => info.municipality === selectedMunicipality);
 
-            // Ensure only 11 digits can be entered
-            if (value.length > 11) {
-                value = value.slice(0, 11);
-            }
+                // Enable and populate address select
+                addressSelect.prop('disabled', false);
+                addressSelect.html('<option value="">Select Address</option>');
 
-            // Update the input value
-            $(this).val(value);
-        });
-
-        // Form submission
-        $('#signup-form').on('submit', function(e) {
-            e.preventDefault();
-
-            // Validate terms checkbox
-            if (!$('#termsCheckbox').is(':checked')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Terms Not Accepted',
-                    text: 'Please accept the Terms and Conditions'
+                filteredAddresses.forEach(info => {
+                    addressSelect.append(`<option value="${info.address}">${info.address}</option>`);
                 });
-                return;
-            }
+            });
 
-            // Password validation
-            const password = $('#password').val();
-            if (password.length < 8 || 
-                !/[A-Z]/.test(password) || 
-                !/[a-z]/.test(password) || 
-                !/[0-9]/.test(password) || 
-                !/[^A-Za-z0-9]/.test(password)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Password',
-                    text: 'Password must include uppercase, lowercase, numbers, and symbols'
-                });
-                return;
-            }
+            // Terms Modal
+            const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+            $('#openModal').on('click', function(e) {
+                e.preventDefault();
+                termsModal.show();
+            });
 
-            // Mobile number validation
-            const mobile = $('#mobile').val();
-            if (mobile.length !== 11) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Mobile Number',
-                    text: 'Please enter an 11-digit mobile number'
-                });
-                return;
-            }
+            // Password visibility toggle
+            $('#togglePassword').click(function() {
+                const password = $('#password');
+                const icon = $(this).find('i');
 
-            // Prepare form data
-            const formData = $(this).serialize();
+                if (password.attr('type') === 'password') {
+                    password.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    password.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
 
-            // AJAX submission
-            $.ajax({
-                url: 'signup_action.php',
-                type: 'POST',
-                data: formData,
-                dataType: 'json',
-                beforeSend: function() {
+            // Submit form with validation
+            $('#signup-form').on('submit', function(e) {
+                e.preventDefault();
+
+                // Validate terms checkbox
+                if (!$('#termsCheckbox').is(':checked')) {
                     Swal.fire({
-                        title: 'Creating Account',
-                        text: 'Please wait...',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        icon: 'error',
+                        title: 'Terms Not Accepted',
+                        text: 'Please accept the Terms and Conditions'
                     });
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
+                    return;
+                }
+
+                // Validate first and last names to only allow letters (no spaces or special characters)
+                const firstName = $('#first_name').val();
+                const lastName = $('#last_name').val();
+
+                const nameRegex = /^[A-Za-z]+$/; // Only letters allowed
+
+                if (!nameRegex.test(firstName)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid First Name',
+                        text: 'First Name must contain only letters (no spaces or special characters)'
+                    });
+                    return;
+                }
+
+                if (!nameRegex.test(lastName)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Last Name',
+                        text: 'Last Name must contain only letters (no spaces or special characters)'
+                    });
+                    return;
+                }
+
+                // Password validation
+                const password = $('#password').val();
+                if (password.length < 8 || 
+                    !/[A-Z]/.test(password) || 
+                    !/[a-z]/.test(password) || 
+                    !/[0-9]/.test(password) || 
+                    !/[^A-Za-z0-9]/.test(password)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Password',
+                        text: 'Password must include uppercase, lowercase, numbers, and symbols'
+                    });
+                    return;
+                }
+
+                // Mobile number validation
+                const mobile = $('#mobile').val();
+                if (mobile.length !== 11) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Mobile Number',
+                        text: 'Please enter an 11-digit mobile number'
+                    });
+                    return;
+                }
+
+                // Prepare form data
+                const formData = $(this).serialize();
+
+                // AJAX submission
+                $.ajax({
+                    url: 'signup_action.php',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    beforeSend: function() {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(function() {
-                            window.location.href = 'email_otp.php';
+                            title: 'Creating Account',
+                            text: 'Please wait...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
                         });
-                    } else {
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(function() {
+                                window.location.href = 'email_otp.php';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function() {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
-                            text: response.message
+                            text: 'An error occurred. Please try again later.'
                         });
                     }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'An error occurred. Please try again later.'
-                    });
-                }
+                });
             });
         });
-    });
     </script>
 </body>
 </html>

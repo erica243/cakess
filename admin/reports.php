@@ -24,10 +24,52 @@ $query .= " ORDER BY o.order_date DESC";
 $result = $conn->query($query);
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Responsive Modifications */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 10px;
+            }
+            
+            .form-inline {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-inline .form-group {
+                width: 100%;
+                margin-right: 0 !important;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+            }
+            
+            .table {
+                width: 100%;
+            }
+            
+            .table td {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
         <h2>Order Reports</h2>
-        <form method="post" class="form-inline">
+        <form method="post" class="form-inline d-flex flex-column flex-md-row">
             <div class="form-group mr-2">
                 <label for="from_date" class="mr-2">From Date:</label>
                 <input type="date" class="form-control" name="from_date" id="from_date" value="<?php echo htmlspecialchars($from_date); ?>">
@@ -40,43 +82,46 @@ $result = $conn->query($query);
         </form>
     </div>
     <button onclick="printReport()" class="btn btn-primary mb-3">Print Reports</button>
-    <?php if ($result->num_rows > 0): ?>
-        <table class="table table-bordered" id="order-report-table">
-            <thead>
-                <tr>
-                    <th>Order Date</th>
-                    <th>Product Name</th>
-                    <th>Transaction ID</th>
-                    <th>Mode of Payment</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Shipping Amount</th>
-                    <th>Total Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <?php
-                    // Calculate total amount (price * quantity + shipping amount)
-                    $shipping_amount = $row['shipping_amount'] ?? 0; // Handle null shipping amount
-                    $total_amount = ($row['qty'] * $row['price']) + $shipping_amount;
-                    ?>
+    
+    <div class="table-responsive">
+        <?php if ($result->num_rows > 0): ?>
+            <table class="table table-bordered" id="order-report-table">
+                <thead>
                     <tr>
-                        <td><?php echo date('m-d-Y', strtotime($row['order_date'])); ?></td>
-                        <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                        <td><?php echo htmlspecialchars($row['order_number']); ?></td>
-                        <td><?php echo htmlspecialchars($row['payment_method']); ?></td>
-                        <td><?php echo htmlspecialchars($row['qty']); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($row['price'], 2)); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($shipping_amount, 2)); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($total_amount, 2)); ?></td>
+                        <th>Order Date</th>
+                        <th>Product Name</th>
+                        <th>Transaction ID</th>
+                        <th>Mode of Payment</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Shipping Amount</th>
+                        <th>Total Amount</th>
                     </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    <?php else: ?>
-        <h2>No confirmed orders found</h2>
-    <?php endif; ?>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <?php
+                        // Calculate total amount (price * quantity + shipping amount)
+                        $shipping_amount = $row['shipping_amount'] ?? 0; // Handle null shipping amount
+                        $total_amount = ($row['qty'] * $row['price']) + $shipping_amount;
+                        ?>
+                        <tr>
+                            <td><?php echo date('m-d-Y', strtotime($row['order_date'])); ?></td>
+                            <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['order_number']); ?></td>
+                            <td><?php echo htmlspecialchars($row['payment_method']); ?></td>
+                            <td><?php echo htmlspecialchars($row['qty']); ?></td>
+                            <td><?php echo htmlspecialchars(number_format($row['price'], 2)); ?></td>
+                            <td><?php echo htmlspecialchars(number_format($shipping_amount, 2)); ?></td>
+                            <td><?php echo htmlspecialchars(number_format($total_amount, 2)); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <h2>No confirmed orders found</h2>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php

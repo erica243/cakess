@@ -21,7 +21,7 @@
         overflow-y: auto;
         transition: transform 0.3s ease;
         transform: translateX(0); /* Default position for desktop */
-        z-index: 1000; /* Ensure it's on top */
+        z-index: 100; /* Ensure it's on top */
     }
 
     /* Sidebar for mobile view */
@@ -41,9 +41,11 @@
             transform: translateX(230px); /* Adjust the content */
         }
     }
-
+    #sidebar .sidebar-list {
+    overflow: hidden; /* Prevents overflow from causing visual glitches */
+}
     #sidebar .sidebar-list a {
-        color: #000 !important; /* Text color for links */
+        color: #000 ; /* Text color for links */
         display: flex; /* Use flex for better alignment */
         justify-content: space-between; /* Spread out icon and text */
         align-items: center; /* Vertical alignment */
@@ -53,15 +55,15 @@
     }
 
     #sidebar .sidebar-list a:hover {
-        background-color: white !important; /* Lighter background on hover */
-        color: #000 !important;
+        background-color: 	 #d580ff !important; /* Lighter background on hover */
+        color: #	 #d580ff !important;
     }
 
     #sidebar .sidebar-list a.active {
-        background-color: #99d6ff!important; /* Active item background color */
-        color: #fff !important; /* Active item text color */
-    }
-
+    background-color: #99d6ff!important; /* Same background for active items */
+    color: #000 !important; /* Text color for active items */
+    font-weight: normal !important; /* Ensure font weight is not bold */
+}
     .notification-badge {
         background-color: red;
         color: white;
@@ -106,7 +108,116 @@
         border-radius: 4px; /* Rounded corners */
     }.container {
     padding-top: 80px; /* Same as navbar height */
+}#sidebar .sidebar-list a {
+    color: #000 !important; /* Text color for links */
+    display: flex; /* Use flex for better alignment */
+    justify-content: space-between; /* Spread out icon and text */
+    align-items: center; /* Vertical alignment */
+    padding: 10px 15px; /* Padding for links */
+    text-decoration: none; /* Remove underline from links */
+    position: relative; /* To position the badge */
+    font-weight: bold; /* Make text bold */
 }
+
+#sidebar .sidebar-list a:hover {
+    background-color: 	 #66d9ff !important; /* Lighter background on hover */
+    color: #000 !important;
+    font-weight: bold; /* Ensure bold text on hover */
+}
+
+#sidebar .sidebar-list a.active {
+    background-color: #99d6ff!important; /* Same background for active items */
+    color: #000 !important; /* Text color for active items */
+    font-weight: bold !important; /* Ensure bold text for active items */
+}
+/* Default icon color */
+#sidebar .sidebar-list a .icon-field i {
+    transition: color 0.3s ease; /* Smooth transition for color */
+}
+
+/* Change color for specific icons */
+
+/* Home icon */
+#sidebar .sidebar-list .nav-home .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-home:hover .icon-field i {
+    color: #ff5733; /* Orange on hover */
+}
+
+/* Orders icon */
+#sidebar .sidebar-list .nav-orders .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-orders:hover .icon-field i {
+    color: #4CAF50; /* Green on hover */
+}
+
+/* Menu icon */
+#sidebar .sidebar-list .nav-menu .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-menu:hover .icon-field i {
+    color: #00bcd4; /* Cyan on hover */
+}
+
+/* Categories icon */
+#sidebar .sidebar-list .nav-categories .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-categories:hover .icon-field i {
+    color: #9C27B0; /* Purple on hover */
+}
+
+/* Reports icon */
+#sidebar .sidebar-list .nav-reports .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-reports:hover .icon-field i {
+    color: #f44336; /* Red on hover */
+}
+
+/* Messages icon */
+#sidebar .sidebar-list .nav-message .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-message:hover .icon-field i {
+    color: #ff9800; /* Amber on hover */
+}
+
+/* Fee icon */
+#sidebar .sidebar-list .nav-shipping .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-shipping:hover .icon-field i {
+    color: #3f51b5; /* Blue on hover */
+}
+
+/* Users icon */
+#sidebar .sidebar-list .nav-users .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-users:hover .icon-field i {
+    color: #009688; /* Teal on hover */
+}
+
+/* Site Settings icon */
+#sidebar .sidebar-list .nav-site_settings .icon-field i {
+    color: #ffffff; /* White by default */
+}
+
+#sidebar .sidebar-list .nav-site_settings:hover .icon-field i {
+    color: #673ab7; /* Deep purple on hover */
+}
+
     
     </style>
 <!-- Menu button (hamburger icon) -->
@@ -153,22 +264,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Get the current page from the URL
     let currentPage = window.location.href;
-
-    // Select all sidebar links
     let navLinks = document.querySelectorAll('#sidebar .sidebar-list a');
 
-    // Remove any existing active classes
     navLinks.forEach(link => {
         link.classList.remove('active');
     });
 
-    // Find and set active link
     navLinks.forEach(link => {
-        // Check if the link's href is part of the current page URL
         if (currentPage.includes(link.getAttribute('href'))) {
             link.classList.add('active');
+            console.log('Active class added to:', link); // Debug statement
         }
     });
 });
