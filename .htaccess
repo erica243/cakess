@@ -32,14 +32,23 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
   # Disable content sniffing to prevent MIME-type confusion attacks
   Header set X-Content-Type-Options nosniff
 </IfModule>
-# Add to .htaccess
+
+# Prevent direct access to hidden files
 <FilesMatch "^\.">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# Prevent direct access to PHP files
-<FilesMatch "^(?!index\.php$).*\.php$">
+# Prevent direct access to PHP files, except index.php and admin/login.php
+<FilesMatch "^(?!index\.php$|admin/login\.php$).*\.php$">
     Order allow,deny
     Deny from all
 </FilesMatch>
+
+# Ensure the correct handling of URLs and prevent potential conflicts
+RewriteRule ^admin/login$ admin/login.php [L,QSA]
+
+# Make sure mod_rewrite is working
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L]
