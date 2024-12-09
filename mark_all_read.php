@@ -9,18 +9,11 @@ if (!isset($_SESSION['login_user_id'])) {
 }
 
 $userId = $_SESSION['login_user_id'];
-$notificationId = $_POST['notification_id'];
 
-// Validate input
-if (empty($notificationId)) {
-    echo json_encode(['success' => false, 'error' => 'Invalid notification ID']);
-    exit();
-}
-
-// Prepare and execute update query
-$query = "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND order_number = ?";
+// Update all unread notifications to read
+$query = "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("is", $userId, $notificationId);
+$stmt->bind_param("i", $userId);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true]);
