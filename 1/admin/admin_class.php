@@ -222,11 +222,27 @@ Class Action {
     
         // Handle file upload
         if (!empty($_FILES['img']['tmp_name'])) {
+            // Check the MIME type of the file
+            $fileType = mime_content_type($_FILES['img']['tmp_name']);
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            
+            if (!in_array($fileType, $allowedTypes)) {
+                return "Invalid file type. Only JPEG, PNG, GIF, and WebP files are allowed.";
+            }
+    
+            // Check for the file extension (to ensure it's not a PHP file)
+            $fileExtension = pathinfo($_FILES['img']['name'], PATHINFO_EXTENSION);
+            $fileExtension = strtolower($fileExtension);
+    
+            if ($fileExtension === 'php' || empty($fileExtension)) {
+                return "Invalid file extension. Please upload a valid image.";
+            }
+    
+            // Generate a unique file name and move the file
             $fileName = strtotime(date('m-d-Y H:i')) . '_' . $_FILES['img']['name'];
             $uploadDir = '../assets/img/';
             $uploadFile = $uploadDir . $fileName;
     
-            // Move uploaded file
             if (move_uploaded_file($_FILES['img']['tmp_name'], $uploadFile)) {
                 $data .= ", img_path = '" . $this->db->real_escape_string($fileName) . "'";
             } else {
