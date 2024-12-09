@@ -108,10 +108,11 @@
             }
         },
         error: function (xhr, status, error) {
-            submitButton.removeAttr('disabled').html('Submit');
-            console.error(xhr.responseText);
-            $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
-        }
+    submitButton.removeAttr('disabled').html('Submit');
+    console.error("Error: " + status + ": " + error);
+    console.error(xhr.responseText);
+    $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+}
     });
 });
 
