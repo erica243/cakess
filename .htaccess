@@ -41,8 +41,7 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
     Deny from all
 </FilesMatch>
 
-# Ensure the correct handling of URLs and prevent potential conflicts
-RewriteRule ^admin/login$ admin/login.php [L,QSA]
+
 
 # Make sure mod_rewrite is working
 RewriteCond %{REQUEST_FILENAME} !-f
