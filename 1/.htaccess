@@ -39,10 +39,10 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
     Deny from all
 </FilesMatch>
 
-# Remove .php extension from URLs (only for browser navigation)
+# Remove .php extension from URLs (for browser navigation)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteCond %{REQUEST_URI} !^/register_step2\.php$ [NC]
+
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
 # Optional: Ensure the home page is accessible without extension
