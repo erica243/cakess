@@ -291,7 +291,7 @@ if ($action == "forgot_password") {
         $update_query->execute();
 
         // Construct the reset password link
-        $reset_link = "https://yourdomain.com/reset_password.php?code=" . urlencode($code) . "&email=" . urlencode($email);
+        $reset_link = "https://mandm-lawis.com/1//reset_password.php?code=" . urlencode($code) . "&email=" . urlencode($email);
 
         // Prepare email content
         $subject = "Password Reset Request";
