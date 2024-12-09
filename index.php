@@ -25,7 +25,7 @@ function getNotification() {
     return null;
 }
 
-include('header.php');
+
 include('admin/db_connect.php');
 
 $query = $conn->query("SELECT * FROM system_settings limit 1")->fetch_array();
