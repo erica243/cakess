@@ -642,11 +642,10 @@ Class Action {
             return json_encode(['status' => 'error', 'message' => 'Failed to store OTP']);
         }
         
-        use PHPMailer\PHPMailer\PHPMailer;
-        use PHPMailer\PHPMailer\Exception;
-        
-        require 'vendor/autoload.php'; // Include PHPMailer if you're using Composer
-        
+        // Send email using PHPMailer
+        require 'PHPMailer/PHPMailer.php';
+        require 'PHPMailer/SMTP.php';
+        require 'PHPMailer/Exception.php';
         
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         
