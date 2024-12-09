@@ -2,9 +2,6 @@
 // Strict-Transport-Security: Enforces HTTPS
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 
-// X-Frame-Options: Prevents your site from being embedded in an iframe
-header("X-Frame-Options: SAMEORIGIN"); // Or use DENY or ALLOW-FROM (URL) if needed
-
 // X-Content-Type-Options: Prevents content type sniffing
 header("X-Content-Type-Options: nosniff");
 
