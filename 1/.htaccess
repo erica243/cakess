@@ -5,6 +5,9 @@ php_value display_errors 1
 # Enable URL rewriting
 RewriteEngine On
 
+# Set the base path for your site if it's in a subdirectory (like /1/)
+RewriteBase /1/
+
 # Block redirection to any external domain except mandm-lawis.com
 RewriteCond %{HTTP_HOST} !^mandm-lawis\.com$ [NC]
 RewriteRule ^ - [F,L]
@@ -47,7 +50,10 @@ RewriteRule ^([^/]+)$ $1.php [L]
 # Redirect URLs with .php extension to their cleaner version
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond %{REQUEST_URI} \.php$
-RewriteRule ^(.*)\.php$ /$1 [R=301,L]
+RewriteRule ^(.*)\.php$ /1/$1 [R=301,L]
 
-# Ensure the home page is accessible without the extension
-RewriteRule ^home$ /index.php?page=home [L]
+# Ensure the home page is accessible without extension
+RewriteRule ^home$ /1/index.php?page=home [L]
+
+# Fixing access to admin area inside the /1/ folder
+RewriteRule ^admin/(.*)$ /1/admin/$1 [L]
