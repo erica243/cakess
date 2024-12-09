@@ -270,7 +270,14 @@ if ($action == 'send_otp') {
     }
 }
 if ($action == "forgot_password") {
-    $email = $_POST['email'];
+    // Validate email input
+    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        $resp['status'] = 'failed';
+        $resp['message'] = 'Invalid email format.';
+        echo json_encode($resp);
+        exit;
+    }
 
     // Check if the email exists in the database
     $query = $conn->prepare("SELECT * FROM user_info WHERE email = ?");
@@ -281,38 +288,32 @@ if ($action == "forgot_password") {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         
-        // Generate a secure random code and reset time
-        $code = bin2hex(random_bytes(16)); // Generate a secure random token
+        // Generate a secure random code with expiration
+        $code = bin2hex(random_bytes(16));
         $reset_time = date('Y-m-d H:i:s');
+        $expiry_time = date('Y-m-d H:i:s', strtotime('+1 hour')); // Link valid for 1 hour
         
-        // Store the code and reset_time in the database
-        $update_query = $conn->prepare("UPDATE user_info SET reset_code = ?, reset_time = ? WHERE email = ?");
-        $update_query->bind_param("sss", $code, $reset_time, $email);
+        // Store the code, reset time, and expiry time in the database
+        $update_query = $conn->prepare("UPDATE user_info SET reset_code = ?, reset_time = ?, reset_expiry = ? WHERE email = ?");
+        $update_query->bind_param("ssss", $code, $reset_time, $expiry_time, $email);
         $update_query->execute();
 
-        // Construct the reset password link
-        $reset_link = "https://mandm-lawis.com/1//reset_password.php?code=" . urlencode($code) . "&email=" . urlencode($email);
+        // Construct the reset password link (use HTTPS)
+        $reset_link = "https://mandm-lawis.com/1/reset_password.php?code=" . urlencode($code) . "&email=" . urlencode($email);
 
         // Prepare email content
         $subject = "Password Reset Request";
         $message = "
             <html>
-            <head>
-                <title>Password Reset</title>
-            </head>
             <body>
                 <p>Hi,</p>
                 <p>You requested a password reset. Click the link below to reset your password:</p>
-                <p><a href='$reset_link'>$reset_link</a></p>
+                <p><a href='$reset_link'>Reset Password</a></p>
+                <p>This link will expire in 1 hour.</p>
                 <p>If you did not request this, please ignore this email.</p>
-                <p>Thank you,</p>
-                <p>M&M Cake Ordering System</p>
             </body>
             </html>
         ";
-        $headers = "From: mandmcakeorderingsystem@gmail.com\r\n";
-        $headers .= "Reply-To: mandmcakeorderingsystem@gmail.com\r\n";
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
         // Send the email using PHPMailer
         $mail = new PHPMailer(true);
@@ -321,14 +322,13 @@ if ($action == "forgot_password") {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'mandmcakeorderingsystem@gmail.com'; // Your Gmail
-            $mail->Password = 'dgld kvqo yecu wdka'; // Your app password
+            $mail->Username = 'mandmcakeorderingsystem@gmail.com';
+            $mail->Password = 'dgld kvqo yecu wdka';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
             $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
             $mail->addAddress($email);
-
             $mail->isHTML(true);
             $mail->Subject = $subject;
             $mail->Body = $message;
@@ -338,8 +338,9 @@ if ($action == "forgot_password") {
             $resp['status'] = 'success';
             $resp['message'] = 'Password reset instructions have been sent to your email.';
         } catch (Exception $e) {
+            error_log("Email send error: " . $e->getMessage());
             $resp['status'] = 'failed';
-            $resp['message'] = "Failed to send email: {$mail->ErrorInfo}";
+            $resp['message'] = 'Could not send reset instructions. Please try again later.';
         }
     } else {
         $resp['status'] = 'failed';
@@ -348,7 +349,6 @@ if ($action == "forgot_password") {
 
     echo json_encode($resp);
 }
-
 
 if(isset($_GET['action'])) {
     $action = $_GET['action'];
