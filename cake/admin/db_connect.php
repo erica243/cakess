@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 
 $servername = '127.0.0.1'; // Typically 'localhost' or '127.0.0.1' for local servers
 $username = 'u510162695_fos_db'; // Your database username
@@ -15,7 +14,5 @@ if ($conn->connect_error) {
 }
 
 // Connection successful
+?>
 
-
-
-$conn= new mysqli('localhost','root','','db')or die("Could not connect to mysql".mysqli_error($con));
