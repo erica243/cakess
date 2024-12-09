@@ -103,7 +103,7 @@
 
         // Perform AJAX request
         $.ajax({
-            url: 'https://mandm-lawis.com/1/forgot_password.php', // Ensure the correct path to the PHP script
+            url: 'forgot_password.php', // Ensure the correct path to the PHP script
             method: 'POST',
             data: $(this).serialize(), // Serialize form data
             dataType: 'json', // Expect JSON response

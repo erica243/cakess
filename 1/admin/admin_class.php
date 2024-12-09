@@ -627,11 +627,11 @@ function forgot_password() {
     try {
         // Server settings
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com'; 
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'mandmcakeorderingsystem@gmail.com'; 
-        $mail->Password = 'dgld kvqo yecu wdka'; 
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Username = 'mandmcakeorderingsystem@gmail.com'; // Your email
+        $mail->Password = 'dgld kvqo yecu wdka'; // Your app password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
         
         // Recipients
@@ -707,10 +707,10 @@ function sendEmail($to, $receiptHtml) {
     try {
         //Server settings
         $mail->isSMTP();
-        $mail->Host = 'smtp.example.com';  // Set the SMTP server to send through
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'mandmcakeorderingsystem@gmail.com'; 
-        $mail->Password = 'dgld kvqo yecu wdka'; 
+        $mail->Username = 'mandmcakeorderingsystem@gmail.com'; // Your email
+        $mail->Password = 'dgld kvqo yecu wdka'; // Your app password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
