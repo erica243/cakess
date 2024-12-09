@@ -83,52 +83,60 @@
         $('#forgot-password-section').hide(); // Hide forgot password form
         $('#login-section').show(); // Show login form
     });
+// Handle Forgot Password Form submission
+$('#forgot-password-frm').submit(function (e) {
+    e.preventDefault(); // Prevent default form submission
 
-    // Handle Forgot Password Form submission
-	$('#forgot-password-frm').submit(function (e) {
-        e.preventDefault(); // Prevent default form submission
+    // Check if the email input is valid
+    const email = $(this).find('[name="email"]').val();
+    if (!email) {
+        alert('Please enter a valid email address.');
+        return;
+    }
 
-        // Check if the email input is valid
-        if (!$(this).find('[name="email"]').val()) {
-            alert('Please enter a valid email address.');
-            return;
-        }
+    // Disable submit button and show loading text
+    let submitButton = $('#forgot-password-frm button[type="submit"]');
+    submitButton.attr('disabled', true).html('Submitting...');
 
-        // Disable submit button and show loading text
-        let submitButton = $('#forgot-password-frm button[type="submit"]');
-        submitButton.attr('disabled', true).html('Submitting...');
+    // Clear any previous alerts
+    $('#forgot-password-frm .alert').remove();
 
-        // Clear any previous alerts
-        $('#forgot-password-frm .alert').remove();
+    // Perform AJAX request
+    $.ajax({
+        url: 'forgot_password.php', // Ensure the correct path to the PHP script
+        method: 'POST',
+        data: $(this).serialize(), // Serialize form data
+        dataType: 'json', // Expect JSON response
+        success: function (resp) {
+            // Re-enable the button
+            submitButton.removeAttr('disabled').html('Submit');
 
-        // Perform AJAX request
-        $.ajax({
-            url: 'forgot_password.php', // Ensure the correct path to the PHP script
-            method: 'POST',
-            data: $(this).serialize(), // Serialize form data
-            dataType: 'json', // Expect JSON response
-            success: function (resp) {
-                // Re-enable the button
-                submitButton.removeAttr('disabled').html('Submit');
-
-                if (resp.status === 'success') {
-                    // Display success message
-                    $('#forgot-password-frm').prepend('<div class="alert alert-success">' + resp.message + '</div>');
-                } else {
-                    // Display error message
-                    $('#forgot-password-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
-                }
-            },
-            error: function (xhr, status, error) {
-                // Re-enable the button
-                submitButton.removeAttr('disabled').html('Submit');
-
-                // Display generic error message
-                console.error(xhr.responseText);
-                $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+            if (resp.status === 'success') {
+                // Display success message
+                $('#forgot-password-frm').prepend('<div class="alert alert-success">' + resp.message + '</div>');
+            } else {
+                // Display error message
+                $('#forgot-password-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
             }
-        });
+        },
+        error: function (xhr, status, error) {
+            // Re-enable the button
+            submitButton.removeAttr('disabled').html('Submit');
+
+            // Log error details for debugging
+            console.error('Error details:', {
+                responseText: xhr.responseText,
+                status: status,
+                error: error,
+            });
+
+            // Display detailed error if in development or generic error for users
+            let errorMsg = xhr.responseText || 'An unexpected error occurred. Please try again later.';
+            $('#forgot-password-frm').prepend('<div class="alert alert-danger">' + errorMsg + '</div>');
+        }
     });
+});
+
 
 
 
