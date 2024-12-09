@@ -263,11 +263,11 @@ Class Action {
     function delete_cart() {
         // Extract the cart ID from the URL parameter
         extract($_GET);
-    
+        
         // Get the product details (quantity and stock) from the cart
         $product_query = $this->db->query("SELECT c.qty, p.stock, c.product_id FROM cart c INNER JOIN product_list p ON c.product_id = p.id WHERE c.id = $id");
         $product = $product_query->fetch_assoc();
-    
+        
         if ($product) {
             // Get the product quantity in the cart and current stock
             $product_qty = $product['qty'];
@@ -286,9 +286,11 @@ Class Action {
                 $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
     
                 if ($delete_query) {
-                    // Redirect to the cart_list page after successful deletion
-                    header('Location: https://mandm-lawis.com/1/index.php?page=cart_list');
+                    // Redirect to the cart_list page if deletion is successful
+                    header('Location: index.php?page=cart_list');
                     exit;
+                }
+                
                 } else {
                     // Handle error if deletion fails
                     echo "Error: Unable to delete the item from the cart.";
@@ -303,6 +305,63 @@ Class Action {
         }
     }
     
+
+    function add_to_cart() {
+        extract($_POST);
+        
+        // Start transaction
+        $this->db->begin_transaction();
+        
+        try {
+            // Check current stock
+            $stock_check = $this->db->query("SELECT stock FROM product_list WHERE id = $pid FOR UPDATE");
+            if (!$stock_check) {
+                throw new Exception("Error checking stock");
+            }
+            
+            $current_stock = $stock_check->fetch_assoc()['stock'];
+            $qty = isset($qty) ? intval($qty) : 1;
+            
+            // Validate stock availability
+            if ($current_stock < $qty) {
+                throw new Exception("Not enough stock available. Current stock: $current_stock");
+            }
+            
+            // Prepare cart data
+            $data = " product_id = $pid ";    
+            $data .= ", qty = $qty ";    
+            
+            if(isset($_SESSION['login_user_id'])) {
+                $data .= ", user_id = '".$_SESSION['login_user_id']."' ";    
+            } else {
+                $ip = isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
+                $data .= ", client_ip = '".$ip."' ";    
+            }
+            
+            // Update stock
+            $new_stock = $current_stock - $qty;
+            $update_stock = $this->db->query("UPDATE product_list SET stock = $new_stock WHERE id = $pid");
+            if (!$update_stock) {
+                throw new Exception("Error updating stock");
+            }
+            
+            // Add to cart
+            $save = $this->db->query("INSERT INTO cart SET ".$data);
+            if (!$save) {
+                throw new Exception("Error adding to cart");
+            }
+            
+            // Commit transaction
+            $this->db->commit();
+            return 1;
+            
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->db->rollback();
+            return $e->getMessage();
+        }
+    }
+
     public function get_cart_count() {
         extract($_POST);
         
