@@ -84,19 +84,23 @@
         $('#login-section').show(); // Show login form
     });
 
-    // Handle Forgot Password Form submission
-	$('#forgot-password-frm').submit(function (e) {
+    $('#forgot-password-frm').submit(function (e) {
     e.preventDefault();
+    
     let submitButton = $('#forgot-password-frm button[type="submit"]');
     submitButton.attr('disabled', true).html('Submitting...');
 
+    // Clear previous alert messages before making a new submission
+    $('#forgot-password-frm .alert').remove();
+
     $.ajax({
-        url: 'forgot_password.php',
+        url: 'forgot_password.php',  // Ensure the correct path to your PHP script
         method: 'POST',
         data: $(this).serialize(),
         dataType: 'json',
         success: function (resp) {
             submitButton.removeAttr('disabled').html('Submit');
+            
             if (resp.status === 'success') {
                 $('#forgot-password-frm').prepend('<div class="alert alert-success">' + resp.message + '</div>');
             } else {

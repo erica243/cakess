@@ -1,5 +1,5 @@
 <?php
-require 'db_connect.php'; // Include your database connection
+require 'db_connect.php'; // Database connection
 require 'PHPMailer/PHPMailer.php';
 require 'PHPMailer/SMTP.php';
 require 'PHPMailer/Exception.php';
@@ -7,7 +7,6 @@ require 'PHPMailer/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Ensure request is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
     exit;
@@ -23,7 +22,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 global $conn;
 
-// Check if email exists in the database
+// Check if email exists
 $stmt = $conn->prepare("SELECT user_id FROM user_info WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
@@ -34,19 +33,19 @@ if ($result->num_rows === 0) {
     exit;
 }
 
-// Generate OTP
+// Generate OTP and expiry
 $otp = rand(100000, 999999);
 $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
-// Store OTP and expiry in the database
-$stmt = $conn->prepare("UPDATE user_info SET otp = ?, otp_expiry = ?, reset_time = CURRENT_TIME() WHERE email = ?");
+// Store OTP in the database
+$stmt = $conn->prepare("UPDATE user_info SET otp = ?, otp_expiry = ? WHERE email = ?");
 $stmt->bind_param("iss", $otp, $expiry, $email);
 if (!$stmt->execute()) {
     echo json_encode(['status' => 'error', 'message' => 'Failed to store OTP']);
     exit;
 }
 
-// Send email with PHPMailer
+// Send OTP email
 $mail = new PHPMailer(true);
 
 try {
@@ -54,7 +53,7 @@ try {
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
     $mail->Username = 'mandmcakeorderingsystem@gmail.com'; 
-    $mail->Password = 'dgld kvqo yecu wdka'; // Ensure correct credentials
+    $mail->Password = 'dgld kvqo yecu wdka'; 
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
@@ -65,15 +64,13 @@ try {
     $mail->Subject = 'Password Reset OTP';
     $mail->Body = "
         <h2>Password Reset Request</h2>
-        <p>Your OTP for password reset is: <strong>$otp</strong></p>
-        <p>This OTP will expire in 15 minutes.</p>
-        <p>If you didn't request this, please ignore this email.</p>
+        <p>Your OTP is: <strong>$otp</strong></p>
+        <p>This OTP expires in 15 minutes.</p>
     ";
 
     $mail->send();
     echo json_encode(['status' => 'success', 'message' => 'OTP sent to your email']);
 } catch (Exception $e) {
-    error_log("PHPMailer Error: " . $mail->ErrorInfo);
-    echo json_encode(['status' => 'error', 'message' => 'Email could not be sent. Error: ' . $mail->ErrorInfo]);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to send email: ' . $mail->ErrorInfo]);
 }
 ?>
