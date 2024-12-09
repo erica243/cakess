@@ -1,96 +1,99 @@
 <?php
+// Strict error reporting
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Include necessary files
-require 'db_connect.php'; // Database connection
-require 'PHPMailer/PHPMailer.php';
-require 'PHPMailer/SMTP.php';
-require 'PHPMailer/Exception.php';
+require_once 'db_connect.php'; // Ensure this path is correct
+require_once 'PHPMailer/PHPMailer.php';
+require_once 'PHPMailer/SMTP.php';
+require_once 'PHPMailer/Exception.php';
 
 // Use PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Display errors for debugging purposes
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
+// Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
     exit;
 }
 
-// Get the email from the POST request and validate it
+// Validate incoming email
+if (!isset($_POST['email'])) {
+    echo json_encode(['status' => 'error', 'message' => 'Email is required']);
+    exit;
+}
+
 $email = trim($_POST['email']);
 
-// Validate the email address
+// Validate email format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
     exit;
 }
 
-global $conn;
-
-// Check if the email exists in the database
-$stmt = $conn->prepare("SELECT user_id FROM user_info WHERE email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo json_encode(['status' => 'error', 'message' => 'Email not found']);
-    exit;
-}
-
-// Generate a random 6-digit OTP
-$otp = rand(100000, 999999);
-
-// Set OTP expiry time (15 minutes from now)
-$expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-
-// Store the OTP and expiry time in the database
-$stmt = $conn->prepare("UPDATE user_info SET otp = ?, otp_expiry = ? WHERE email = ?");
-$stmt->bind_param("iss", $otp, $expiry, $email);
-if (!$stmt->execute()) {
-    echo json_encode(['status' => 'error', 'message' => 'Failed to store OTP']);
-    exit;
-}
-
-// Create a PHPMailer instance to send the OTP email
-$mail = new PHPMailer(true);
-
 try {
-    // Server settings
+    // Check database connection
+    if (!$conn) {
+        throw new Exception('Database connection failed');
+    }
+
+    // Prepare and execute email check
+    $stmt = $conn->prepare("SELECT user_id FROM user_info WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Email not found in our system']);
+        exit;
+    }
+
+    // Generate OTP
+    $otp = sprintf("%06d", mt_rand(1, 999999));
+    $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+    // Update user with OTP
+    $update_stmt = $conn->prepare("UPDATE user_info SET otp = ?, otp_expiry = ? WHERE email = ?");
+    $update_stmt->bind_param("iss", $otp, $expiry, $email);
+    
+    if (!$update_stmt->execute()) {
+        throw new Exception('Failed to store OTP: ' . $update_stmt->error);
+    }
+
+    // Send email
+    $mail = new PHPMailer(true);
     $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com'; // Gmail SMTP server
+    $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'mandmcakeorderingsystem@gmail.com'; // Your Gmail address
-    $mail->Password = 'dgld kvqo yecu wdka'; // App password
+    $mail->Username = 'mandmcakeorderingsystem@gmail.com';
+    $mail->Password = 'dgld kvqo yecu wdka';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
 
-    // Recipients
     $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
     $mail->addAddress($email);
-
-    // Content
     $mail->isHTML(true);
     $mail->Subject = 'Password Reset OTP';
     $mail->Body = "
         <h2>Password Reset Request</h2>
         <p>Your OTP is: <strong>$otp</strong></p>
-        <p>This OTP expires in 15 minutes.</p>
+        <p>This OTP will expire in 15 minutes.</p>
     ";
 
-    // Send email
     $mail->send();
 
-    // Respond with success message
     echo json_encode(['status' => 'success', 'message' => 'OTP sent to your email']);
+
 } catch (Exception $e) {
-    // Log error details if email fails
-    error_log($e->getMessage(), 3, 'errors.log'); // Log the error in 'errors.log'
-
-    // Respond with error message
-    echo json_encode(['status' => 'error', 'message' => 'Failed to send email: ' . $mail->ErrorInfo]);
+    // Log full error details
+    error_log('Forgot Password Error: ' . $e->getMessage(), 3, 'forgot_password_errors.log');
+    
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'An unexpected error occurred. Please try again later.',
+        'debug' => $e->getMessage()  // Only for development, remove in production
+    ]);
 }
-
 ?>
