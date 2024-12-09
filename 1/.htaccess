@@ -32,13 +32,18 @@ RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
   # Disable content sniffing to prevent MIME-type confusion attacks
   Header set X-Content-Type-Options nosniff
 </IfModule>
-# Add to .htaccess
+
+# Block access to hidden files (starting with a dot)
 <FilesMatch "^\.">
     Order allow,deny
     Deny from all
 </FilesMatch>
+
 # Remove .php extension from URLs (only for browser navigation)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteCond %{REQUEST_URI} !^/register_step2\.php$ [NC]
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# Optional: Ensure the home page is accessible without extension
+RewriteRule ^home$ /1/index.php?page=home [L]
