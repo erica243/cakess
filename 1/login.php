@@ -108,13 +108,14 @@
             }
         },
         error: function (xhr, status, error) {
-    submitButton.removeAttr('disabled').html('Submit');
-    console.error("Error: " + status + ": " + error);
-    console.error(xhr.responseText);
-    $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
-}
+            submitButton.removeAttr('disabled').html('Submit');
+            console.error("Error: " + status + ": " + error);
+            console.error(xhr.responseText);  // This will log the detailed error message from the server
+            $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+        }
     });
 });
+
 
     // Existing Login Form submission logic
     $('#login-frm').submit(function (e) {
