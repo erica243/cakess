@@ -73,6 +73,16 @@
 	});
  
 
+    // Handle navigation between login and forgot password sections
+    $('#forgot_password').click(function () {
+        $('#login-section').hide(); // Hide login form
+        $('#forgot-password-section').show(); // Show forgot password form
+    });
+
+    $('#back_to_login').click(function () {
+        $('#forgot-password-section').hide(); // Hide forgot password form
+        $('#login-section').show(); // Show login form
+    });
     $('#forgot-password-frm').submit(function (e) {
     e.preventDefault();
     
