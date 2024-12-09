@@ -93,7 +93,7 @@
     $('#forgot-password-frm .alert').remove();
 
     $.ajax({
-        url: 'forgot_password.php',  // Ensure the correct path to your PHP script
+        url: 'ajax.php?action=forgot_password',  // Ensure the correct path to your PHP script
         method: 'POST',
         data: $(this).serialize(),
         dataType: 'json',
