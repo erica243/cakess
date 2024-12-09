@@ -3,6 +3,11 @@
 ob_start();
 include 'db_connect.php'; // This should define $conn for database operations
 include 'admin_class.php';
+require '../vendor/autoload.php';
+
+// Use PHPMailer namespace
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 $crud = new Action();
 
 // Check if 'action' exists in either GET or POST
@@ -170,12 +175,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['action'] == 'update_delivery
     $status = $_POST['status'];
 
     // Validate input
-    $allowed_statuses = ['pending', 'confirmed', 'preparing', 'ready', 'in_transit','delivered'];
+    $allowed_statuses = ['pending', 'confirmed', 'preparing', 'ready', 'in_transit', 'delivered'];
     if (!in_array($status, $allowed_statuses)) {
         echo json_encode(['success' => false, 'message' => 'Invalid delivery status.']);
         exit;
     }
-    
+
     // Prepare the statement
     $stmt = $conn->prepare("UPDATE orders SET delivery_status = ? WHERE id = ?");
     if (!$stmt) {
@@ -188,14 +193,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_GET['action'] == 'update_delivery
 
     // Execute the statement
     if ($stmt->execute()) {
-        // Log successful update
         error_log("Delivery status updated for order ID $orderId to '$status'.");
+
+        if ($status === 'confirmed') {
+            // Fetch customer details and send email
+            $stmt = $conn->prepare("SELECT name, email, order_number FROM orders WHERE id = ?");
+            $stmt->bind_param("i", $orderId);
+            $stmt->execute();
+            $order = $stmt->get_result()->fetch_assoc();
+
+            $name = $order['name'];
+            $email = $order['email'];
+            $orderNumber = $order['order_number'];
+
+            $mail = new PHPMailer(true);
+
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'mandmcakeorderingsystem@gmail.com';
+                $mail->Password = 'dgld kvqo yecu wdka';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+
+                $mail->setFrom('mandmcakeorderingsystem@gmail.com', 'M&M Cake Ordering System');
+                $mail->addAddress($email, $name);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Order Confirmation';
+                $mail->Body = "
+                    <h3>Dear $name,</h3>
+                    <p>Your order (Order Number: $orderNumber) has been <strong>confirmed</strong>.</p>
+                    <p>Thank you for shopping with us!</p>
+                    <br>
+                    <p>Best Regards,<br>M&M Cake Ordering System</p>";
+
+                $mail->send();
+                error_log("Confirmation email sent to $email for order ID $orderId.");
+            } catch (Exception $e) {
+                error_log("Failed to send email: " . $mail->ErrorInfo);
+                echo json_encode(['success' => false, 'message' => "Delivery status updated, but email could not be sent. Error: {$mail->ErrorInfo}"]);
+                exit;
+            }
+        }
+
         echo json_encode(['success' => true, 'message' => 'Delivery status updated successfully.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error updating delivery status: ' . $stmt->error]);
     }
 
-    // Close the statement
     $stmt->close();
 }
 if ($action == 'send_otp') {
@@ -300,4 +347,18 @@ if($action == "update_order_status") {
     if($update)
         echo 1;
 }
+
+if (isset($_POST['action']) && $_POST['action'] == 'send_receipt') {
+    $orderId = $_POST['order_id']; // Get order ID
+    $email = $_POST['email']; // Get customer email
+    
+    // Fetch order details from the database based on $orderId
+    // Example: You can retrieve the receipt HTML or generate it from data
+    $receiptHtml = "<h1>Receipt for Order #$orderId</h1>";
+    $receiptHtml .= "<p>Details of the order...</p>"; // Add order details here
+
+    // Send email
+    sendEmail($email, $receiptHtml);
+}
+
 ?>
