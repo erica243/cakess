@@ -287,7 +287,7 @@ Class Action {
     
                 if ($delete_query) {
                     // Use JavaScript to redirect to the cart_list page
-                    echo "<script>window.location.href = 'index.php?page=cart_list';</script>";
+                    echo "<script>window.location.href = '?page=cart_list';</script>";
                     exit;
                 } else {
                     // Handle error if deletion fails
