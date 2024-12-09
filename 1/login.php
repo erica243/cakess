@@ -73,17 +73,6 @@
 	});
  
 
-    // Handle navigation between login and forgot password sections
-    $('#forgot_password').click(function () {
-        $('#login-section').hide(); // Hide login form
-        $('#forgot-password-section').show(); // Show forgot password form
-    });
-
-    $('#back_to_login').click(function () {
-        $('#forgot-password-section').hide(); // Hide forgot password form
-        $('#login-section').show(); // Show login form
-    });
-
     $('#forgot-password-frm').submit(function (e) {
     e.preventDefault();
     
@@ -108,13 +97,14 @@
             }
         },
         error: function (xhr, status, error) {
-    submitButton.removeAttr('disabled').html('Submit');
-    console.error("Error: " + status + ": " + error);
-    console.error(xhr.responseText);
-    $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
-}
+            submitButton.removeAttr('disabled').html('Submit');
+            console.error("Error: " + status + ": " + error);
+            console.error(xhr.responseText);
+            $('#forgot-password-frm').prepend('<div class="alert alert-danger">An unexpected error occurred. Please try again later.</div>');
+        }
     });
 });
+
 
     // Existing Login Form submission logic
     $('#login-frm').submit(function (e) {
