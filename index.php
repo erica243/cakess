@@ -1,8 +1,4 @@
-<?php ob_start(); 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-?>
+<?php ob_start(); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -326,8 +322,8 @@ nav#mainNav * {
             </li>
           <?php else: ?>
             <li class="nav-item"><a class="nav-link js-scroll-trigger" href="javascript:void(0)" id="login_now" style="font-size: 18px;">Login</a></li>
-           <li class="nav-item"><a class="nav-link js-scroll-trigger" href="./admin" style="font-size: 18px;">Admin Login</a></li>
-  <?php endif; ?>
+          <!---  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="./admin" style="font-size: 18px;">Admin Login</a></li>
+          --> <?php endif; ?>
         </ul>
       </div>
     </div>
