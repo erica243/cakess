@@ -49,6 +49,6 @@ RewriteRule ^([^\.]+)$ $1.php [NC,L]
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond %{REQUEST_URI} \.php$
 RewriteRule ^(.*)\.php$ /$1 [R=301,L]
-co
+
 # Optional: Ensure the home page is accessible without extension
 RewriteRule ^home$ /1/index.php?page=home [L]
