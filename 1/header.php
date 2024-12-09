@@ -1,15 +1,4 @@
 <?php 
-// Strict-Transport-Security: Enforces HTTPS
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-
-// X-Content-Type-Options: Prevents content type sniffing
-header("X-Content-Type-Options: nosniff");
-
-// Referrer-Policy: Controls the information sent in the referrer header
-header("Referrer-Policy: no-referrer");
-
-// Permissions-Policy: Limits browser features
-header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 
 
 function load_data() {
