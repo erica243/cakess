@@ -282,7 +282,7 @@ if($action == "forgot_password"){
         // Send email
         $to = $email;
         $subject = "Password Reset Request";
-        $reset_link = "http://mandm-lawis.com/1/reset_password.php?code=".$code."&email=".$email;
+        $reset_link = "http://mandm-lawis.com/reset_password.php?code=".$code."&email=".$email;
         $message = "Click the following link to reset your password: ".$reset_link;
         $headers = "From: your@email.com";
         
@@ -295,6 +295,7 @@ if($action == "forgot_password"){
     }
     echo json_encode($resp);
 }
+
 
 
 if(isset($_GET['action'])) {
