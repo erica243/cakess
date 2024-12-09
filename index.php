@@ -326,8 +326,7 @@ nav#mainNav * {
             </li>
           <?php else: ?>
             <li class="nav-item"><a class="nav-link js-scroll-trigger" href="javascript:void(0)" id="login_now" style="font-size: 18px;">Login</a></li>
-          <!---  <li class="nav-item"><a class="nav-link js-scroll-trigger" href="./admin" style="font-size: 18px;">Admin Login</a></li>
-          --> <?php endif; ?>
+ <?php endif; ?>
         </ul>
       </div>
     </div>
