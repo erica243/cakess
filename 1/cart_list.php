@@ -247,9 +247,8 @@ $('.rem_cart').click(function(e){
                     id: id
                 },
                 success: function(response) {
-                    // Check for success response from PHP
-                    if (response == 'success') {
-                        // Reload the page to update the cart
+                    if (response === 'success') {
+                        // Show SweetAlert success message and reload the page
                         Swal.fire(
                             'Deleted!',
                             'The item has been removed from your cart.',
