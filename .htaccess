@@ -1,45 +1,52 @@
-# HTID:23422420: DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES BELOW
-php_value display_errors 1
-# DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES ABOVE HTID:23422420:
-
-# Enable URL rewriting
+# Enable Rewrite Engine
 RewriteEngine On
 
-# Block redirection to any external domain except mandm-lawis.com
-RewriteCond %{HTTP_HOST} !^mandm-lawis\.com$ [NC]
-RewriteRule ^ - [F,L]
+# Force HTTPS (recommended for security)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Prevent access to .htaccess file itself for security
-<Files .htaccess>
-  Order allow,deny
-  Deny from all
-  Satisfy all
-</Files>
+# Redirect www to non-www (clean domain)
+RewriteCond %{HTTP_HOST} ^www\.mandm-lawis\.com [NC]
+RewriteRule ^(.*)$ https://mandm-lawis.com/$1 [L,R=301]
 
-# Prevent hotlinking (cross-site request)
-RewriteCond %{HTTP_REFERER} !^$
-RewriteCond %{HTTP_REFERER} !^https?://(www\.)?mandm-lawis\.com/ [NC]
-RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F,L]
+# URL Rewriting Rules (for clean URLs)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
 
-# XSS and clickjacking prevention
-<IfModule mod_headers.c>
-  # Prevent embedding the site in an iframe to avoid clickjacking
-  Header always append X-Frame-Options SAMEORIGIN
+# Block Access to Sensitive Files
+<FilesMatch "\.(env|ini|log|sh|sql|bak)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
 
-  # Enable XSS protection in browsers
-  Header set X-XSS-Protection "1; mode=block"
+# Set Custom Error Pages
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
 
-  # Disable content sniffing to prevent MIME-type confusion attacks
-  Header set X-Content-Type-Options nosniff
+# Increase PHP Limits (if allowed by hosting)
+php_value upload_max_filesize 10M
+php_value post_max_size 12M
+php_value max_execution_time 300
+php_value max_input_time 300
+
+# Prevent Directory Listing
+Options -Indexes
+
+# Cache Control (to improve performance)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresDefault "access plus 1 day"
 </IfModule>
-# Add to .htaccess
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
 
-# Prevent direct access to PHP files
-<FilesMatch "^(?!index\.php$).*\.php$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+# Cross-Origin Resource Sharing (CORS) Setup (if needed)
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET,POST,OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>
