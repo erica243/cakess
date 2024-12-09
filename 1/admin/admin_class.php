@@ -286,8 +286,8 @@ Class Action {
                 $delete_query = $this->db->query("DELETE FROM cart WHERE id = $id");
     
                 if ($delete_query) {
-                    // Use JavaScript to redirect to the cart_list page
-                    echo "<script>window.location.href = '?page=cart_list';</script>";
+                    // Use JavaScript to reload the page after successful deletion
+                    echo "<script>window.location.reload();</script>";
                     exit;
                 } else {
                     // Handle error if deletion fails
