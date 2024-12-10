@@ -13,7 +13,8 @@
                 <small><a href="javascript:void(0)" class="text-dark" id="new_account">Create New Account</a></small>
             </div>
              
-           
+            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+
             <button class="button btn btn-dark btn-sm">Login</button>
             <div>
                 <br><a href="javascript:void(0)" class="text-dark" id="forgot_password">Forgot Password?</a>
