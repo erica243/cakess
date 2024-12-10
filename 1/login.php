@@ -49,46 +49,44 @@
 		uni_modal("Create an Account", 'signup.php?redirect=index.php?page=home')
 	})
     $('#login-frm').submit(function (e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
 
-        // Disable button and show loading text
+        // Disable the submit button
         $('#login-frm button[type="submit"]').attr('disabled', true).html('Logging in...');
 
-        if ($(this).find('.alert-danger').length > 0)
+        // Remove previous alerts if any
+        if ($(this).find('.alert-danger').length > 0) {
             $(this).find('.alert-danger').remove();
+        }
 
-        // Generate reCAPTCHA v3 token
+        // Generate reCAPTCHA token
         grecaptcha.execute('6LcoapYqAAAAADr1OaM8FGmlLTTnF0nNkGOCmVI0', { action: 'login' }).then(function (token) {
-            // Append token to the form data
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'recaptcha_token',
-                value: token
-            }).appendTo('#login-frm');
+            // Append the generated token as a hidden input field
+            $('#g-recaptcha-response').val(token);
 
             // Submit the form via AJAX
             $.ajax({
                 url: 'admin/ajax.php?action=login2',
                 method: 'POST',
-                data: $('#login-frm').serialize(),
+                data: $('#login-frm').serialize(), // Serialize form data, including reCAPTCHA token
                 dataType: 'json',
-                error: function (err) {
-                    console.log(err);
-                    $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
-                },
                 success: function (resp) {
                     if (resp.status === 'success') {
                         location.href = '<?php echo isset($_GET['redirect']) ? $_GET['redirect'] : 'index.php?page=home' ?>';
                     } else {
                         $('#login-frm').prepend('<div class="alert alert-danger">' + resp.message + '</div>');
-                        $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
                     }
+                    $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
+                },
+                error: function (err) {
+                    console.error(err);
+                    $('#login-frm button[type="submit"]').removeAttr('disabled').html('Login');
                 }
             });
         });
     });
- 
 
+    
     // Handle navigation between login and forgot password sections
     $('#forgot_password').click(function () {
         $('#login-section').hide(); // Hide login form
