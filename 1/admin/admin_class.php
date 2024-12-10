@@ -37,15 +37,29 @@ Class Action {
         extract($_POST);
     
         // Verify reCAPTCHA token
-        $recaptcha_secret = '6LcoapYqAAAAAKvZv36lF1Ru5fk24phEAjbhMak4'; // Replace with your secret key
+        $recaptcha_secret = '6LcoapYqAAAAAKvZv36lF1Ru5fk24phEAjbhMak4';
         $recaptcha_response = $_POST['recaptcha_token'];
     
-        // Verify the token using Google reCAPTCHA API
-        $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptcha_secret&response=$recaptcha_response");
-        $response_data = json_decode($verify);
+        // Debug: Check if recaptcha_token is received
+        if (empty($recaptcha_response)) {
+            error_log("No reCAPTCHA token received.");
+            return json_encode(['status' => 'error', 'message' => 'reCAPTCHA token is missing.']);
+        }
     
-        // Check the response score (threshold set to 0.5 for human-like behavior)
-        if (!$response_data->success || $response_data->score < 0.5) {
+        // Verify the token using Google reCAPTCHA API
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.google.com/recaptcha/api/siteverify");
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(['secret' => $recaptcha_secret, 'response' => $recaptcha_response]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $verify = curl_exec($ch);
+        curl_close($ch);
+        $response_data = json_decode($verify, true);
+    
+        // Debug: Log the full reCAPTCHA response
+        error_log(print_r($response_data, true));
+    
+        if (!$response_data['success'] || $response_data['score'] < 0.5) {
             return json_encode(['status' => 'error', 'message' => 'reCAPTCHA verification failed. Please try again.']);
         }
     
