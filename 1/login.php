@@ -42,7 +42,7 @@
     }
  
 </style>
- 
+<script src="https://www.google.com/recaptcha/api.js?render=6LcoapYqAAAAADr1OaM8FGmlLTTnF0nNkGOCmVI0"></script>
 <script>
     $('#new_account').click(function () {
 		uni_modal("Create an Account", 'signup.php?redirect=index.php?page=home')
